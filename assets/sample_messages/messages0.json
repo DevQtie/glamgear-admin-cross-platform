@@ -1,0 +1,20 @@
+[
+    {
+        "id": "1",
+        "author": {
+            "id": "82091008-a484-4a89-ae75-a22bf8d6f3ac"
+        },
+        "createdAt": 1625257800000,
+        "text": "Hello, how are you?",
+        "type": "text"
+    },
+    {
+        "id": "2",
+        "author": {
+            "id": "82091008-a484-4a89-ae75-a22bf8d6f3ac"
+        },
+        "createdAt": 1625257820000,
+        "text": "I am good, thank you!",
+        "type": "text"
+    }
+]

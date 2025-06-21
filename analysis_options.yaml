@@ -1,0 +1,80 @@
+# This file configures the analyzer, which statically analyzes Dart code to
+# check for errors, warnings, and lints.
+#
+# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
+# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
+# invoked from the command line by running `flutter analyze`.
+
+# The following line activates a set of recommended lints for Flutter apps,
+# packages, and plugins designed to encourage good coding practices.
+analyzer:
+  errors:
+    prefer_const_constructors: ignore
+    invalid_annotation_target: ignore
+  exclude:
+    - "build/**"
+    - "**.g.dart"
+    - "**.freezed.dart"
+  plugins:
+    - custom_lint
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  # The lint rules applied to this project can be customized in the
+  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
+  # included above or to enable additional rules. A list of all available lints
+  # and their documentation is published at https://dart.dev/lints.
+  #
+  # Instead of disabling a lint rule for the entire project in the
+  # section below, it can also be suppressed for a single line of code
+  # or a specific dart file by using the `// ignore: name_of_lint` and
+  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
+  # producing the lint.
+  rules:
+    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
+    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+
+    avoid_print: true
+
+    # Explanation: When set to true, this rule would trigger a lint warning or error whenever the print function is used in the code.
+    # false: Disables the lint rule, allowing the use of print statements without warnings or errors.
+    # Usage: Generally, print statements are discouraged in production code as they are often used for debugging purposes. This rule helps ensure that debug prints are removed.
+
+    prefer_const_constructors_in_immutables: false
+
+    # Explanation: When set to true, this rule would trigger a lint warning or error if a constant constructor is not used in immutable classes.
+    # false: Disables the lint rule, so you are not required to use constant constructors in immutable classes.
+    # Usage: Using constant constructors in immutable classes can improve performance by allowing Flutter to optimize widget rebuilds.
+
+    prefer_const_constructors: true
+
+    # Explanation: When set to true, this rule would trigger a lint warning or error if constructors that can be marked as const are not marked as such.
+    # false: Disables the lint rule, so you are not required to mark constructors as const.
+    # Usage: Marking constructors as const where possible can improve performance by enabling Flutter to reuse widgets rather than creating new instances.
+
+    prefer_const_literals_to_create_immutables: true
+
+    # Explanation: When set to true, this rule would trigger a lint warning or error if immutable collections (like lists, maps) are not created using const.
+    # false: Disables the lint rule, so you are not required to use const for creating immutable collections.
+    # Usage: Using const for immutable collections can improve performance by reducing unnecessary object creation.
+
+    prefer_final_fields: true
+
+    # Explanation: When set to true, this rule would trigger a lint warning or error if fields that can be marked as final are not marked as such.
+    # false: Disables the lint rule, so you are not required to mark fields as final.
+    # Usage: Marking fields as final can improve code clarity and help catch unintended modifications.
+
+    unnecessary_breaks: true
+
+    # Explanation: When set to true, this rule would trigger a lint warning or error if there are break statements in switch cases that are unnecessary (e.g., the break is followed by a return or the case ends with the closing brace).
+    # true: Enables the lint rule to discourage unnecessary break statements.
+    # Usage: This helps to keep the code cleaner by avoiding redundant statements.
+
+    use_key_in_widget_constructors: true
+
+    # Explanation: When set to true, this rule would trigger a lint warning or error if a key is not provided in the constructor of a widget.
+    # false: Disables the lint rule, so you are not required to include a key in widget constructors.
+    # Usage: Including keys in widget constructors can help Flutter manage the widget tree efficiently, especially when dealing with lists or dynamic content.
+
+# Additional information about this file can be found at
+# https://dart.dev/guides/language/analysis-options

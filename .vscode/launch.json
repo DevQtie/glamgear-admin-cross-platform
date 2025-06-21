@@ -1,0 +1,42 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        
+        {
+            "name": "Flutter Web DevQt (Chrome)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "flutterMode": "debug",
+            "args": [
+                "-d",
+                "chrome",
+                "--web-port=1000"
+            ]
+        },
+        {
+            "name": "glamgear",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "glamgear (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "glamgear (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "vscode2 (Flutter Tests)",
+            "program": "test",
+            "request": "launch",
+            "type": "dart"
+        }
+    ]
+}

@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.4" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.4)" variant="all" version="8.1.4">
+
+    <issue
+        id="ScopedStorage"
+        message="WRITE_EXTERNAL_STORAGE is deprecated (and is not granted) when targeting Android 13+. If you need to write to shared storage, use the `MediaStore.createWriteRequest` intent."
+        errorLine1="&lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot; />"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="6"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ScopedStorage"
+        message="READ_EXTERNAL_STORAGE is deprecated (and is not granted) when targeting Android 13+. If you need to query or interact with MediaStore or media files on the shared storage, you should instead use one or more new storage permissions: `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO` or `READ_MEDIA_AUDIO`."
+        errorLine1="&lt;uses-permission android:name=&quot;android.permission.READ_EXTERNAL_STORAGE&quot; />"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="7"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ScopedStorage"
+        message="WRITE_EXTERNAL_STORAGE is deprecated (and is not granted) when targeting Android 13+. If you need to write to shared storage, use the `MediaStore.createWriteRequest` intent."
+        errorLine1="&lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot; />"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/debug/AndroidManifest.xml"
+            line="10"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ScopedStorage"
+        message="READ_EXTERNAL_STORAGE is deprecated (and is not granted) when targeting Android 13+. If you need to query or interact with MediaStore or media files on the shared storage, you should instead use one or more new storage permissions: `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO` or `READ_MEDIA_AUDIO`."
+        errorLine1="&lt;uses-permission android:name=&quot;android.permission.READ_EXTERNAL_STORAGE&quot; />"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/debug/AndroidManifest.xml"
+            line="11"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`android:forceDarkAllowed` requires API level 29 (current min is 23)"
+        errorLine1="        &lt;item name=&quot;android:forceDarkAllowed&quot;>false&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-night/styles.xml"
+            line="8"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`android:forceDarkAllowed` requires API level 29 (current min is 23)"
+        errorLine1="        &lt;item name=&quot;android:forceDarkAllowed&quot;>false&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/styles.xml"
+            line="8"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`android:windowLayoutInDisplayCutoutMode` requires API level 27 (current min is 23)"
+        errorLine1="        &lt;item name=&quot;android:windowLayoutInDisplayCutoutMode&quot;>shortEdges&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-night/styles.xml"
+            line="11"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`android:windowLayoutInDisplayCutoutMode` requires API level 27 (current min is 23)"
+        errorLine1="        &lt;item name=&quot;android:windowLayoutInDisplayCutoutMode&quot;>shortEdges&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/styles.xml"
+            line="11"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `enableOnBackInvokedCallback` is only used in API level 33 and higher (current min is 23)"
+        errorLine1="        android:enableOnBackInvokedCallback=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="16"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `drawable-night`.">
+        <location
+            file="src/main/res/drawable-night-v21"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `drawable`.">
+        <location
+            file="src/main/res/drawable-v21"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.mipmap.ic_launcher` appears to be unused">
+        <location
+            file="src/main/res/mipmap-hdpi/ic_launcher.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.xml.net_sec_conf` appears to be unused"
+        errorLine1="&lt;network-security-config>"
+        errorLine2="^">
+        <location
+            file="src/main/res/xml/net_sec_conf.xml"
+            line="6"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `android12splash.png` icon has identical contents in the following configuration folders: drawable-hdpi, drawable-night-hdpi">
+        <location
+            file="src/main/res/drawable-night-hdpi/android12splash.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/android12splash.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `android12splash.png` icon has identical contents in the following configuration folders: drawable-mdpi, drawable-night-mdpi">
+        <location
+            file="src/main/res/drawable-night-mdpi/android12splash.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/android12splash.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `android12splash.png` icon has identical contents in the following configuration folders: drawable-night-xhdpi, drawable-xhdpi">
+        <location
+            file="src/main/res/drawable-xhdpi/android12splash.png"/>
+        <location
+            file="src/main/res/drawable-night-xhdpi/android12splash.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `android12splash.png` icon has identical contents in the following configuration folders: drawable-night-xxhdpi, drawable-xxhdpi">
+        <location
+            file="src/main/res/drawable-xxhdpi/android12splash.png"/>
+        <location
+            file="src/main/res/drawable-night-xxhdpi/android12splash.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `android12splash.png` icon has identical contents in the following configuration folders: drawable-night-xxxhdpi, drawable-xxxhdpi">
+        <location
+            file="src/main/res/drawable-xxxhdpi/android12splash.png"/>
+        <location
+            file="src/main/res/drawable-night-xxxhdpi/android12splash.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `background.png` icon has identical contents in the following configuration folders: drawable-night-v21, drawable-night, drawable-v21, drawable">
+        <location
+            file="src/main/res/drawable/background.png"/>
+        <location
+            file="src/main/res/drawable-v21/background.png"/>
+        <location
+            file="src/main/res/drawable-night/background.png"/>
+        <location
+            file="src/main/res/drawable-night-v21/background.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `splash.png` icon has identical contents in the following configuration folders: drawable-hdpi, drawable-night-hdpi">
+        <location
+            file="src/main/res/drawable-night-hdpi/splash.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/splash.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `splash.png` icon has identical contents in the following configuration folders: drawable-mdpi, drawable-night-mdpi">
+        <location
+            file="src/main/res/drawable-night-mdpi/splash.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/splash.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `splash.png` icon has identical contents in the following configuration folders: drawable-night-xhdpi, drawable-xhdpi">
+        <location
+            file="src/main/res/drawable-xhdpi/splash.png"/>
+        <location
+            file="src/main/res/drawable-night-xhdpi/splash.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `splash.png` icon has identical contents in the following configuration folders: drawable-night-xxhdpi, drawable-xxhdpi">
+        <location
+            file="src/main/res/drawable-xxhdpi/splash.png"/>
+        <location
+            file="src/main/res/drawable-night-xxhdpi/splash.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `splash.png` icon has identical contents in the following configuration folders: drawable-night-xxxhdpi, drawable-xxxhdpi">
+        <location
+            file="src/main/res/drawable-xxxhdpi/splash.png"/>
+        <location
+            file="src/main/res/drawable-night-xxxhdpi/splash.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/background.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/background.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: android12branding.png, branding.png, android12branding.png, branding.png">
+        <location
+            file="src/main/res/drawable-night-hdpi/branding.png"/>
+        <location
+            file="src/main/res/drawable-night-hdpi-v31/android12branding.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/branding.png"/>
+        <location
+            file="src/main/res/drawable-hdpi-v31/android12branding.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: android12branding.png, branding.png, android12branding.png, branding.png">
+        <location
+            file="src/main/res/drawable-night-mdpi/branding.png"/>
+        <location
+            file="src/main/res/drawable-night-mdpi-v31/android12branding.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/branding.png"/>
+        <location
+            file="src/main/res/drawable-mdpi-v31/android12branding.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: android12branding.png, branding.png, android12branding.png, branding.png">
+        <location
+            file="src/main/res/drawable-xhdpi/branding.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi-v31/android12branding.png"/>
+        <location
+            file="src/main/res/drawable-night-xhdpi/branding.png"/>
+        <location
+            file="src/main/res/drawable-night-xhdpi-v31/android12branding.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: android12branding.png, branding.png, android12branding.png, branding.png">
+        <location
+            file="src/main/res/drawable-xxhdpi/branding.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi-v31/android12branding.png"/>
+        <location
+            file="src/main/res/drawable-night-xxhdpi/branding.png"/>
+        <location
+            file="src/main/res/drawable-night-xxhdpi-v31/android12branding.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicates"
+        message="The following unrelated icon files have identical contents: android12branding.png, branding.png, android12branding.png, branding.png">
+        <location
+            file="src/main/res/drawable-xxxhdpi/branding.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi-v31/android12branding.png"/>
+        <location
+            file="src/main/res/drawable-night-xxxhdpi/branding.png"/>
+        <location
+            file="src/main/res/drawable-night-xxxhdpi-v31/android12branding.png"/>
+    </issue>
+
+</issues>
