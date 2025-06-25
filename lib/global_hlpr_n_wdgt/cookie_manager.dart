@@ -4,9 +4,9 @@ class CookieManager {
   static void addToCookie(String key, dynamic value) {
     // 2592000 sec = 30 days.
     // 1296000 sec = 15 days.
-    // 604800 sec = 7 days.
-    int oneDay = 86400; // 1 day.
-    html.window.document.cookie = "$key=$value; max-age=$oneDay; path=/;";
+    int sevenDays = 604800; // 7 days.
+    //int oneDay = 86400; // 1 day.
+    html.window.document.cookie = "$key=$value; max-age=$sevenDays; path=/;";
   }
 
   static bool? getCookieBool(String key) {

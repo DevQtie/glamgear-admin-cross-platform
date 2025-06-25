@@ -316,19 +316,13 @@ class _FormContentState extends ConsumerState<_FormContent> {
                 onHover: (isHovered) =>
                     setState(() => _isHoveredMN = isHovered),
                 onPressed: () {
-                  if (kIsWeb) {
-                    CookieManager.addToCookie('functionKey', 'sign-in');
-                    CookieManager.addToCookie('isRegistration', false);
-                    context.go('///access-thru-mobile-no', extra: {
-                      'functionKey': 'sign-in',
-                      'isRegistration': false
-                    });
-                  } else {
-                    GoRouter.of(context).push('/access-thru-mobile-no', extra: {
-                      'functionKey': 'sign-in',
-                      'isRegistration': false
-                    });
-                  }
+                  CookieManager.addToCookie('functionKey', 'sign-in');
+                  CookieManager.addToCookie('isRegistration', false);
+                  GoRouter.of(context).push('/glamgear/access-thru-mobile-no',
+                      extra: {
+                        'functionKey': 'sign-in',
+                        'isRegistration': false
+                      });
                 },
                 style: TextButton.styleFrom(
                   textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -362,9 +356,7 @@ class _FormContentState extends ConsumerState<_FormContent> {
                 onHover: (isHovered) =>
                     setState(() => _isHoveredPW = isHovered),
                 onPressed: () {
-                  kIsWeb
-                      ? context.go('///sign-in-thru-password')
-                      : GoRouter.of(context).push('/sign-in-thru-password');
+                  GoRouter.of(context).push('/glamgear/sign-in-thru-password');
                 },
                 style: TextButton.styleFrom(
                   textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -408,7 +400,7 @@ class _FormContentState extends ConsumerState<_FormContent> {
                     ? _networkManager.showInternetScaffoldMessenger(context)
                     : _networkManager.showNoInternetDialog(context);
               } else {
-                context.go('///recover-account');
+                GoRouter.of(context).push('/recover-account');
               }
             },
             style: TextButton.styleFrom(
@@ -427,67 +419,59 @@ class _FormContentState extends ConsumerState<_FormContent> {
             child:
                 const RetainTextScaleWrapper(child: Text('Recover Account?')),
           ),
-          Opacity(opacity: 0.1, child: const Divider()),
-          // _gap(),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              RetainTextScaleWrapper(
-                child: Text(
-                  "Haven't signed up yet?",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontFamily: 'lato',
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.75,
-                      ),
-                ),
-              ),
-              TextButton(
-                onHover: (isHovered) =>
-                    setState(() => _isHoveredSU = isHovered),
-                onPressed: () {
-                  //do something
-                  if (_networkManager.connectionStatus
-                      .contains(ConnectivityResult.none)) {
-                    isSmallScreen
-                        ? _networkManager.showInternetScaffoldMessenger(context)
-                        : _networkManager.showNoInternetDialog(context);
-                  } else {
-                    // Navigator.push(
-                    //   context,
-                    //   RouteTransitions.slideTransition(const SignUp()),
-                    // );
-                    // Navigator.pushNamed(context, '/sign-up');
-                    ref.read(regStateNotifierProvider.notifier).switchState();
-                    kIsWeb
-                        ? context.go('///terms-of-service')
-
-                        // _dialogUncommon.showAutoDismissDialog(
-                        //     context,
-                        //     'Uh oh... not available at this time ;)',
-                        //     CupertinoIcons.exclamationmark_circle_fill,
-                        //     Colors.redAccent)
-                        : GoRouter.of(context)
-                            .push('/terms-of-service'); //'/sign-up');
-                  }
-                },
-                style: TextButton.styleFrom(
-                  textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontFamily: 'lato',
-                        decoration: _isHoveredSU
-                            ? TextDecoration.underline
-                            : TextDecoration.none,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.75,
-                      ),
-                  foregroundColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4)),
-                ),
-                child: const RetainTextScaleWrapper(child: Text('Sign Up')),
-              ),
-            ]),
-          ),
+          // Opacity(opacity: 0.1, child: const Divider()), // To create an account
+          // // _gap(),
+          // Align(
+          //   alignment: Alignment.bottomCenter,
+          //   child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+          //     RetainTextScaleWrapper(
+          //       child: Text(
+          //         "Haven't signed up yet?",
+          //         style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          //               fontFamily: 'lato',
+          //               fontWeight: FontWeight.bold,
+          //               letterSpacing: 0.75,
+          //             ),
+          //       ),
+          //     ),
+          //     TextButton(
+          //       onHover: (isHovered) =>
+          //           setState(() => _isHoveredSU = isHovered),
+          //       onPressed: () {
+          //         //do something
+          //         if (_networkManager.connectionStatus
+          //             .contains(ConnectivityResult.none)) {
+          //           isSmallScreen
+          //               ? _networkManager.showInternetScaffoldMessenger(context)
+          //               : _networkManager.showNoInternetDialog(context);
+          //         } else {
+          //           // Navigator.push(
+          //           //   context,
+          //           //   RouteTransitions.slideTransition(const SignUp()),
+          //           // );
+          //           // Navigator.pushNamed(context, '/sign-up');
+          //           ref.read(regStateNotifierProvider.notifier).switchState();
+          //           GoRouter.of(context)
+          //               .push('/terms-of-service'); //'/sign-up');
+          //         }
+          //       },
+          //       style: TextButton.styleFrom(
+          //         textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+          //               fontFamily: 'lato',
+          //               decoration: _isHoveredSU
+          //                   ? TextDecoration.underline
+          //                   : TextDecoration.none,
+          //               fontWeight: FontWeight.bold,
+          //               letterSpacing: 0.75,
+          //             ),
+          //         foregroundColor: Colors.blueAccent,
+          //         shape: RoundedRectangleBorder(
+          //             borderRadius: BorderRadius.circular(4)),
+          //       ),
+          //       child: const RetainTextScaleWrapper(child: Text('Sign Up')),
+          //     ),
+          //   ]),
+          // ),
         ],
       ),
     );
@@ -676,8 +660,8 @@ class _FormContentExistingUserState
       //     : GoRouter.of(context).pushReplacement(
       //         Uri(path: '/dashboard').toString()); //'/dashboard'); // you can remove URI here, except the path argument
       (isExtraSmallScreen || isSmallScreen || isMediumScreen)
-          ? context.go('/jewelry-pt')
-          : context.go('/jewelry-b');
+          ? context.go('/home-b')
+          : context.go('/home-b');
     } else {
       // User did not authenticate
       developer.log('An error occurred: ', error: 'not authenticated');
@@ -1096,7 +1080,7 @@ class _FormContentExistingUserState
                   //     ? context.go('///recover-account')
                   //     : GoRouter.of(context)
                   //         .push(Uri(path: '/recover-account').toString()); // you can remove URI here, except the path argument
-                  context.go('///recover-account');
+                  GoRouter.of(context).push('/recover-account');
                 }
               },
               style: TextButton.styleFrom(
@@ -1143,16 +1127,11 @@ class _FormContentExistingUserState
                       // );
                       // Navigator.pushNamed(context, '/sign-up');
                       ref.read(regStateNotifierProvider.notifier).switchState();
-                      kIsWeb
-                          ? //context.go('///terms-of-service')
-
-                          _dialogUncommon.showAutoDismissDialog(
-                              context,
-                              'Uh oh... not available at this time ;)',
-                              CupertinoIcons.exclamationmark_circle_fill,
-                              Colors.redAccent)
-                          : GoRouter.of(context)
-                              .push('/terms-of-service'); //'/sign-up');
+                      _dialogUncommon.showAutoDismissDialog(
+                          context,
+                          'Uh oh... not available at this time ;)',
+                          CupertinoIcons.exclamationmark_circle_fill,
+                          Colors.redAccent);
                     }
                   },
                   style: TextButton.styleFrom(

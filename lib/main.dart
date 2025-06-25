@@ -8,51 +8,55 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:glamgear/bloc_observer/app_bloc_obsrvr.dart';
 import 'package:glamgear/generated/l10n.dart';
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart' show BindingBase, kIsWeb;
 import 'package:glamgear/internal/animations/route_trnstions.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runZonedGuarded(() async {
-    WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-    Bloc.observer = const AppBlocObserver();
-    await dotenv.load(fileName: "assets/.env"); // Load the .env file
-    BindingBase.debugZoneErrorsAreFatal = true;
-    // Make zone errors fatal for easier debugging
-    if (!kIsWeb) WakelockPlus.enable(); //for development purpose only (for now)
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+  // Set path-based routing (removes the `/#`)
+  setUrlStrategy(PathUrlStrategy());
+  runZonedGuarded(
+    () async {
+      // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized(); // cannot be evaluated yet if it's correct
+      // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+      WidgetsFlutterBinding.ensureInitialized();
+      Bloc.observer = const AppBlocObserver();
+      await dotenv.load(fileName: "assets/.env"); // Load the .env file
+      BindingBase.debugZoneErrorsAreFatal = true;
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    // Initialize Firebase Messaging only for mobile platforms
-    // await Firebase.initializeApp(
-    //   options: DefaultFirebaseOptions.currentPlatform,
-    // );
+      // Initialize Firebase Messaging only for mobile platforms
+      // await Firebase.initializeApp(
+      //   options: DefaultFirebaseOptions.currentPlatform,
+      // );
 
-    runApp(
-      ProviderScope(
-        overrides: [
-          _sharedPreferences.overrideWithValue(prefs),
-        ],
-        child: MyApp(),
-      ),
-    );
-  }, (error, stackTrace) {
-    developer.log('Uncaught exception: $error',
-        error: error, stackTrace: stackTrace);
-    // Implement custom logging or reporting here
-  });
+      runApp(
+        ProviderScope(
+          overrides: [_sharedPreferences.overrideWithValue(prefs)],
+          child: MyApp(),
+        ),
+      );
+    },
+    (error, stackTrace) {
+      developer.log(
+        'Uncaught exception: $error',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      // Implement custom logging or reporting here
+    },
+  );
 }
 
-final _sharedPreferences =
-    Provider<SharedPreferences>((_) => throw UnimplementedError());
+final _sharedPreferences = Provider<SharedPreferences>(
+  (_) => throw UnimplementedError(),
+);
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -118,15 +122,21 @@ class CustomTheme extends ThemeExtension<CustomTheme> {
   CustomTheme lerp(ThemeExtension<CustomTheme>? other, double t) {
     if (other is! CustomTheme) return this;
     return CustomTheme(
-      containerBackgroundColor: Color.lerp(
-          containerBackgroundColor, other.containerBackgroundColor, t)!,
+      containerBackgroundColor:
+          Color.lerp(
+            containerBackgroundColor,
+            other.containerBackgroundColor,
+            t,
+          )!,
     );
   }
 
-  static CustomTheme light =
-      CustomTheme(containerBackgroundColor: Colors.grey.shade100);
+  static CustomTheme light = CustomTheme(
+    containerBackgroundColor: Colors.grey.shade100,
+  );
   static CustomTheme dark = CustomTheme(
-      containerBackgroundColor: Colors.grey.shade800.withValues(alpha: 0.45));
+    containerBackgroundColor: Colors.grey.shade800.withValues(alpha: 0.45),
+  );
 }
 
 final ThemeData _lightTheme = ThemeData(
@@ -136,7 +146,7 @@ final ThemeData _lightTheme = ThemeData(
     'montserrat',
     'roboto-condensed',
     'noto-sans',
-    'merriweather'
+    'merriweather',
   ], // include peso symbol
   useMaterial3: true,
   primaryColor: Colors.lightBlue,
@@ -227,15 +237,11 @@ final ThemeData _lightTheme = ThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: Colors.lightBlue,
       foregroundColor: Colors.white70,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
   ),
   inputDecorationTheme: InputDecorationTheme(
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(4),
-    ),
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(4)),
     enabledBorder: OutlineInputBorder(
       borderSide: const BorderSide(color: Colors.lightBlue),
       borderRadius: BorderRadius.circular(4),
@@ -261,36 +267,40 @@ final ThemeData _lightTheme = ThemeData(
     backgroundColor: Colors.lightBlue,
     foregroundColor: Colors.white70,
   ),
-  iconTheme: const IconThemeData(
-    color: Colors.black54,
-  ),
+  iconTheme: const IconThemeData(color: Colors.black54),
   iconButtonTheme: const IconButtonThemeData(
     style: ButtonStyle(
-        iconColor: WidgetStatePropertyAll<Color>(Color.fromARGB(200, 0, 0, 0)),
-        backgroundColor: WidgetStatePropertyAll<Color>(Colors.transparent),
-        foregroundColor:
-            WidgetStatePropertyAll<Color>(Color.fromARGB(200, 0, 0, 0))),
+      iconColor: WidgetStatePropertyAll<Color>(Color.fromARGB(200, 0, 0, 0)),
+      backgroundColor: WidgetStatePropertyAll<Color>(Colors.transparent),
+      foregroundColor: WidgetStatePropertyAll<Color>(
+        Color.fromARGB(200, 0, 0, 0),
+      ),
+    ),
   ),
   outlinedButtonTheme: OutlinedButtonThemeData(
-      style: ButtonStyle(
-    iconColor: WidgetStatePropertyAll(Colors.black54),
-    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(4.0),
-    )),
-    textStyle: WidgetStatePropertyAll(TextStyle()),
-    side: WidgetStatePropertyAll(BorderSide(color: Colors.lightBlue)),
-  )),
+    style: ButtonStyle(
+      iconColor: WidgetStatePropertyAll(Colors.black54),
+      shape: WidgetStatePropertyAll(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
+      ),
+      textStyle: WidgetStatePropertyAll(TextStyle()),
+      side: WidgetStatePropertyAll(BorderSide(color: Colors.lightBlue)),
+    ),
+  ),
   checkboxTheme: CheckboxThemeData(
-      side: const BorderSide(color: Colors.lightBlue),
-      checkColor: WidgetStatePropertyAll<Color>(Colors.grey.shade100),
-      overlayColor: const WidgetStatePropertyAll<Color>(Colors.lightBlue)),
+    side: const BorderSide(color: Colors.lightBlue),
+    checkColor: WidgetStatePropertyAll<Color>(Colors.grey.shade100),
+    overlayColor: const WidgetStatePropertyAll<Color>(Colors.lightBlue),
+  ),
   dropdownMenuTheme: DropdownMenuThemeData(
-      menuStyle: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll<Color>(Colors.grey.shade300)),
-      textStyle: const TextStyle(
-        color: Color.fromARGB(200, 0, 0, 0),
-        letterSpacing: 0.0, //letterSpacing: 0.75,
-      )),
+    menuStyle: MenuStyle(
+      backgroundColor: WidgetStatePropertyAll<Color>(Colors.grey.shade300),
+    ),
+    textStyle: const TextStyle(
+      color: Color.fromARGB(200, 0, 0, 0),
+      letterSpacing: 0.0, //letterSpacing: 0.75,
+    ),
+  ),
   snackBarTheme: SnackBarThemeData(backgroundColor: Colors.grey.shade100),
   bottomAppBarTheme: BottomAppBarTheme(color: Colors.grey.shade100),
   bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.grey.shade100),
@@ -305,7 +315,7 @@ final ThemeData _darkTheme = ThemeData(
     'montserrat',
     'roboto-condensed',
     'noto-sans',
-    'merriweather'
+    'merriweather',
   ], // include peso symbol
   useMaterial3: true,
   primaryColor: const Color.fromARGB(190, 255, 193, 7),
@@ -402,15 +412,11 @@ final ThemeData _darkTheme = ThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: const Color.fromARGB(190, 255, 193, 7),
       foregroundColor: Colors.grey.shade100,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     ),
   ),
   inputDecorationTheme: InputDecorationTheme(
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(4),
-    ),
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(4)),
     enabledBorder: OutlineInputBorder(
       borderSide: const BorderSide(color: Color.fromARGB(190, 255, 193, 7)),
       borderRadius: BorderRadius.circular(4),
@@ -436,45 +442,48 @@ final ThemeData _darkTheme = ThemeData(
     backgroundColor: const Color.fromARGB(190, 255, 193, 7),
     foregroundColor: Colors.grey.shade100,
   ),
-  iconTheme: IconThemeData(
-    color: Colors.grey.shade100,
-  ),
+  iconTheme: IconThemeData(color: Colors.grey.shade100),
   iconButtonTheme: IconButtonThemeData(
     style: ButtonStyle(
-        iconColor: WidgetStatePropertyAll<Color>(Colors.grey.shade100),
-        backgroundColor:
-            const WidgetStatePropertyAll<Color>(Colors.transparent),
-        foregroundColor: WidgetStatePropertyAll<Color>(Colors.grey.shade100)),
+      iconColor: WidgetStatePropertyAll<Color>(Colors.grey.shade100),
+      backgroundColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
+      foregroundColor: WidgetStatePropertyAll<Color>(Colors.grey.shade100),
+    ),
   ),
   outlinedButtonTheme: OutlinedButtonThemeData(
-      style: ButtonStyle(
-    iconColor: WidgetStatePropertyAll(Colors.grey.shade100),
-    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(4.0),
-    )),
-    side: WidgetStatePropertyAll(
-        BorderSide(color: Color.fromARGB(190, 255, 193, 7))),
-  )),
+    style: ButtonStyle(
+      iconColor: WidgetStatePropertyAll(Colors.grey.shade100),
+      shape: WidgetStatePropertyAll(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
+      ),
+      side: WidgetStatePropertyAll(
+        BorderSide(color: Color.fromARGB(190, 255, 193, 7)),
+      ),
+    ),
+  ),
   checkboxTheme: CheckboxThemeData(
-      side: const BorderSide(color: Color.fromARGB(190, 255, 193, 7)),
-      checkColor: WidgetStatePropertyAll<Color>(Colors.grey.shade100),
-      overlayColor: const WidgetStatePropertyAll<Color>(
-          Color.fromARGB(190, 255, 193, 7))),
+    side: const BorderSide(color: Color.fromARGB(190, 255, 193, 7)),
+    checkColor: WidgetStatePropertyAll<Color>(Colors.grey.shade100),
+    overlayColor: const WidgetStatePropertyAll<Color>(
+      Color.fromARGB(190, 255, 193, 7),
+    ),
+  ),
   dropdownMenuTheme: DropdownMenuThemeData(
-      menuStyle: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll<Color>(Colors.grey.shade900)),
-      textStyle: const TextStyle(
-        color: Color.fromARGB(215, 255, 255, 255),
-        letterSpacing: 0.0, //letterSpacing: 0.75,
-      )),
+    menuStyle: MenuStyle(
+      backgroundColor: WidgetStatePropertyAll<Color>(Colors.grey.shade900),
+    ),
+    textStyle: const TextStyle(
+      color: Color.fromARGB(215, 255, 255, 255),
+      letterSpacing: 0.0, //letterSpacing: 0.75,
+    ),
+  ),
   snackBarTheme: SnackBarThemeData(
-      backgroundColor: Colors.grey.shade800.withValues(alpha: 0.45)),
+    backgroundColor: Colors.grey.shade800.withValues(alpha: 0.45),
+  ),
   // navigationBarTheme: const NavigationBarThemeData(
   //     labelTextStyle: TextStyle(color: Color.fromARGB(215, 255, 255, 255),
   //letterSpacing: 0.0, //letterSpacing: 0.75,)),
-  bottomSheetTheme: BottomSheetThemeData(
-    backgroundColor: Colors.grey[900],
-  ),
+  bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.grey[900]),
   unselectedWidgetColor: Colors.grey.shade700,
   extensions: [CustomTheme.dark], // Include custom theme extension
 );
@@ -548,9 +557,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+            const Text('You have pushed the button this many times:'),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,

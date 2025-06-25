@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
+import 'package:glamgear/internal/animations/dlog_uncmon.dart';
+import 'package:glamgear/internal/animations/error_page.dart';
 import 'package:glamgear/internal/core/orders_pages/orders.dart';
 import 'package:glamgear/internal/core/orders_pages/reviews.dart';
 import 'package:glamgear/internal/core/orders_pages/rtrn_ordrs_cncllatns.dart';
@@ -9,6 +11,8 @@ import 'package:glamgear/internal/core/users_pages/nw_usrs.dart';
 import 'package:glamgear/internal/core/users_pages/reglr_usrs.dart';
 import 'package:glamgear/internal/dashboard.dart';
 import 'package:glamgear/internal/dashboard_page.dart';
+import 'package:glamgear/signing_pages/otp_vrfier.dart';
+import 'package:glamgear/signing_pages/rcvr_acc.dart';
 import 'package:glamgear/signing_pages/sign_up_opt.dart';
 import 'package:go_router/go_router.dart';
 import 'package:glamgear/internal/account_page/account.dart';
@@ -182,14 +186,73 @@ class RouteTransitions {
   late final router = GoRouter(
     // subject for thorough review, there are redundant configuration of routes and GoRouter here
     navigatorKey: rootKey,
-    initialLocation: '/home-b', //'/',
-    // routerNeglect: true, // not recommended for now
+    initialLocation: '/glamgear', //'/',
+    // onException: (context, state, router) {
+    //   context.go('/glamgear');
+    // },
+    errorBuilder: ((context, state) => ErrorPage()),
     routes: [
       GoRoute(
-        path: '/',
+        path: '/glamgear',
         pageBuilder: (context, state) =>
             _slideTransitionBtTVv(state, const SignInOptions()),
         routes: [
+          GoRoute(
+            path: 'access-thru-mobile-no',
+            pageBuilder: (context, state) {
+              if (state.extra != null) {
+                final extraData = state.extra as Map<String, dynamic>;
+                String functionKey = extraData['functionKey'];
+                bool isRegistration = extraData['isRegistration'];
+                return _slideTransitionBtTVv(
+                    state,
+                    AccessThruMobileNumber(
+                        functionKey: functionKey,
+                        isRegistration: isRegistration));
+              } else {
+                return _slideTransitionBtTVv(
+                    state,
+                    AccessThruMobileNumber(
+                        functionKey: CookieManager.getCookie('functionKey'),
+                        isRegistration:
+                            CookieManager.getCookieBool('isRegistration')!));
+              }
+            },
+            routes: [
+              GoRoute(
+                  path: 'otp-verifier',
+                  pageBuilder: (context, state) {
+                    if (state.extra != null) {
+                      // mobile
+                      final extraData = state.extra as Map<String, dynamic>;
+                      String functionKey = extraData['functionKey'];
+                      String? deviceID = extraData['deviceID'];
+                      bool isRegistration = extraData['isRegistration'];
+                      String? mobileNo = extraData['mobileNo'];
+                      return _slideTransitionBtTVv(
+                          state,
+                          OTPVerifier(
+                            functionKey: functionKey,
+                            deviceID: deviceID,
+                            isRegistration: isRegistration,
+                            mobileNo: mobileNo,
+                          ));
+                    } else {
+                      // web
+                      return _slideTransitionBtTVv(
+                        state,
+                        OTPVerifier(
+                          functionKey: CookieManager.getCookie('functionKey'),
+                          deviceID: CookieManager.getCookie('deviceID'),
+                          isRegistration:
+                              CookieManager.getCookieBool('isRegistration')!,
+                          mobileNo: CookieManager.getCookie('mobileNo'),
+                        ),
+                      );
+                    }
+                  }),
+            ],
+          ),
           GoRoute(
             path: 'sign-in-thru-password',
             pageBuilder: (context, state) =>
@@ -208,6 +271,11 @@ class RouteTransitions {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/recover-account',
+        pageBuilder: (context, state) =>
+            _slideTransitionRtLVv(state, const RecoverAccount()),
       ),
       GoRoute(
         path: '/add-products',

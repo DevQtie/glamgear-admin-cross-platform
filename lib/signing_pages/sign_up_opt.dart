@@ -43,7 +43,7 @@ class _SignUpOptionsState extends State<SignUpOptions> {
         if (didPop) {
           return;
         }
-        context.go('/');
+        context.go('/glamgear');
       },
       child: Scaffold(
         appBar: AppBar(
@@ -51,7 +51,7 @@ class _SignUpOptionsState extends State<SignUpOptions> {
           leading: _randomAppBarState
               ? IconButton(
                   onPressed: () {
-                    context.go('/');
+                    context.go('/glamgear');
                   },
                   icon: Icon(CupertinoIcons.chevron_left),
                 )
@@ -100,7 +100,7 @@ class _SignUpOptionsState extends State<SignUpOptions> {
                       alignment: Alignment.centerRight,
                       child: IconButton(
                         onPressed: () {
-                          context.go('/');
+                          context.go('/glamgear');
                         },
                         icon: Icon(CupertinoIcons.clear_thick),
                       ),
@@ -280,7 +280,7 @@ class _SignUpOptionsState extends State<SignUpOptions> {
                     onHover: (isHovered) =>
                         setState(() => _isHoveredAcc = isHovered),
                     onPressed: () {
-                      context.go('/');
+                      context.go('/glamgear');
                     },
                     style: TextButton.styleFrom(
                       textStyle: TextStyle(

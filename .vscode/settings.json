@@ -1,6 +1,7 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive",
-    "cmake.configureOnOpen": false,
-    "dart.analysisServerSnippetSorting": "true",
-    "dart.previewLsp": true
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "cmake.configureOnOpen": false,
+  "dart.analysisServerSnippetSorting": "true",
+  "dart.previewLsp": true,
+  "dart.flutterSdkPath": ".fvm/versions/3.29.0"
 }

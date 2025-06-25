@@ -342,16 +342,16 @@ class _SettingsState extends ConsumerState<Settings> {
                                           .removeAccountCredentials();
 
                                       if (context.mounted && isPrefsRemoved!) {
-                                        context.go('/');
-                                        // GoRouter.of(context).go('/');
-                                        // GoRouter.of(context).pushReplacement('/');
+                                        context.go('/glamgear');
+                                        // GoRouter.of(context).go('/glamgear');
+                                        // GoRouter.of(context).pushReplacement('/glamgear');
                                       }
                                     } else {
                                       // For web, perform logout and navigate to the sign-in screen
                                       // await context.read<AuthProvider>().logout();
                                       if (context.mounted) {
-                                        context.go('/');
-                                        // GoRouter.of(context).pushReplacement('/');
+                                        context.go('/glamgear');
+                                        // GoRouter.of(context).pushReplacement('/glamgear');
                                       }
                                     }
                                   },

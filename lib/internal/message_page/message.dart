@@ -297,194 +297,212 @@ class _MessageState extends State<Message> {
     final Brightness brightness = MediaQuery.of(context).platformBrightness;
     final bool isDarkMode = brightness == Brightness.dark;
 
-    return Scaffold(
-      appBar: AppBar(
-        // automaticallyImplyLeading: kIsWeb ? false : true,
-        automaticallyImplyLeading: false,
-        leadingWidth: isExtraSmallScreen
-            ? 50
-            : kIsWeb
-                ? 0
-                : isExtraSmallScreen
-                    ? 50
-                    : isSmallScreen
-                        ? 50
-                        : isMediumScreen
-                            ? 70
-                            : isLargeScreen
-                                ? 100
-                                : 200,
-        titleSpacing: isExtraSmallScreen
-            ? 0
-            : isSmallScreen
-                ? kIsWeb
-                    ? 0
-                    : 0
-                : isMediumScreen
-                    ? 0
-                    : isLargeScreen
-                        ? 100
-                        : 200,
-        forceMaterialTransparency: true,
-        // backgroundColor: colorScheme.surfaceContainerHighest,
-        title: Wrap(
-          spacing: 4.0,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Builder(builder: (context) {
-              String route = GoRouterState.of(context).uri.toString();
-              return Visibility(
-                visible: (GoRouter.of(context).canPop() &&
-                    !(route.contains("chat-b") || route.contains("chat-pt"))),
-                child: IconButton(
-                  icon: Icon(CupertinoIcons.chevron_left),
-                  onPressed: () {
-                    if (GoRouter.of(context).canPop()) {
-                      GoRouter.of(context).pop();
-                    }
-                  },
-                ),
-              );
-            }),
-            SizedBox(
-              width: 4.0,
-            ),
-            RetainTextScaleWrapper(
-              child: Text(
-                'Chats',
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ), // Optional title for the app bar
-      ),
-      body: Container(
-        decoration: BoxDecoration(color: colorScheme.surfaceContainerHighest),
-        padding: isSmallScreen
-            ? const EdgeInsets.only(left: 0, right: 0)
-            : isMediumScreen
-                ? const EdgeInsets.only(left: 70, right: 70)
-                : isLargeScreen
-                    ? const EdgeInsets.only(left: 100, right: 100)
-                    : const EdgeInsets.only(left: 200, right: 200),
-        child: ScaffoldMessenger(
-          child: RetainTextScaleWrapper(
-            child: Chat(
-              scrollPhysics: BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics()),
-              dateLocale: 'en_US',
-              timeFormat: intl.DateFormat('hh:mm a'),
-              messages: _messages,
-              onAttachmentPressed: _handleAttachmentPressed,
-              onMessageTap: _handleMessageTap,
-              onPreviewDataFetched: _handlePreviewDataFetched,
-              onSendPressed: _handleSendPressed,
-              showUserAvatars: true,
-              showUserNames: false,
-              user: _user,
-              theme: DefaultChatTheme(
-                  secondaryColor: isDarkMode
-                      ? Colors.grey.shade800.withValues(alpha: 0.8)
-                      : Colors.grey.shade100,
-                  receivedMessageBodyTextStyle: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.normal,
-                    color: isDarkMode
-                        ? const Color.fromARGB(215, 255, 255, 255)
-                        : Colors.black87.withValues(alpha: 0.8),
-                    letterSpacing: 0.75,
-                  ),
-                  sentMessageBodyTextStyle: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.normal,
-                    color: isDarkMode
-                        ? const Color.fromARGB(215, 255, 255, 255)
-                        : const Color.fromARGB(235, 255, 255, 255),
-                    letterSpacing: 0.75,
-                  ),
-                  backgroundColor: isDarkMode
-                      ? const Color.fromARGB(35, 0, 0, 0)
-                      : Colors.grey.shade400.withValues(alpha: 0.35),
-                  deliveredIcon: const Icon(Icons.check_circle),
-                  inputPadding: const EdgeInsets.all(8.0),
-                  inputTextColor: isDarkMode
-                      ? const Color.fromARGB(215, 255, 255, 255)
-                      : Colors.black87,
-                  inputTextStyle: const TextStyle(
-                    fontWeight: FontWeight.normal,
-                    letterSpacing: 0.75,
-                  ),
-                  inputBorderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(0)),
-                  messageInsetsHorizontal: 10,
-                  messageInsetsVertical: 8,
-                  dateDividerMargin: const EdgeInsets.only(bottom: 10, top: 10),
-                  inputBackgroundColor: isDarkMode
-                      ? Colors.grey.shade800.withValues(alpha: 0.45)
-                      : Colors.grey.shade100,
-                  inputTextDecoration: const InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(10.0),
-                      isCollapsed: true)),
-              scrollToUnreadOptions: const ScrollToUnreadOptions(
-                lastReadMessageId: 'lastReadMessageId',
-                scrollOnOpen: true,
-              ),
-              // onEndReached: _handleEndReached,//uncomment to test previous chat
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(
+            color: Colors.red.withValues(alpha: 0.5),
+            width: 1,
+          ),
+          top: BorderSide(
+            color: Colors.red.withValues(alpha: 0.5),
+            width: 1,
+          ),
+          bottom: BorderSide(
+            color: Colors.red.withValues(alpha: 0.5),
+            width: 1,
           ),
         ),
-
-        // SingleChildScrollView(
-        //   child: Center(
-        //     child: Column(
-        //       children: [
-        //         SizedBox(
-        //           width: double.infinity,
-        //           height: 1000,
-        //           child: Padding(
-        //             padding: isSmallScreen
-        //                 ? const EdgeInsets.only(
-        //                     top: 10.0,
-        //                     right: 10.0,
-        //                     bottom: 15.0,
-        //                     left: 10.0)
-        //                 : isMediumScreen
-        //                     ? const EdgeInsets.only(
-        //                         top: 10.0,
-        //                         right: 70.0,
-        //                         bottom: 15.0,
-        //                         left: 70.0)
-        //                     : isLargeScreen
-        //                         ? const EdgeInsets.only(
-        //                             top: 10.0,
-        //                             right: 100.0,
-        //                             bottom: 15.0,
-        //                             left: 100.0)
-        //                         : const EdgeInsets.only(
-        //                             top: 10.0,
-        //                             right: 200.0,
-        //                             bottom: 15.0,
-        //                             left: 200.0),
-        //             child: Container(
-        //               decoration: BoxDecoration(
-        //                 color: customTheme?.containerBackgroundColor,
-        //                 borderRadius:
-        //                     BorderRadius.circular(4.0), // Border radius
-        //                 border: Border.all(
-        //                     color: Colors.transparent), // Border color
-        //               ),
-        //               padding: const EdgeInsets.all(15.0),
-        //             ),
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
+      ),
+      child: Scaffold(
+        appBar: AppBar(
+          // automaticallyImplyLeading: kIsWeb ? false : true,
+          automaticallyImplyLeading: false,
+          leadingWidth: isExtraSmallScreen
+              ? 50
+              : kIsWeb
+                  ? 0
+                  : isExtraSmallScreen
+                      ? 50
+                      : isSmallScreen
+                          ? 50
+                          : isMediumScreen
+                              ? 70
+                              : isLargeScreen
+                                  ? 100
+                                  : 200,
+          titleSpacing: isExtraSmallScreen
+              ? 0
+              : isSmallScreen
+                  ? kIsWeb
+                      ? 0
+                      : 0
+                  : isMediumScreen
+                      ? 0
+                      : isLargeScreen
+                          ? 100
+                          : 200,
+          forceMaterialTransparency: true,
+          // backgroundColor: colorScheme.surfaceContainerHighest,
+          title: Wrap(
+            spacing: 4.0,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Builder(builder: (context) {
+                String route = GoRouterState.of(context).uri.toString();
+                return Visibility(
+                  visible: (GoRouter.of(context).canPop() &&
+                      !(route.contains("chat-b") || route.contains("chat-pt"))),
+                  child: IconButton(
+                    icon: Icon(CupertinoIcons.chevron_left),
+                    onPressed: () {
+                      if (GoRouter.of(context).canPop()) {
+                        GoRouter.of(context).pop();
+                      }
+                    },
+                  ),
+                );
+              }),
+              SizedBox(
+                width: 4.0,
+              ),
+              RetainTextScaleWrapper(
+                child: Text(
+                  'Chats',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ), // Optional title for the app bar
+        ),
+        body: Container(
+          decoration: BoxDecoration(color: colorScheme.surfaceContainerHighest),
+          padding: isSmallScreen
+              ? const EdgeInsets.only(left: 0, right: 0)
+              : isMediumScreen
+                  ? const EdgeInsets.only(left: 70, right: 70)
+                  : isLargeScreen
+                      ? const EdgeInsets.only(left: 100, right: 100)
+                      : const EdgeInsets.only(left: 200, right: 200),
+          child: ScaffoldMessenger(
+            child: RetainTextScaleWrapper(
+              child: Chat(
+                scrollPhysics: BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics()),
+                dateLocale: 'en_US',
+                timeFormat: intl.DateFormat('hh:mm a'),
+                messages: _messages,
+                onAttachmentPressed: _handleAttachmentPressed,
+                onMessageTap: _handleMessageTap,
+                onPreviewDataFetched: _handlePreviewDataFetched,
+                onSendPressed: _handleSendPressed,
+                showUserAvatars: true,
+                showUserNames: false,
+                user: _user,
+                theme: DefaultChatTheme(
+                    secondaryColor: isDarkMode
+                        ? Colors.grey.shade800.withValues(alpha: 0.8)
+                        : Colors.grey.shade100,
+                    receivedMessageBodyTextStyle: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.normal,
+                      color: isDarkMode
+                          ? const Color.fromARGB(215, 255, 255, 255)
+                          : Colors.black87.withValues(alpha: 0.8),
+                      letterSpacing: 0.75,
+                    ),
+                    sentMessageBodyTextStyle: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.normal,
+                      color: isDarkMode
+                          ? const Color.fromARGB(215, 255, 255, 255)
+                          : const Color.fromARGB(235, 255, 255, 255),
+                      letterSpacing: 0.75,
+                    ),
+                    backgroundColor: isDarkMode
+                        ? const Color.fromARGB(35, 0, 0, 0)
+                        : Colors.grey.shade400.withValues(alpha: 0.35),
+                    deliveredIcon: const Icon(Icons.check_circle),
+                    inputPadding: const EdgeInsets.all(8.0),
+                    inputTextColor: isDarkMode
+                        ? const Color.fromARGB(215, 255, 255, 255)
+                        : Colors.black87,
+                    inputTextStyle: const TextStyle(
+                      fontWeight: FontWeight.normal,
+                      letterSpacing: 0.75,
+                    ),
+                    inputBorderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(0)),
+                    messageInsetsHorizontal: 10,
+                    messageInsetsVertical: 8,
+                    dateDividerMargin: const EdgeInsets.only(bottom: 10, top: 10),
+                    inputBackgroundColor: isDarkMode
+                        ? Colors.grey.shade800.withValues(alpha: 0.45)
+                        : Colors.grey.shade100,
+                    inputTextDecoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(10.0),
+                        isCollapsed: true)),
+                scrollToUnreadOptions: const ScrollToUnreadOptions(
+                  lastReadMessageId: 'lastReadMessageId',
+                  scrollOnOpen: true,
+                ),
+                // onEndReached: _handleEndReached,//uncomment to test previous chat
+              ),
+            ),
+          ),
+      
+          // SingleChildScrollView(
+          //   child: Center(
+          //     child: Column(
+          //       children: [
+          //         SizedBox(
+          //           width: double.infinity,
+          //           height: 1000,
+          //           child: Padding(
+          //             padding: isSmallScreen
+          //                 ? const EdgeInsets.only(
+          //                     top: 10.0,
+          //                     right: 10.0,
+          //                     bottom: 15.0,
+          //                     left: 10.0)
+          //                 : isMediumScreen
+          //                     ? const EdgeInsets.only(
+          //                         top: 10.0,
+          //                         right: 70.0,
+          //                         bottom: 15.0,
+          //                         left: 70.0)
+          //                     : isLargeScreen
+          //                         ? const EdgeInsets.only(
+          //                             top: 10.0,
+          //                             right: 100.0,
+          //                             bottom: 15.0,
+          //                             left: 100.0)
+          //                         : const EdgeInsets.only(
+          //                             top: 10.0,
+          //                             right: 200.0,
+          //                             bottom: 15.0,
+          //                             left: 200.0),
+          //             child: Container(
+          //               decoration: BoxDecoration(
+          //                 color: customTheme?.containerBackgroundColor,
+          //                 borderRadius:
+          //                     BorderRadius.circular(4.0), // Border radius
+          //                 border: Border.all(
+          //                     color: Colors.transparent), // Border color
+          //               ),
+          //               padding: const EdgeInsets.all(15.0),
+          //             ),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+        ),
       ),
     );
   }

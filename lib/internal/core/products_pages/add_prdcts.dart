@@ -959,6 +959,10 @@ class _AddProductsState extends ConsumerState<AddProducts> {
   //   // });
   // }
 
+  Future<void> _initProdKey() async {
+    ref.read(retrieveProductKeyProvider.notifier).initProdKey();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -967,6 +971,7 @@ class _AddProductsState extends ConsumerState<AddProducts> {
     _stockController.addListener(_formatStock);
     // _loadProdSpecsKey();
     // _scrollController.addListener(_listenToScrollEvents);
+    Future.microtask(() => _initProdKey());
   }
 
   @override
@@ -1014,12 +1019,7 @@ class _AddProductsState extends ConsumerState<AddProducts> {
     final ThemeData theme = Theme.of(context);
 
     final sharedPrefs = ref.watch(sharedPrefProvider);
-    // final AsyncValue<ProductAdminData> prodAdminData = ref.watch(
-    //     retAdminProdProvider('/api/postget/add_product_data', "DevQt",
-    //         'RETRIEVE_COMP_PROD_INFO')); // check if the admin has draft data
-    final AsyncValue<ProductKeyNames> prodAdminKNData = ref.watch(
-        retrieveProductKeyProvider(
-            '/api/postget/add_product_data', 'RETRIEVE_PROD_KEY_NAME'));
+    final prodAdminKNData = ref.watch(retrieveProductKeyProvider);
 
     // developer.log(
     //     'Product data: ${jsonEncode(prodAdminData.value?.toJson() ?? {})}'); // to format as JSON data with base64
@@ -1033,156 +1033,156 @@ class _AddProductsState extends ConsumerState<AddProducts> {
     // developer.log('Check JSON: ${json ?? {}}');
     // developer.log('Check data: $dataModel');
 
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 8,
-        leadingWidth: isExtraSmallScreen
-            ? 50
-            : kIsWeb
-                ? 0
-                : isExtraSmallScreen
-                    ? 50
-                    : isSmallScreen
-                        ? 50
-                        : isMediumScreen
-                            ? 70
-                            : isLargeScreen
-                                ? 100
-                                : isExtraLargeScreen
-                                    ? 200
-                                    : 200,
-        titleSpacing: isExtraSmallScreen
-            ? 16
-            : isSmallScreen
-                ? kIsWeb
-                    ? 16
-                    : 16
-                : isMediumScreen
-                    ? 70
-                    : isLargeScreen
-                        ? 100
-                        : isExtraLargeScreen
-                            ? 200
-                            : 200,
-        forceMaterialTransparency: true,
-        // backgroundColor: colorScheme.surfaceContainerHighest,
-        title: RetainTextScaleWrapper(
-          child: Text(
-            'Add Products',
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.bold),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(
+            color: Colors.red.withValues(alpha: 0.5),
+            width: 1,
           ),
-        ), // Optional title for the app bar
+          top: BorderSide(
+            color: Colors.red.withValues(alpha: 0.5),
+            width: 1,
+          ),
+          bottom: BorderSide(
+            color: Colors.red.withValues(alpha: 0.5),
+            width: 1,
+          ),
+        ),
       ),
-      body: KeyboardListener(
-        focusNode: _keyLookupFN,
-        autofocus: true,
-        onKeyEvent: (event) {
-          if (event is KeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.end) {
-            _scrollController.animateTo(
-                _scrollController.position.maxScrollExtent,
-                duration: Duration(milliseconds: 500),
-                curve: Curves.easeInOut);
-          } else if (event is KeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.home) {
-            _scrollController.animateTo(
-                _scrollController.position.minScrollExtent,
-                duration: Duration(milliseconds: 500),
-                curve: Curves.easeInOut);
-          }
-        },
-        child: Container(
-          decoration: BoxDecoration(color: colorScheme.surfaceContainerHighest),
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            child: Center(
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: Padding(
-                      padding: _containerPadding(
-                          isExtraSmallScreen,
-                          isSmallScreen,
-                          isMediumScreen,
-                          isLargeScreen,
-                          isExtraLargeScreen),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: customTheme?.containerBackgroundColor,
-                          borderRadius:
-                              BorderRadius.circular(10.0), // Border radius
-                          border: Border.all(
-                              color: Colors.transparent), // Border color
-                        ),
-                        padding: const EdgeInsets.all(15.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            RetainTextScaleWrapper(
-                              child: Text('Product Information',
-                                  textAlign: TextAlign.start,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
-                                      ?.copyWith(fontWeight: FontWeight.bold)),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            RetainTextScaleWrapper(
-                              child: Text('Product Name',
-                                  textAlign: TextAlign.start,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(fontWeight: FontWeight.bold)),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.only(top: 12.0),
-                              child: TextFormField(
-                                key: const ValueKey('name'),
-                                controller: _productNameController,
-                                textInputAction: TextInputAction.next,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Required';
-                                  }
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 8,
+          leadingWidth: isExtraSmallScreen
+              ? 50
+              : kIsWeb
+                  ? 0
+                  : isExtraSmallScreen
+                      ? 50
+                      : isSmallScreen
+                          ? 50
+                          : isMediumScreen
+                              ? 70
+                              : isLargeScreen
+                                  ? 100
+                                  : isExtraLargeScreen
+                                      ? 200
+                                      : 200,
+          titleSpacing: isExtraSmallScreen
+              ? 16
+              : isSmallScreen
+                  ? kIsWeb
+                      ? 16
+                      : 16
+                  : isMediumScreen
+                      ? 70
+                      : isLargeScreen
+                          ? 100
+                          : isExtraLargeScreen
+                              ? 200
+                              : 200,
+          forceMaterialTransparency: true,
+          // backgroundColor: colorScheme.surfaceContainerHighest,
+          title: RetainTextScaleWrapper(
+            child: Text(
+              'Add Products',
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ), // Optional title for the app bar
+        ),
+        body: KeyboardListener(
+          focusNode: _keyLookupFN,
+          autofocus: true,
+          onKeyEvent: (event) {
+            if (event is KeyDownEvent &&
+                event.logicalKey == LogicalKeyboardKey.end) {
+              _scrollController.animateTo(
+                  _scrollController.position.maxScrollExtent,
+                  duration: Duration(milliseconds: 500),
+                  curve: Curves.easeInOut);
+            } else if (event is KeyDownEvent &&
+                event.logicalKey == LogicalKeyboardKey.home) {
+              _scrollController.animateTo(
+                  _scrollController.position.minScrollExtent,
+                  duration: Duration(milliseconds: 500),
+                  curve: Curves.easeInOut);
+            }
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+            ),
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Center(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: Padding(
+                        padding: _containerPadding(
+                            isExtraSmallScreen,
+                            isSmallScreen,
+                            isMediumScreen,
+                            isLargeScreen,
+                            isExtraLargeScreen),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: customTheme?.containerBackgroundColor,
+                            borderRadius:
+                                BorderRadius.circular(10.0), // Border radius
+                            border: Border.all(
+                                color: Colors.transparent), // Border color
+                          ),
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RetainTextScaleWrapper(
+                                child: Text('Product Information',
+                                    textAlign: TextAlign.start,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.bold)),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              RetainTextScaleWrapper(
+                                child: Text('Product Name',
+                                    textAlign: TextAlign.start,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.bold)),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.only(top: 12.0),
+                                child: TextFormField(
+                                  key: const ValueKey('name'),
+                                  controller: _productNameController,
+                                  textInputAction: TextInputAction.next,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Required';
+                                    }
 
-                                  // if (value.length < 6 && value != 'ad') {
-                                  //   return 'Password must be at least 6 characters';
-                                  // }
-                                  return null;
-                                },
-                                style: TextStyle(
-                                  color: isDarkMode
-                                      ? const Color.fromARGB(215, 255, 255, 255)
-                                      : Colors.black87,
-                                  fontSize: isExtraSmallScreen
-                                      ? 12
-                                      : isSmallScreen
-                                          ? 14
-                                          : isMediumScreen
-                                              ? 14
-                                              : isLargeScreen
-                                                  ? 14
-                                                  : isExtraLargeScreen
-                                                      ? 14
-                                                      : 16,
-                                  fontWeight: FontWeight.normal,
-                                  letterSpacing: 0.75,
-                                ),
-                                decoration: InputDecoration(
-                                  border: const OutlineInputBorder(),
-                                  hintText: 'ex: Iphone Galaxy 1000 Pro',
-                                  hintStyle: TextStyle(
+                                    // if (value.length < 6 && value != 'ad') {
+                                    //   return 'Password must be at least 6 characters';
+                                    // }
+                                    return null;
+                                  },
+                                  style: TextStyle(
                                     color: isDarkMode
                                         ? const Color.fromARGB(
                                             215, 255, 255, 255)
-                                        : Colors.black54,
+                                        : Colors.black87,
                                     fontSize: isExtraSmallScreen
                                         ? 12
                                         : isSmallScreen
@@ -1197,151 +1197,52 @@ class _AddProductsState extends ConsumerState<AddProducts> {
                                     fontWeight: FontWeight.normal,
                                     letterSpacing: 0.75,
                                   ),
-                                  suffixIcon: IconButton(
-                                    icon: const Icon(Icons.close),
-                                    onPressed: () {
-                                      _productNameController.clear();
-                                    },
+                                  decoration: InputDecoration(
+                                    border: const OutlineInputBorder(),
+                                    hintText: 'ex: Iphone Galaxy 1000 Pro',
+                                    hintStyle: TextStyle(
+                                      color: isDarkMode
+                                          ? const Color.fromARGB(
+                                              215, 255, 255, 255)
+                                          : Colors.black54,
+                                      fontSize: isExtraSmallScreen
+                                          ? 12
+                                          : isSmallScreen
+                                              ? 14
+                                              : isMediumScreen
+                                                  ? 14
+                                                  : isLargeScreen
+                                                      ? 14
+                                                      : isExtraLargeScreen
+                                                          ? 14
+                                                          : 16,
+                                      fontWeight: FontWeight.normal,
+                                      letterSpacing: 0.75,
+                                    ),
+                                    suffixIcon: IconButton(
+                                      icon: const Icon(Icons.close),
+                                      onPressed: () {
+                                        _productNameController.clear();
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Wrap(
-                              spacing:
-                                  20.0, // Horizontal space between children
-                              runSpacing: 20.0, // Vertical space between lines
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    RetainTextScaleWrapper(
-                                      child: Text('Product Category',
-                                          textAlign: TextAlign.start,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.bold)),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    DropdownButtonFormField<CategoryList>(
-                                      elevation: 0,
-                                      style: TextStyle(
-                                        color: isDarkMode
-                                            ? Colors.white.withAlpha(240)
-                                            : Colors.black87,
-                                        fontSize: isExtraSmallScreen
-                                            ? 12
-                                            : isSmallScreen
-                                                ? 14
-                                                : isMediumScreen
-                                                    ? 14
-                                                    : isLargeScreen
-                                                        ? 14
-                                                        : isExtraLargeScreen
-                                                            ? 14
-                                                            : 16,
-                                        fontWeight: FontWeight.normal,
-                                        letterSpacing: 0.75,
-                                      ),
-                                      hint: RetainTextScaleWrapper(
-                                        child: Text(
-                                          'Category',
-                                          style: TextStyle(
-                                            color: isDarkMode
-                                                ? Colors.white.withAlpha(240)
-                                                : Colors.black54,
-                                            fontSize: isExtraSmallScreen
-                                                ? 12
-                                                : isSmallScreen
-                                                    ? 14
-                                                    : isMediumScreen
-                                                        ? 14
-                                                        : isLargeScreen
-                                                            ? 14
-                                                            : isExtraLargeScreen
-                                                                ? 14
-                                                                : 16,
-                                            fontWeight: FontWeight.normal,
-                                            letterSpacing: 0.75,
-                                          ),
-                                        ),
-                                      ),
-                                      dropdownColor: isDarkMode
-                                          ? Colors.grey.shade900
-                                          : Colors.grey.shade300,
-                                      decoration: const InputDecoration(
-                                        fillColor: Colors.transparent,
-                                        border: OutlineInputBorder(),
-                                        filled: true,
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 5.0, horizontal: 12.0),
-                                      ),
-                                      value: _selectedCategory,
-                                      items: CategoryList.values
-                                          .map<DropdownMenuItem<CategoryList>>(
-                                        (CategoryList category) {
-                                          return DropdownMenuItem<CategoryList>(
-                                              value: category,
-                                              child: Row(
-                                                children: [
-                                                  Icon(category.icon),
-                                                  const SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  RetainTextScaleWrapper(
-                                                    child: Text(
-                                                      category.label.keys
-                                                          .toList()
-                                                          .join(),
-                                                      style: TextStyle(
-                                                        color: isDarkMode
-                                                            ? const Color
-                                                                .fromARGB(215,
-                                                                255, 255, 255)
-                                                            : Colors.black87,
-                                                        fontSize: isExtraSmallScreen
-                                                            ? 12
-                                                            : isSmallScreen
-                                                                ? 14
-                                                                : isMediumScreen
-                                                                    ? 14
-                                                                    : isLargeScreen
-                                                                        ? 14
-                                                                        : isExtraLargeScreen
-                                                                            ? 14
-                                                                            : 16,
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                        letterSpacing: 0.75,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ));
-                                        },
-                                      ).toList(),
-                                      onChanged:
-                                          (CategoryList? selectedCategory) {
-                                        setState(() {
-                                          _selectedCategory = selectedCategory;
-                                        });
-                                        developer.log(
-                                            'Selected: ${selectedCategory!.label.values.join()}');
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                if (_selectedCategory == CategoryList.jewelry)
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Wrap(
+                                spacing:
+                                    20.0, // Horizontal space between children
+                                runSpacing:
+                                    20.0, // Vertical space between lines
+                                children: [
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       RetainTextScaleWrapper(
-                                        child: Text('Material Type',
+                                        child: Text('Product Category',
                                             textAlign: TextAlign.start,
                                             style: Theme.of(context)
                                                 .textTheme
@@ -1350,8 +1251,9 @@ class _AddProductsState extends ConsumerState<AddProducts> {
                                                     fontWeight:
                                                         FontWeight.bold)),
                                       ),
-                                      const SizedBox(height: 8),
-                                      DropdownButtonFormField<JewTypeList>(
+                                      const SizedBox(height: 16),
+                                      DropdownButtonFormField<CategoryList>(
+                                        elevation: 0,
                                         style: TextStyle(
                                           color: isDarkMode
                                               ? Colors.white.withAlpha(240)
@@ -1372,7 +1274,7 @@ class _AddProductsState extends ConsumerState<AddProducts> {
                                         ),
                                         hint: RetainTextScaleWrapper(
                                           child: Text(
-                                            'Type',
+                                            'Category',
                                             style: TextStyle(
                                               color: isDarkMode
                                                   ? Colors.white.withAlpha(240)
@@ -1397,138 +1299,30 @@ class _AddProductsState extends ConsumerState<AddProducts> {
                                             ? Colors.grey.shade900
                                             : Colors.grey.shade300,
                                         decoration: const InputDecoration(
+                                          fillColor: Colors.transparent,
                                           border: OutlineInputBorder(),
                                           filled: true,
                                           contentPadding: EdgeInsets.symmetric(
                                               vertical: 5.0, horizontal: 12.0),
                                         ),
-                                        value: _selectedJewType,
-                                        items: JewTypeList.values
-                                            .map<DropdownMenuItem<JewTypeList>>(
-                                          (JewTypeList jewelry) {
+                                        value: _selectedCategory,
+                                        items: CategoryList.values.map<
+                                            DropdownMenuItem<CategoryList>>(
+                                          (CategoryList category) {
                                             return DropdownMenuItem<
-                                                    JewTypeList>(
-                                                value: jewelry,
-                                                child: RetainTextScaleWrapper(
-                                                  child: Text(
-                                                    jewelry.label,
-                                                    style: TextStyle(
-                                                      color: isDarkMode
-                                                          ? const Color
-                                                              .fromARGB(215,
-                                                              255, 255, 255)
-                                                          : Colors.black87,
-                                                      fontSize: isExtraSmallScreen
-                                                          ? 12
-                                                          : isSmallScreen
-                                                              ? 14
-                                                              : isMediumScreen
-                                                                  ? 14
-                                                                  : isLargeScreen
-                                                                      ? 14
-                                                                      : isExtraLargeScreen
-                                                                          ? 14
-                                                                          : 16,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      letterSpacing: 0.75,
-                                                    ),
-                                                  ),
-                                                ));
-                                          },
-                                        ).toList(),
-                                        onChanged:
-                                            (JewTypeList? selectedJewelryType) {
-                                          setState(() {
-                                            _selectedJewType =
-                                                selectedJewelryType;
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                if (_selectedCategory == CategoryList.jewelry)
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      RetainTextScaleWrapper(
-                                        child: Text('Karat',
-                                            textAlign: TextAlign.start,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium
-                                                ?.copyWith(
-                                                    fontWeight:
-                                                        FontWeight.bold)),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      DropdownButtonFormField<KaratList>(
-                                        style: TextStyle(
-                                          color: isDarkMode
-                                              ? Colors.white.withAlpha(240)
-                                              : Colors.black87,
-                                          fontSize: isExtraSmallScreen
-                                              ? 12
-                                              : isSmallScreen
-                                                  ? 14
-                                                  : isMediumScreen
-                                                      ? 14
-                                                      : isLargeScreen
-                                                          ? 14
-                                                          : isExtraLargeScreen
-                                                              ? 14
-                                                              : 16,
-                                          fontWeight: FontWeight.normal,
-                                          letterSpacing: 0.75,
-                                        ),
-                                        hint: RetainTextScaleWrapper(
-                                          child: Text(
-                                            'Karat',
-                                            style: TextStyle(
-                                              color: isDarkMode
-                                                  ? Colors.white.withAlpha(240)
-                                                  : Colors.black54,
-                                              fontSize: isExtraSmallScreen
-                                                  ? 12
-                                                  : isSmallScreen
-                                                      ? 14
-                                                      : isMediumScreen
-                                                          ? 14
-                                                          : isLargeScreen
-                                                              ? 14
-                                                              : isExtraLargeScreen
-                                                                  ? 14
-                                                                  : 16,
-                                              fontWeight: FontWeight.normal,
-                                              letterSpacing: 0.75,
-                                            ),
-                                          ),
-                                        ),
-                                        dropdownColor: isDarkMode
-                                            ? Colors.grey.shade900
-                                            : Colors.grey.shade300,
-                                        decoration: const InputDecoration(
-                                          border: OutlineInputBorder(),
-                                          filled: true,
-                                          contentPadding: EdgeInsets.symmetric(
-                                              vertical: 5.0, horizontal: 12.0),
-                                        ),
-                                        value: _selectedKarat,
-                                        items: KaratList.values
-                                            .map<DropdownMenuItem<KaratList>>(
-                                          (KaratList karat) {
-                                            return DropdownMenuItem<KaratList>(
-                                                value: karat,
+                                                    CategoryList>(
+                                                value: category,
                                                 child: Row(
                                                   children: [
-                                                    Icon(karat.icon),
+                                                    Icon(category.icon),
                                                     const SizedBox(
                                                       width: 10,
                                                     ),
                                                     RetainTextScaleWrapper(
                                                       child: Text(
-                                                        karat.label,
+                                                        category.label.keys
+                                                            .toList()
+                                                            .join(),
                                                         style: TextStyle(
                                                           color: isDarkMode
                                                               ? const Color
@@ -1556,49 +1350,38 @@ class _AddProductsState extends ConsumerState<AddProducts> {
                                                 ));
                                           },
                                         ).toList(),
-                                        onChanged: (KaratList? selectedKarat) {
+                                        onChanged:
+                                            (CategoryList? selectedCategory) {
                                           setState(() {
-                                            _selectedKarat = selectedKarat;
+                                            _selectedCategory =
+                                                selectedCategory;
                                           });
+                                          developer.log(
+                                              'Selected: ${selectedCategory!.label.values.join()}');
                                         },
                                       ),
                                     ],
                                   ),
-                                if (_selectedCategory == CategoryList.jewelry)
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      RetainTextScaleWrapper(
-                                        child: Text('Weight',
-                                            textAlign: TextAlign.start,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium
-                                                ?.copyWith(
-                                                    fontWeight:
-                                                        FontWeight.bold)),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      TextFormField(
-                                          key: const ValueKey('weight'),
-                                          controller: _productWeightController,
-                                          textInputAction: TextInputAction.next,
-                                          validator: (value) {
-                                            if (value == null ||
-                                                value.isEmpty) {
-                                              return 'Required';
-                                            }
-
-                                            // if (value.length < 6 && value != 'ad') {
-                                            //   return 'Password must be at least 6 characters';
-                                            // }
-                                            return null;
-                                          },
+                                  if (_selectedCategory == CategoryList.jewelry)
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        RetainTextScaleWrapper(
+                                          child: Text('Material Type',
+                                              textAlign: TextAlign.start,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        DropdownButtonFormField<JewTypeList>(
                                           style: TextStyle(
                                             color: isDarkMode
-                                                ? const Color.fromARGB(
-                                                    215, 255, 255, 255)
+                                                ? Colors.white.withAlpha(240)
                                                 : Colors.black87,
                                             fontSize: isExtraSmallScreen
                                                 ? 12
@@ -1614,11 +1397,10 @@ class _AddProductsState extends ConsumerState<AddProducts> {
                                             fontWeight: FontWeight.normal,
                                             letterSpacing: 0.75,
                                           ),
-                                          decoration: InputDecoration(
-                                              border:
-                                                  const OutlineInputBorder(),
-                                              hintText: 'ex: 5g./1kg.',
-                                              hintStyle: TextStyle(
+                                          hint: RetainTextScaleWrapper(
+                                            child: Text(
+                                              'Type',
+                                              style: TextStyle(
                                                 color: isDarkMode
                                                     ? Colors.white
                                                         .withAlpha(240)
@@ -1637,272 +1419,946 @@ class _AddProductsState extends ConsumerState<AddProducts> {
                                                 fontWeight: FontWeight.normal,
                                                 letterSpacing: 0.75,
                                               ),
-                                              suffixIcon: IconButton(
-                                                icon: const Icon(Icons.close),
-                                                onPressed: () {
-                                                  _productWeightController
-                                                      .clear();
-                                                },
-                                              ))),
-                                    ],
-                                  ),
-                              ],
-                            ),
-                            // if (_selectedCategory != CategoryList.jewelry)
-                            const SizedBox(height: 20),
-                            // if (_selectedCategory != CategoryList.jewelry)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 12.0),
-                              child: Wrap(
-                                spacing: 8.0,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  RetainTextScaleWrapper(
-                                    child: Text('Product Specifications',
-                                        textAlign: TextAlign.start,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(
-                                                fontWeight: FontWeight.bold)),
-                                  ),
-                                  Tooltip(
-                                    message:
-                                        'Auto formatted specs: Label -> Value',
-                                    child: IconButton(
-                                      icon: Icon(CupertinoIcons
-                                          .info_circle_fill), // Or use a custom icon from a library
-                                      onPressed: () {
-                                        // Handle the onPressed action
-                                      },
+                                            ),
+                                          ),
+                                          dropdownColor: isDarkMode
+                                              ? Colors.grey.shade900
+                                              : Colors.grey.shade300,
+                                          decoration: const InputDecoration(
+                                            border: OutlineInputBorder(),
+                                            filled: true,
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    vertical: 5.0,
+                                                    horizontal: 12.0),
+                                          ),
+                                          value: _selectedJewType,
+                                          items: JewTypeList.values.map<
+                                              DropdownMenuItem<JewTypeList>>(
+                                            (JewTypeList jewelry) {
+                                              return DropdownMenuItem<
+                                                      JewTypeList>(
+                                                  value: jewelry,
+                                                  child: RetainTextScaleWrapper(
+                                                    child: Text(
+                                                      jewelry.label,
+                                                      style: TextStyle(
+                                                        color: isDarkMode
+                                                            ? const Color
+                                                                .fromARGB(215,
+                                                                255, 255, 255)
+                                                            : Colors.black87,
+                                                        fontSize: isExtraSmallScreen
+                                                            ? 12
+                                                            : isSmallScreen
+                                                                ? 14
+                                                                : isMediumScreen
+                                                                    ? 14
+                                                                    : isLargeScreen
+                                                                        ? 14
+                                                                        : isExtraLargeScreen
+                                                                            ? 14
+                                                                            : 16,
+                                                        fontWeight:
+                                                            FontWeight.normal,
+                                                        letterSpacing: 0.75,
+                                                      ),
+                                                    ),
+                                                  ));
+                                            },
+                                          ).toList(),
+                                          onChanged: (JewTypeList?
+                                              selectedJewelryType) {
+                                            setState(() {
+                                              _selectedJewType =
+                                                  selectedJewelryType;
+                                            });
+                                          },
+                                        ),
+                                      ],
                                     ),
-                                  )
+                                  if (_selectedCategory == CategoryList.jewelry)
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        RetainTextScaleWrapper(
+                                          child: Text('Karat',
+                                              textAlign: TextAlign.start,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        DropdownButtonFormField<KaratList>(
+                                          style: TextStyle(
+                                            color: isDarkMode
+                                                ? Colors.white.withAlpha(240)
+                                                : Colors.black87,
+                                            fontSize: isExtraSmallScreen
+                                                ? 12
+                                                : isSmallScreen
+                                                    ? 14
+                                                    : isMediumScreen
+                                                        ? 14
+                                                        : isLargeScreen
+                                                            ? 14
+                                                            : isExtraLargeScreen
+                                                                ? 14
+                                                                : 16,
+                                            fontWeight: FontWeight.normal,
+                                            letterSpacing: 0.75,
+                                          ),
+                                          hint: RetainTextScaleWrapper(
+                                            child: Text(
+                                              'Karat',
+                                              style: TextStyle(
+                                                color: isDarkMode
+                                                    ? Colors.white
+                                                        .withAlpha(240)
+                                                    : Colors.black54,
+                                                fontSize: isExtraSmallScreen
+                                                    ? 12
+                                                    : isSmallScreen
+                                                        ? 14
+                                                        : isMediumScreen
+                                                            ? 14
+                                                            : isLargeScreen
+                                                                ? 14
+                                                                : isExtraLargeScreen
+                                                                    ? 14
+                                                                    : 16,
+                                                fontWeight: FontWeight.normal,
+                                                letterSpacing: 0.75,
+                                              ),
+                                            ),
+                                          ),
+                                          dropdownColor: isDarkMode
+                                              ? Colors.grey.shade900
+                                              : Colors.grey.shade300,
+                                          decoration: const InputDecoration(
+                                            border: OutlineInputBorder(),
+                                            filled: true,
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    vertical: 5.0,
+                                                    horizontal: 12.0),
+                                          ),
+                                          value: _selectedKarat,
+                                          items: KaratList.values
+                                              .map<DropdownMenuItem<KaratList>>(
+                                            (KaratList karat) {
+                                              return DropdownMenuItem<
+                                                      KaratList>(
+                                                  value: karat,
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(karat.icon),
+                                                      const SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      RetainTextScaleWrapper(
+                                                        child: Text(
+                                                          karat.label,
+                                                          style: TextStyle(
+                                                            color: isDarkMode
+                                                                ? const Color
+                                                                    .fromARGB(
+                                                                    215,
+                                                                    255,
+                                                                    255,
+                                                                    255)
+                                                                : Colors
+                                                                    .black87,
+                                                            fontSize: isExtraSmallScreen
+                                                                ? 12
+                                                                : isSmallScreen
+                                                                    ? 14
+                                                                    : isMediumScreen
+                                                                        ? 14
+                                                                        : isLargeScreen
+                                                                            ? 14
+                                                                            : isExtraLargeScreen
+                                                                                ? 14
+                                                                                : 16,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                            letterSpacing: 0.75,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ));
+                                            },
+                                          ).toList(),
+                                          onChanged:
+                                              (KaratList? selectedKarat) {
+                                            setState(() {
+                                              _selectedKarat = selectedKarat;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  if (_selectedCategory == CategoryList.jewelry)
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        RetainTextScaleWrapper(
+                                          child: Text('Weight',
+                                              textAlign: TextAlign.start,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        TextFormField(
+                                            key: const ValueKey('weight'),
+                                            controller:
+                                                _productWeightController,
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty) {
+                                                return 'Required';
+                                              }
+
+                                              // if (value.length < 6 && value != 'ad') {
+                                              //   return 'Password must be at least 6 characters';
+                                              // }
+                                              return null;
+                                            },
+                                            style: TextStyle(
+                                              color: isDarkMode
+                                                  ? const Color.fromARGB(
+                                                      215, 255, 255, 255)
+                                                  : Colors.black87,
+                                              fontSize: isExtraSmallScreen
+                                                  ? 12
+                                                  : isSmallScreen
+                                                      ? 14
+                                                      : isMediumScreen
+                                                          ? 14
+                                                          : isLargeScreen
+                                                              ? 14
+                                                              : isExtraLargeScreen
+                                                                  ? 14
+                                                                  : 16,
+                                              fontWeight: FontWeight.normal,
+                                              letterSpacing: 0.75,
+                                            ),
+                                            decoration: InputDecoration(
+                                                border:
+                                                    const OutlineInputBorder(),
+                                                hintText: 'ex: 5g./1kg.',
+                                                hintStyle: TextStyle(
+                                                  color: isDarkMode
+                                                      ? Colors.white
+                                                          .withAlpha(240)
+                                                      : Colors.black54,
+                                                  fontSize: isExtraSmallScreen
+                                                      ? 12
+                                                      : isSmallScreen
+                                                          ? 14
+                                                          : isMediumScreen
+                                                              ? 14
+                                                              : isLargeScreen
+                                                                  ? 14
+                                                                  : isExtraLargeScreen
+                                                                      ? 14
+                                                                      : 16,
+                                                  fontWeight: FontWeight.normal,
+                                                  letterSpacing: 0.75,
+                                                ),
+                                                suffixIcon: IconButton(
+                                                  icon: const Icon(Icons.close),
+                                                  onPressed: () {
+                                                    _productWeightController
+                                                        .clear();
+                                                  },
+                                                ))),
+                                      ],
+                                    ),
                                 ],
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 12.0),
-                              child: Center(
-                                child: Form(
-                                  key: _formKey,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 16.0),
-                                        child: SizedBox(
-                                          // width: splitWidth,
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              if (_formKey.currentState
-                                                      ?.validate() ??
-                                                  false) {
-                                                _concatSpecsData =
-                                                    '${_labelSpecsController.text.trimLeft().trimRight().replaceAll(RegExp(r'^-+|-+$'), '')}-${_valueSpecsController.text.trimLeft().trimRight().replaceAll(RegExp(r'^-+|-+$'), '')}'; // the RegExp here is to remove the preceding and trailing hyphen(s)(-)
-                                                // developer.log(concatSpecsData);
-                                                setState(() {
-                                                  sharedPrefs.saveSpecsPair(
-                                                      _concatSpecsData!);
-                                                });
-                                              }
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(4)),
-                                            ),
-                                            child: RetainTextScaleWrapper(
-                                              child: Text(
-                                                'Add Specs.',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge
-                                                    ?.copyWith(
-                                                        fontWeight:
-                                                            FontWeight.bold),
+                              // if (_selectedCategory != CategoryList.jewelry)
+                              const SizedBox(height: 20),
+                              // if (_selectedCategory != CategoryList.jewelry)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: Wrap(
+                                  spacing: 8.0,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    RetainTextScaleWrapper(
+                                      child: Text('Product Specifications',
+                                          textAlign: TextAlign.start,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                  fontWeight: FontWeight.bold)),
+                                    ),
+                                    Tooltip(
+                                      message:
+                                          'Auto formatted specs: Label -> Value',
+                                      child: IconButton(
+                                        icon: Icon(CupertinoIcons
+                                            .info_circle_fill), // Or use a custom icon from a library
+                                        onPressed: () {
+                                          // Handle the onPressed action
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: Center(
+                                  child: Form(
+                                    key: _formKey,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 16.0),
+                                          child: SizedBox(
+                                            // width: splitWidth,
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                if (_formKey.currentState
+                                                        ?.validate() ??
+                                                    false) {
+                                                  _concatSpecsData =
+                                                      '${_labelSpecsController.text.trimLeft().trimRight().replaceAll(RegExp(r'^-+|-+$'), '')}-${_valueSpecsController.text.trimLeft().trimRight().replaceAll(RegExp(r'^-+|-+$'), '')}'; // the RegExp here is to remove the preceding and trailing hyphen(s)(-)
+                                                  // developer.log(concatSpecsData);
+                                                  setState(() {
+                                                    sharedPrefs.saveSpecsPair(
+                                                        _concatSpecsData!);
+                                                  });
+                                                }
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4)),
+                                              ),
+                                              child: RetainTextScaleWrapper(
+                                                child: Text(
+                                                  'Add Specs.',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge
+                                                      ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        child: LayoutBuilder(
-                                            builder: (context, constraint) {
-                                          // double nestedSplitWidth =
-                                          //     constraint.maxWidth / 2;
-                                          return Wrap(
-                                            spacing: 16.0,
-                                            runSpacing: 16.0,
-                                            children: [
-                                              // SizedBox(
-                                              //   // width: nestedSplitWidth * 0.95,
-                                              //   child: TextFormField(
-                                              //       key: const ValueKey(
-                                              //           'specs_lbl'),
-                                              //       controller:
-                                              //           _labelSpecsController,
-                                              //       textInputAction:
-                                              //           TextInputAction.next,
-                                              //       validator: (value) {
-                                              //         if (value == null ||
-                                              //             value.isEmpty) {
-                                              //           return 'Required';
-                                              //         }
+                                        Expanded(
+                                          child: LayoutBuilder(
+                                              builder: (context, constraint) {
+                                            // double nestedSplitWidth =
+                                            //     constraint.maxWidth / 2;
+                                            return Wrap(
+                                              spacing: 16.0,
+                                              runSpacing: 16.0,
+                                              children: [
+                                                // SizedBox(
+                                                //   // width: nestedSplitWidth * 0.95,
+                                                //   child: TextFormField(
+                                                //       key: const ValueKey(
+                                                //           'specs_lbl'),
+                                                //       controller:
+                                                //           _labelSpecsController,
+                                                //       textInputAction:
+                                                //           TextInputAction.next,
+                                                //       validator: (value) {
+                                                //         if (value == null ||
+                                                //             value.isEmpty) {
+                                                //           return 'Required';
+                                                //         }
 
-                                              //         // if (value.length < 6 && value != 'ad') {
-                                              //         //   return 'Password must be at least 6 characters';
-                                              //         // }
-                                              //         return null;
-                                              //       },
-                                              //       style: TextStyle(
-                                              //         color: isDarkMode
-                                              //             ? const Color
-                                              //                 .fromARGB(215,
-                                              //                 255, 255, 255)
-                                              //             : Colors.black87,
-                                              //         fontSize: isExtraSmallScreen
-                                              //             ? 12
-                                              //             : isSmallScreen
-                                              //                 ? 14
-                                              //                 : isMediumScreen
-                                              //                     ? 14
-                                              //                     : isLargeScreen
-                                              //                         ? 14
-                                              //                         : isExtraLargeScreen
-                                              //                             ? 14
-                                              //                             : 16,
-                                              //         fontWeight:
-                                              //             FontWeight.normal,
-                                              //         letterSpacing: 0.75,
-                                              //       ),
-                                              //       decoration: InputDecoration(
-                                              //           border:
-                                              //               const OutlineInputBorder(),
-                                              //           hintText:
-                                              //               'Label Specifications',
-                                              //           hintStyle: TextStyle(
-                                              //             color: isDarkMode
-                                              //                 ? Colors.white
-                                              //                     .withAlpha(
-                                              //                         240)
-                                              //                 : Colors.black54,
-                                              //             fontSize: isExtraSmallScreen
-                                              //                 ? 12
-                                              //                 : isSmallScreen
-                                              //                     ? 14
-                                              //                     : isMediumScreen
-                                              //                         ? 14
-                                              //                         : isLargeScreen
-                                              //                             ? 14
-                                              //                             : isExtraLargeScreen
-                                              //                                 ? 14
-                                              //                                 : 16,
-                                              //             fontWeight:
-                                              //                 FontWeight.normal,
-                                              //             letterSpacing: 0.75,
-                                              //           ),
-                                              //           suffixIcon: IconButton(
-                                              //             icon: const Icon(
-                                              //                 Icons.close),
-                                              //             onPressed: () {
-                                              //               _labelSpecsController
-                                              //                   .clear();
-                                              //             },
-                                              //           ))),
-                                              // ),
-                                              switch (prodAdminKNData) {
-                                                AsyncData(:final value) =>
-                                                  RetainTextScaleWrapper(
-                                                    child: CustomDropdown<
-                                                        String>.search(
-                                                      decoration:
-                                                          CustomDropDownStyle
-                                                              .customDropdownSearchDecorationClass(
-                                                                  context,
-                                                                  isDarkMode),
-                                                      items: value
-                                                          .productKeyName
-                                                          ?.map((e) =>
-                                                              e.prodKeyName)
-                                                          .where(
-                                                              (e) => e != null)
-                                                          .cast<String>()
-                                                          .toList(),
-                                                      onChanged: (value) {
-                                                        developer.log(
-                                                            'Selected value: $value');
-                                                      },
+                                                //         // if (value.length < 6 && value != 'ad') {
+                                                //         //   return 'Password must be at least 6 characters';
+                                                //         // }
+                                                //         return null;
+                                                //       },
+                                                //       style: TextStyle(
+                                                //         color: isDarkMode
+                                                //             ? const Color
+                                                //                 .fromARGB(215,
+                                                //                 255, 255, 255)
+                                                //             : Colors.black87,
+                                                //         fontSize: isExtraSmallScreen
+                                                //             ? 12
+                                                //             : isSmallScreen
+                                                //                 ? 14
+                                                //                 : isMediumScreen
+                                                //                     ? 14
+                                                //                     : isLargeScreen
+                                                //                         ? 14
+                                                //                         : isExtraLargeScreen
+                                                //                             ? 14
+                                                //                             : 16,
+                                                //         fontWeight:
+                                                //             FontWeight.normal,
+                                                //         letterSpacing: 0.75,
+                                                //       ),
+                                                //       decoration: InputDecoration(
+                                                //           border:
+                                                //               const OutlineInputBorder(),
+                                                //           hintText:
+                                                //               'Label Specifications',
+                                                //           hintStyle: TextStyle(
+                                                //             color: isDarkMode
+                                                //                 ? Colors.white
+                                                //                     .withAlpha(
+                                                //                         240)
+                                                //                 : Colors.black54,
+                                                //             fontSize: isExtraSmallScreen
+                                                //                 ? 12
+                                                //                 : isSmallScreen
+                                                //                     ? 14
+                                                //                     : isMediumScreen
+                                                //                         ? 14
+                                                //                         : isLargeScreen
+                                                //                             ? 14
+                                                //                             : isExtraLargeScreen
+                                                //                                 ? 14
+                                                //                                 : 16,
+                                                //             fontWeight:
+                                                //                 FontWeight.normal,
+                                                //             letterSpacing: 0.75,
+                                                //           ),
+                                                //           suffixIcon: IconButton(
+                                                //             icon: const Icon(
+                                                //                 Icons.close),
+                                                //             onPressed: () {
+                                                //               _labelSpecsController
+                                                //                   .clear();
+                                                //             },
+                                                //           ))),
+                                                // ),
+                                                switch (prodAdminKNData) {
+                                                  AsyncData(:final value) =>
+                                                    RetainTextScaleWrapper(
+                                                      child: CustomDropdown<
+                                                          String>.search(
+                                                        decoration:
+                                                            CustomDropDownStyle
+                                                                .customDropdownSearchDecorationClass(
+                                                                    context,
+                                                                    isDarkMode),
+                                                        items: value
+                                                            .productKeyName
+                                                            ?.map((e) =>
+                                                                e.prodKeyName)
+                                                            .where((e) =>
+                                                                e != null)
+                                                            .cast<String>()
+                                                            .toList(),
+                                                        onChanged: (value) {
+                                                          developer.log(
+                                                              'Selected value: $value');
+                                                        },
+                                                      ),
                                                     ),
-                                                  ),
-                                                AsyncError() => Center(
-                                                    child:
-                                                        RetainTextScaleWrapper(
-                                                      child: const Text(
-                                                          'Oops, something unexpected happened.'),
+                                                  AsyncError() => Center(
+                                                      child:
+                                                          RetainTextScaleWrapper(
+                                                        child: const Text(
+                                                            'Oops, something unexpected happened.'),
+                                                      ),
                                                     ),
-                                                  ),
-                                                _ => Center(
-                                                    child:
-                                                        LoadingAnimationWidget
-                                                            .stretchedDots(
-                                                      color: Colors.white,
-                                                      size: 50,
+                                                  _ => Center(
+                                                      child:
+                                                          LoadingAnimationWidget
+                                                              .stretchedDots(
+                                                        color: Colors.white,
+                                                        size: 50,
+                                                      ),
                                                     ),
-                                                  ),
-                                              },
-                                              SizedBox(
-                                                // width: nestedSplitWidth * 0.95,
-                                                child: TextFormField(
-                                                  key: const ValueKey(
-                                                      'specs_val'),
-                                                  controller:
-                                                      _valueSpecsController,
-                                                  textInputAction:
-                                                      TextInputAction.next,
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty) {
-                                                      return 'Required';
-                                                    }
+                                                },
+                                                SizedBox(
+                                                  // width: nestedSplitWidth * 0.95,
+                                                  child: TextFormField(
+                                                    key: const ValueKey(
+                                                        'specs_val'),
+                                                    controller:
+                                                        _valueSpecsController,
+                                                    textInputAction:
+                                                        TextInputAction.next,
+                                                    validator: (value) {
+                                                      if (value == null ||
+                                                          value.isEmpty) {
+                                                        return 'Required';
+                                                      }
 
-                                                    // if (value.length < 6 && value != 'ad') {
-                                                    //   return 'Password must be at least 6 characters';
-                                                    // }
-                                                    return null;
-                                                  },
-                                                  style: TextStyle(
-                                                    color: isDarkMode
-                                                        ? const Color.fromARGB(
-                                                            215, 255, 255, 255)
-                                                        : Colors.black87,
-                                                    fontSize: isExtraSmallScreen
-                                                        ? 12
-                                                        : isSmallScreen
-                                                            ? 14
-                                                            : isMediumScreen
+                                                      // if (value.length < 6 && value != 'ad') {
+                                                      //   return 'Password must be at least 6 characters';
+                                                      // }
+                                                      return null;
+                                                    },
+                                                    style: TextStyle(
+                                                      color: isDarkMode
+                                                          ? const Color
+                                                              .fromARGB(215,
+                                                              255, 255, 255)
+                                                          : Colors.black87,
+                                                      fontSize: isExtraSmallScreen
+                                                          ? 12
+                                                          : isSmallScreen
+                                                              ? 14
+                                                              : isMediumScreen
+                                                                  ? 14
+                                                                  : isLargeScreen
+                                                                      ? 14
+                                                                      : isExtraLargeScreen
+                                                                          ? 14
+                                                                          : 16,
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      letterSpacing: 0.75,
+                                                    ),
+                                                    decoration: InputDecoration(
+                                                      border:
+                                                          const OutlineInputBorder(),
+                                                      hintText:
+                                                          'Value Specifications',
+                                                      hintStyle: TextStyle(
+                                                        color: isDarkMode
+                                                            ? Colors.white
+                                                                .withAlpha(240)
+                                                            : Colors.black54,
+                                                        fontSize: isExtraSmallScreen
+                                                            ? 12
+                                                            : isSmallScreen
                                                                 ? 14
-                                                                : isLargeScreen
+                                                                : isMediumScreen
                                                                     ? 14
-                                                                    : isExtraLargeScreen
+                                                                    : isLargeScreen
                                                                         ? 14
-                                                                        : 16,
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                    letterSpacing: 0.75,
+                                                                        : isExtraLargeScreen
+                                                                            ? 14
+                                                                            : 16,
+                                                        fontWeight:
+                                                            FontWeight.normal,
+                                                        letterSpacing: 0.75,
+                                                      ),
+                                                      suffixIcon: IconButton(
+                                                        icon: const Icon(
+                                                            Icons.close),
+                                                        onPressed: () {
+                                                          _valueSpecsController
+                                                              .clear();
+                                                        },
+                                                      ),
+                                                    ),
                                                   ),
-                                                  decoration: InputDecoration(
+                                                ),
+                                              ],
+                                            );
+                                          }),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              _populateSpecsPairs(),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: RetainTextScaleWrapper(
+                                  child: Text('Product Images',
+                                      textAlign: TextAlign.start,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                              // Stack(
+                              //   children: [
+                              //     Row(
+                              //       children:
+                              //           // [
+                              //           //   Image.asset(
+                              //           //       width: 100,
+                              //           //       height: 100,
+                              //           //       'assets/images/Jewelry_demo_image_330x330_1.png'),
+                              //           //   const SizedBox(
+                              //           //     width: 20,
+                              //           //   ),
+                              //           //   Image.asset(
+                              //           //       width: 100,
+                              //           //       height: 100,
+                              //           //       'assets/images/Gadget_demo_image_330x330_1.png'),
+                              //           //   const SizedBox(
+                              //           //     width: 20,
+                              //           //   ),
+                              //           //   Image.asset(
+                              //           //       width: 100,
+                              //           //       height: 100,
+                              //           //       'assets/images/Luxury_bag_demo_image_330x330_1.png')
+                              //           // ],
+                              //           images
+                              //               .map((image) => _buildImage(image))
+                              //               .toList(),
+                              //     )
+                              //   ],
+                              // ),
+                              /*Wrap(
+                                children: images
+                                    .map((image) => _buildImage(image))
+                                    .toList(),
+                              ),
+                              selectedImage != null
+                                  ? Image.memory(selectedImage!
+                                      .bytes!) // Replace with your preferred image display
+                                  : Container(),
+                              ElevatedButton(
+                                onPressed: _pickImage,
+                                child: const Text('Select Image'),
+                              ),//use this for the upper commend source code */
+                              Padding(
+                                padding: _selectedImages.isNotEmpty
+                                    ? const EdgeInsets.only(bottom: 12.0)
+                                    : const EdgeInsets.all(0),
+                                child: Wrap(
+                                  spacing: 10,
+                                  runSpacing: 10,
+                                  children:
+                                      _selectedImages.map(_buildImage).toList(),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: ElevatedButton(
+                                  onPressed: _pickImage,
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4)),
+                                  ),
+                                  child: RetainTextScaleWrapper(
+                                    child: Text(
+                                      'Select Images',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: Wrap(
+                                  spacing: 8.0,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    RetainTextScaleWrapper(
+                                      child: Text('Promotional Tags',
+                                          textAlign: TextAlign.start,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                  fontWeight: FontWeight.bold)),
+                                    ),
+                                    Tooltip(
+                                      message:
+                                          'Sorting in ascending order is based on the first-to-last entry.',
+                                      child: IconButton(
+                                        icon: Icon(CupertinoIcons
+                                            .info_circle_fill), // Or use a custom icon from a library
+                                        onPressed: () {
+                                          // Handle the onPressed action
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Form(
+                                key: _formKey2,
+                                child: Wrap(
+                                  direction: Axis.horizontal,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  alignment: WrapAlignment.start,
+                                  runSpacing: 16.0,
+                                  children: [
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 16.0),
+                                      child: SizedBox(
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            if (_formKey2.currentState
+                                                    ?.validate() ??
+                                                false) {
+                                              setState(() {
+                                                sharedPrefs.savePromoTag(
+                                                    _promoTagController.text);
+                                              });
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(4)),
+                                          ),
+                                          child: RetainTextScaleWrapper(
+                                            child: Text(
+                                              'Add Tags',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyLarge
+                                                  ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.6,
+                                      child: TextFormField(
+                                        key: const ValueKey('name'),
+                                        controller: _promoTagController,
+                                        textInputAction: TextInputAction.next,
+                                        maxLength: 18,
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Required';
+                                          }
+
+                                          // if (value.length < 6 && value != 'ad') {
+                                          //   return 'Password must be at least 6 characters';
+                                          // }
+                                          return null;
+                                        },
+                                        style: TextStyle(
+                                          color: isDarkMode
+                                              ? const Color.fromARGB(
+                                                  215, 255, 255, 255)
+                                              : Colors.black87,
+                                          fontSize: isExtraSmallScreen
+                                              ? 12
+                                              : isSmallScreen
+                                                  ? 14
+                                                  : isMediumScreen
+                                                      ? 14
+                                                      : isLargeScreen
+                                                          ? 14
+                                                          : isExtraLargeScreen
+                                                              ? 14
+                                                              : 16,
+                                          fontWeight: FontWeight.normal,
+                                          letterSpacing: 0.75,
+                                        ),
+                                        decoration: InputDecoration(
+                                          border: const OutlineInputBorder(),
+                                          hintText: 'Tag Values',
+                                          hintStyle: TextStyle(
+                                            color: isDarkMode
+                                                ? const Color.fromARGB(
+                                                    215, 255, 255, 255)
+                                                : Colors.black54,
+                                            fontSize: isExtraSmallScreen
+                                                ? 12
+                                                : isSmallScreen
+                                                    ? 14
+                                                    : isMediumScreen
+                                                        ? 14
+                                                        : isLargeScreen
+                                                            ? 14
+                                                            : isExtraLargeScreen
+                                                                ? 14
+                                                                : 16,
+                                            fontWeight: FontWeight.normal,
+                                            letterSpacing: 0.75,
+                                          ),
+                                          suffixIcon: IconButton(
+                                            icon: const Icon(Icons.close),
+                                            onPressed: () {
+                                              _promoTagController.clear();
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              _populatePromoTags(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Padding(
+                        padding: _containerPadding(
+                            isExtraSmallScreen,
+                            isSmallScreen,
+                            isMediumScreen,
+                            isLargeScreen,
+                            isExtraLargeScreen),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: customTheme?.containerBackgroundColor,
+                            borderRadius:
+                                BorderRadius.circular(10.0), // Border radius
+                            border: Border.all(
+                                color: Colors.transparent), // Border color
+                          ),
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RetainTextScaleWrapper(
+                                child: Text('Price & Stock',
+                                    textAlign: TextAlign.start,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.bold)),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              LayoutBuilder(
+                                builder: (context, constraint) {
+                                  double parentWidth =
+                                      (isSmallScreen || isMediumScreen)
+                                          ? constraint.maxWidth
+                                          : isLargeScreen
+                                              ? constraint.maxWidth / 3
+                                              : constraint.maxWidth / 4;
+                                  return Wrap(
+                                    spacing:
+                                        20.0, // Horizontal space between children
+                                    runSpacing:
+                                        20.0, // Vertical space between lines
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          RetainTextScaleWrapper(
+                                            child: Text('Original Price',
+                                                textAlign: TextAlign.start,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          SizedBox(
+                                            width: parentWidth,
+                                            child: TextFormField(
+                                                key: const ValueKey('price'),
+                                                maxLength: 13,
+                                                controller:
+                                                    _originalPriceController,
+                                                keyboardType:
+                                                    const TextInputType
+                                                        .numberWithOptions(
+                                                        decimal: true),
+                                                // inputFormatters: [
+                                                //   NumberInputFormatter()
+                                                // ],
+                                                // inputFormatters: <TextInputFormatter>[
+                                                //   FilteringTextInputFormatter.deny(
+                                                //       ',',
+                                                //       replacementString: '.'),
+                                                //   FilteringTextInputFormatter.allow(
+                                                //       RegExp(r'(^\d*\.?\d{0,2})')),
+                                                // ],
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly
+                                                ],
+                                                textInputAction:
+                                                    TextInputAction.next,
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return 'Required';
+                                                  }
+
+                                                  // if (value.length < 6 && value != 'ad') {
+                                                  //   return 'Password must be at least 6 characters';
+                                                  // }
+                                                  return null;
+                                                },
+                                                style: TextStyle(
+                                                  color: isDarkMode
+                                                      ? const Color.fromARGB(
+                                                          215, 255, 255, 255)
+                                                      : Colors.black87,
+                                                  fontSize: isExtraSmallScreen
+                                                      ? 12
+                                                      : isSmallScreen
+                                                          ? 14
+                                                          : isMediumScreen
+                                                              ? 14
+                                                              : isLargeScreen
+                                                                  ? 14
+                                                                  : isExtraLargeScreen
+                                                                      ? 14
+                                                                      : 16,
+                                                  fontWeight: FontWeight.normal,
+                                                  letterSpacing: 0.75,
+                                                ),
+                                                decoration: InputDecoration(
+                                                    prefixIcon: const Padding(
+                                                      padding:
+                                                          EdgeInsets.all(8.0),
+                                                      child: FaIcon(
+                                                          FontAwesomeIcons
+                                                              .pesoSign),
+                                                    ),
                                                     border:
                                                         const OutlineInputBorder(),
-                                                    hintText:
-                                                        'Value Specifications',
+                                                    hintText: 'ex: 12,000',
                                                     hintStyle: TextStyle(
                                                       color: isDarkMode
-                                                          ? Colors.white
-                                                              .withAlpha(240)
+                                                          ? const Color
+                                                              .fromARGB(215,
+                                                              255, 255, 255)
                                                           : Colors.black54,
                                                       fontSize: isExtraSmallScreen
                                                           ? 12
@@ -1923,30 +2379,624 @@ class _AddProductsState extends ConsumerState<AddProducts> {
                                                       icon: const Icon(
                                                           Icons.close),
                                                       onPressed: () {
-                                                        _valueSpecsController
+                                                        _originalPriceController
                                                             .clear();
                                                       },
-                                                    ),
-                                                  ),
+                                                    ))),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Wrap(
+                                            spacing: 8.0,
+                                            crossAxisAlignment:
+                                                WrapCrossAlignment.center,
+                                            children: [
+                                              RetainTextScaleWrapper(
+                                                child: Text('Discounted Price',
+                                                    textAlign: TextAlign.start,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyMedium
+                                                        ?.copyWith(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                              ),
+                                              Tooltip(
+                                                message:
+                                                    'Total amount of original amount minus discount (e.g., 5000 - 1000 = 4000 [Discounted price])',
+                                                child: IconButton(
+                                                  icon: Icon(CupertinoIcons
+                                                      .info_circle_fill), // Or use a custom icon from a library
+                                                  onPressed: () {
+                                                    // Handle the onPressed action
+                                                  },
                                                 ),
                                               ),
                                             ],
-                                          );
-                                        }),
-                                      )
+                                          ),
+                                          const SizedBox(height: 8),
+                                          SizedBox(
+                                            width: parentWidth,
+                                            child: TextFormField(
+                                                key:
+                                                    const ValueKey('dis_price'),
+                                                maxLength: 11,
+                                                controller:
+                                                    _discountedPriceController,
+                                                keyboardType:
+                                                    const TextInputType
+                                                        .numberWithOptions(
+                                                        decimal: true),
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly
+                                                ],
+                                                textInputAction:
+                                                    TextInputAction.next,
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return 'Required';
+                                                  }
+
+                                                  // if (value.length < 6 && value != 'ad') {
+                                                  //   return 'Password must be at least 6 characters';
+                                                  // }
+                                                  return null;
+                                                },
+                                                style: TextStyle(
+                                                  color: isDarkMode
+                                                      ? const Color.fromARGB(
+                                                          215, 255, 255, 255)
+                                                      : Colors.black87,
+                                                  fontSize: isExtraSmallScreen
+                                                      ? 12
+                                                      : isSmallScreen
+                                                          ? 14
+                                                          : isMediumScreen
+                                                              ? 14
+                                                              : isLargeScreen
+                                                                  ? 14
+                                                                  : isExtraLargeScreen
+                                                                      ? 14
+                                                                      : 16,
+                                                  fontWeight: FontWeight.normal,
+                                                  letterSpacing: 0.75,
+                                                ),
+                                                decoration: InputDecoration(
+                                                    prefixIcon: const Padding(
+                                                      padding:
+                                                          EdgeInsets.all(8.0),
+                                                      child: FaIcon(
+                                                          FontAwesomeIcons
+                                                              .pesoSign),
+                                                    ),
+                                                    border:
+                                                        const OutlineInputBorder(),
+                                                    hintText: 'ex: 10,599',
+                                                    hintStyle: TextStyle(
+                                                      color: isDarkMode
+                                                          ? const Color
+                                                              .fromARGB(215,
+                                                              255, 255, 255)
+                                                          : Colors.black54,
+                                                      fontSize: isExtraSmallScreen
+                                                          ? 12
+                                                          : isSmallScreen
+                                                              ? 14
+                                                              : isMediumScreen
+                                                                  ? 14
+                                                                  : isLargeScreen
+                                                                      ? 14
+                                                                      : isExtraLargeScreen
+                                                                          ? 14
+                                                                          : 16,
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      letterSpacing: 0.75,
+                                                    ),
+                                                    suffixIcon: IconButton(
+                                                      icon: const Icon(
+                                                          Icons.close),
+                                                      onPressed: () {
+                                                        _discountedPriceController
+                                                            .clear();
+                                                      },
+                                                    ))),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          RetainTextScaleWrapper(
+                                            child: Text('Difference Price',
+                                                textAlign: TextAlign.start,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          SizedBox(
+                                            width: parentWidth,
+                                            child: TextFormField(
+                                                key: const ValueKey(
+                                                    'diff_price'),
+                                                readOnly: true,
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly
+                                                ],
+                                                textInputAction:
+                                                    TextInputAction.next,
+                                                controller:
+                                                    _differencePriceController,
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return 'Required';
+                                                  }
+
+                                                  // if (value.length < 6 && value != 'ad') {
+                                                  //   return 'Password must be at least 6 characters';
+                                                  // }
+                                                  return null;
+                                                },
+                                                style: TextStyle(
+                                                  color: isDarkMode
+                                                      ? const Color.fromARGB(
+                                                          215, 255, 255, 255)
+                                                      : Colors.black87,
+                                                  fontSize: isExtraSmallScreen
+                                                      ? 12
+                                                      : isSmallScreen
+                                                          ? 14
+                                                          : isMediumScreen
+                                                              ? 14
+                                                              : isLargeScreen
+                                                                  ? 14
+                                                                  : isExtraLargeScreen
+                                                                      ? 14
+                                                                      : 16,
+                                                  fontWeight: FontWeight.normal,
+                                                  letterSpacing: 0.75,
+                                                ),
+                                                decoration:
+                                                    const InputDecoration(
+                                                  prefixIcon: Padding(
+                                                    padding:
+                                                        EdgeInsets.all(8.0),
+                                                    child: FaIcon(
+                                                        FontAwesomeIcons
+                                                            .pesoSign),
+                                                  ),
+                                                  border: OutlineInputBorder(),
+                                                  // hintText: 'ex: 1,401'
+                                                )),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          RetainTextScaleWrapper(
+                                            child: Text('Actual % Discount',
+                                                textAlign: TextAlign.start,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          SizedBox(
+                                            width: parentWidth,
+                                            child: TextFormField(
+                                                key: const ValueKey('act_dis'),
+                                                readOnly: true,
+                                                textInputAction:
+                                                    TextInputAction.next,
+                                                controller:
+                                                    _actualPercentController,
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return 'Required';
+                                                  }
+
+                                                  // if (value.length < 6 && value != 'ad') {
+                                                  //   return 'Password must be at least 6 characters';
+                                                  // }
+                                                  return null;
+                                                },
+                                                style: TextStyle(
+                                                  color: isDarkMode
+                                                      ? const Color.fromARGB(
+                                                          215, 255, 255, 255)
+                                                      : Colors.black87,
+                                                  fontSize: isExtraSmallScreen
+                                                      ? 12
+                                                      : isSmallScreen
+                                                          ? 14
+                                                          : isMediumScreen
+                                                              ? 14
+                                                              : isLargeScreen
+                                                                  ? 14
+                                                                  : isExtraLargeScreen
+                                                                      ? 14
+                                                                      : 16,
+                                                  fontWeight: FontWeight.normal,
+                                                  letterSpacing: 0.75,
+                                                ),
+                                                decoration: const InputDecoration(
+                                                    prefixIcon: Icon(Icons.percent),
+                                                    // Padding(
+                                                    //   padding: EdgeInsets.all(8.0),
+                                                    //   child: FaIcon(FontAwesomeIcons
+                                                    //       .pesoSign),
+                                                    // ),
+                                                    border: OutlineInputBorder())),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          RetainTextScaleWrapper(
+                                            child: Text('Rounded % Discount',
+                                                textAlign: TextAlign.start,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          SizedBox(
+                                            width: parentWidth,
+                                            child: TextFormField(
+                                                key:
+                                                    const ValueKey('round_per'),
+                                                readOnly: true,
+                                                textInputAction:
+                                                    TextInputAction.next,
+                                                controller:
+                                                    _roundedPercentController,
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return 'Required';
+                                                  }
+
+                                                  // if (value.length < 6 && value != 'ad') {
+                                                  //   return 'Password must be at least 6 characters';
+                                                  // }
+                                                  return null;
+                                                },
+                                                style: TextStyle(
+                                                  color: isDarkMode
+                                                      ? const Color.fromARGB(
+                                                          215, 255, 255, 255)
+                                                      : Colors.black87,
+                                                  fontSize: isExtraSmallScreen
+                                                      ? 12
+                                                      : isSmallScreen
+                                                          ? 14
+                                                          : isMediumScreen
+                                                              ? 14
+                                                              : isLargeScreen
+                                                                  ? 14
+                                                                  : isExtraLargeScreen
+                                                                      ? 14
+                                                                      : 16,
+                                                  fontWeight: FontWeight.normal,
+                                                  letterSpacing: 0.75,
+                                                ),
+                                                decoration: const InputDecoration(
+                                                    prefixIcon: Icon(Icons.percent),
+                                                    // Padding(
+                                                    //   padding: EdgeInsets.all(8.0),
+                                                    //   child: FaIcon(FontAwesomeIcons
+                                                    //       .pesoSign),
+                                                    // ),
+                                                    border: OutlineInputBorder())),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          RetainTextScaleWrapper(
+                                            child: Text('Stock',
+                                                textAlign: TextAlign.start,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          SizedBox(
+                                            width: parentWidth,
+                                            child: TextFormField(
+                                                key: const ValueKey('stock'),
+                                                maxLength: 5,
+                                                keyboardType:
+                                                    const TextInputType
+                                                        .numberWithOptions(
+                                                        decimal: true),
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly
+                                                ],
+                                                textInputAction:
+                                                    TextInputAction.next,
+                                                controller: _stockController,
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return 'Required';
+                                                  }
+
+                                                  // if (value.length < 6 && value != 'ad') {
+                                                  //   return 'Password must be at least 6 characters';
+                                                  // }
+                                                  return null;
+                                                },
+                                                style: TextStyle(
+                                                  color: isDarkMode
+                                                      ? const Color.fromARGB(
+                                                          215, 255, 255, 255)
+                                                      : Colors.black87,
+                                                  fontSize: isExtraSmallScreen
+                                                      ? 12
+                                                      : isSmallScreen
+                                                          ? 14
+                                                          : isMediumScreen
+                                                              ? 14
+                                                              : isLargeScreen
+                                                                  ? 14
+                                                                  : isExtraLargeScreen
+                                                                      ? 14
+                                                                      : 16,
+                                                  fontWeight: FontWeight.normal,
+                                                  letterSpacing: 0.75,
+                                                ),
+                                                decoration: InputDecoration(
+                                                    prefixIcon: const Padding(
+                                                      padding:
+                                                          EdgeInsets.all(8.0),
+                                                      child: FaIcon(
+                                                          FontAwesomeIcons
+                                                              .pesoSign),
+                                                    ),
+                                                    border:
+                                                        const OutlineInputBorder(),
+                                                    hintText: 'ex: 1',
+                                                    hintStyle: TextStyle(
+                                                      color: isDarkMode
+                                                          ? const Color
+                                                              .fromARGB(215,
+                                                              255, 255, 255)
+                                                          : Colors.black54,
+                                                      fontSize: isExtraSmallScreen
+                                                          ? 12
+                                                          : isSmallScreen
+                                                              ? 14
+                                                              : isMediumScreen
+                                                                  ? 14
+                                                                  : isLargeScreen
+                                                                      ? 14
+                                                                      : isExtraLargeScreen
+                                                                          ? 14
+                                                                          : 16,
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      letterSpacing: 0.75,
+                                                    ),
+                                                    suffixIcon: IconButton(
+                                                      icon: const Icon(
+                                                          Icons.close),
+                                                      onPressed: () {
+                                                        _stockController
+                                                            .clear();
+                                                      },
+                                                    ))),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          RetainTextScaleWrapper(
+                                            child: Text('Availability',
+                                                textAlign: TextAlign.start,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Switch(
+                                            value: _isAvailable,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                _isAvailable = value;
+                                              });
+                                            },
+                                          )
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          RetainTextScaleWrapper(
+                                            child: Text('Variants',
+                                                textAlign: TextAlign.start,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 16.0),
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                final screenHeight =
+                                                    MediaQuery.of(context)
+                                                        .size
+                                                        .height;
+                                                final screenWidth =
+                                                    MediaQuery.of(context)
+                                                        .size
+                                                        .width;
+
+                                                _dialogCommon
+                                                    .showDialogMessageExpanded(
+                                                  context,
+                                                  theme,
+                                                  isExtraSmallScreen,
+                                                  isSmallScreen,
+                                                  isMediumScreen,
+                                                  isLargeScreen,
+                                                  isExtraLargeScreen,
+                                                  screenWidth,
+                                                  screenHeight,
+                                                  'Add Product Variant',
+                                                  ProductVariant(),
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 8.0),
+                                                    child: SizedBox(
+                                                      width: double.infinity,
+                                                      child: ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          shape: RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          4)),
+                                                        ),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(10.0),
+                                                          child:
+                                                              RetainTextScaleWrapper(
+                                                            child: Text(
+                                                              'Back',
+                                                              style: Theme.of(
+                                                                      context)
+                                                                  .textTheme
+                                                                  .bodyLarge
+                                                                  ?.copyWith(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4)),
+                                              ),
+                                              child: RetainTextScaleWrapper(
+                                                child: Text(
+                                                  'Add Variant',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge
+                                                      ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ],
-                                  ),
-                                ),
+                                  );
+                                },
                               ),
-                            ),
-                            _populateSpecsPairs(),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 12.0),
-                              child: RetainTextScaleWrapper(
-                                child: Text('Product Images',
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Padding(
+                        padding: _containerPaddingBottom(
+                            isExtraSmallScreen,
+                            isSmallScreen,
+                            isMediumScreen,
+                            isLargeScreen,
+                            isExtraLargeScreen),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: customTheme?.containerBackgroundColor,
+                            borderRadius:
+                                BorderRadius.circular(10.0), // Border radius
+                            border: Border.all(
+                                color: Colors.transparent), // Border color
+                          ),
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RetainTextScaleWrapper(
+                                child: Text('Product Description',
+                                    textAlign: TextAlign.start,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.bold)),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              RetainTextScaleWrapper(
+                                child: Text('Main Description',
                                     textAlign: TextAlign.start,
                                     style: Theme.of(context)
                                         .textTheme
@@ -1954,1248 +3004,264 @@ class _AddProductsState extends ConsumerState<AddProducts> {
                                         ?.copyWith(
                                             fontWeight: FontWeight.bold)),
                               ),
-                            ),
-                            // Stack(
-                            //   children: [
-                            //     Row(
-                            //       children:
-                            //           // [
-                            //           //   Image.asset(
-                            //           //       width: 100,
-                            //           //       height: 100,
-                            //           //       'assets/images/Jewelry_demo_image_330x330_1.png'),
-                            //           //   const SizedBox(
-                            //           //     width: 20,
-                            //           //   ),
-                            //           //   Image.asset(
-                            //           //       width: 100,
-                            //           //       height: 100,
-                            //           //       'assets/images/Gadget_demo_image_330x330_1.png'),
-                            //           //   const SizedBox(
-                            //           //     width: 20,
-                            //           //   ),
-                            //           //   Image.asset(
-                            //           //       width: 100,
-                            //           //       height: 100,
-                            //           //       'assets/images/Luxury_bag_demo_image_330x330_1.png')
-                            //           // ],
-                            //           images
-                            //               .map((image) => _buildImage(image))
-                            //               .toList(),
-                            //     )
-                            //   ],
-                            // ),
-                            /*Wrap(
-                              children: images
-                                  .map((image) => _buildImage(image))
-                                  .toList(),
-                            ),
-                            selectedImage != null
-                                ? Image.memory(selectedImage!
-                                    .bytes!) // Replace with your preferred image display
-                                : Container(),
-                            ElevatedButton(
-                              onPressed: _pickImage,
-                              child: const Text('Select Image'),
-                            ),//use this for the upper commend source code */
-                            Padding(
-                              padding: _selectedImages.isNotEmpty
-                                  ? const EdgeInsets.only(bottom: 12.0)
-                                  : const EdgeInsets.all(0),
-                              child: Wrap(
-                                spacing: 10,
-                                runSpacing: 10,
-                                children:
-                                    _selectedImages.map(_buildImage).toList(),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: ElevatedButton(
-                                onPressed: _pickImage,
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4)),
-                                ),
-                                child: RetainTextScaleWrapper(
-                                  child: Text(
-                                    'Select Images',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge
-                                        ?.copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 12.0),
-                              child: Wrap(
-                                spacing: 8.0,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  RetainTextScaleWrapper(
-                                    child: Text('Promotional Tags',
-                                        textAlign: TextAlign.start,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(
-                                                fontWeight: FontWeight.bold)),
-                                  ),
-                                  Tooltip(
-                                    message:
-                                        'Sorting in ascending order is based on the first-to-last entry.',
-                                    child: IconButton(
-                                      icon: Icon(CupertinoIcons
-                                          .info_circle_fill), // Or use a custom icon from a library
-                                      onPressed: () {
-                                        // Handle the onPressed action
-                                      },
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Form(
-                              key: _formKey2,
-                              child: Wrap(
-                                direction: Axis.horizontal,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                alignment: WrapAlignment.start,
-                                runSpacing: 16.0,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 16.0),
-                                    child: SizedBox(
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          if (_formKey2.currentState
-                                                  ?.validate() ??
-                                              false) {
-                                            setState(() {
-                                              sharedPrefs.savePromoTag(
-                                                  _promoTagController.text);
-                                            });
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(4)),
-                                        ),
-                                        child: RetainTextScaleWrapper(
-                                          child: Text(
-                                            'Add Tags',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge
-                                                ?.copyWith(
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.6,
-                                    child: TextFormField(
-                                      key: const ValueKey('name'),
-                                      controller: _promoTagController,
-                                      textInputAction: TextInputAction.next,
-                                      maxLength: 18,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Required';
-                                        }
+                              LayoutBuilder(
+                                builder: (context, constraint) {
+                                  double parentWidth = constraint.maxWidth;
 
-                                        // if (value.length < 6 && value != 'ad') {
-                                        //   return 'Password must be at least 6 characters';
-                                        // }
-                                        return null;
-                                      },
-                                      style: TextStyle(
-                                        color: isDarkMode
-                                            ? const Color.fromARGB(
-                                                215, 255, 255, 255)
-                                            : Colors.black87,
-                                        fontSize: isExtraSmallScreen
-                                            ? 12
-                                            : isSmallScreen
-                                                ? 14
-                                                : isMediumScreen
-                                                    ? 14
-                                                    : isLargeScreen
-                                                        ? 14
-                                                        : isExtraLargeScreen
-                                                            ? 14
-                                                            : 16,
-                                        fontWeight: FontWeight.normal,
-                                        letterSpacing: 0.75,
-                                      ),
-                                      decoration: InputDecoration(
-                                        border: const OutlineInputBorder(),
-                                        hintText: 'Tag Values',
-                                        hintStyle: TextStyle(
-                                          color: isDarkMode
-                                              ? const Color.fromARGB(
-                                                  215, 255, 255, 255)
-                                              : Colors.black54,
-                                          fontSize: isExtraSmallScreen
-                                              ? 12
-                                              : isSmallScreen
-                                                  ? 14
-                                                  : isMediumScreen
-                                                      ? 14
-                                                      : isLargeScreen
-                                                          ? 14
-                                                          : isExtraLargeScreen
-                                                              ? 14
-                                                              : 16,
-                                          fontWeight: FontWeight.normal,
-                                          letterSpacing: 0.75,
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        margin: const EdgeInsets.only(
+                                            top: 8.0, bottom: 4.0),
+                                        padding: const EdgeInsets.all(8.0),
+                                        width: parentWidth,
+                                        decoration: BoxDecoration(
+                                          color: customTheme
+                                              ?.containerBackgroundColor,
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Border radius
+                                          border: Border.all(
+                                              color: isDarkMode
+                                                  ? const Color.fromARGB(
+                                                      170, 255, 193, 7)
+                                                  : Colors
+                                                      .lightBlue), // Border color
                                         ),
-                                        suffixIcon: IconButton(
-                                          icon: const Icon(Icons.close),
-                                          onPressed: () {
-                                            _promoTagController.clear();
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            _populatePromoTags(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Padding(
-                      padding: _containerPadding(
-                          isExtraSmallScreen,
-                          isSmallScreen,
-                          isMediumScreen,
-                          isLargeScreen,
-                          isExtraLargeScreen),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: customTheme?.containerBackgroundColor,
-                          borderRadius:
-                              BorderRadius.circular(10.0), // Border radius
-                          border: Border.all(
-                              color: Colors.transparent), // Border color
-                        ),
-                        padding: const EdgeInsets.all(15.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            RetainTextScaleWrapper(
-                              child: Text('Price & Stock',
-                                  textAlign: TextAlign.start,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
-                                      ?.copyWith(fontWeight: FontWeight.bold)),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            LayoutBuilder(
-                              builder: (context, constraint) {
-                                double parentWidth =
-                                    (isSmallScreen || isMediumScreen)
-                                        ? constraint.maxWidth
-                                        : isLargeScreen
-                                            ? constraint.maxWidth / 3
-                                            : constraint.maxWidth / 4;
-                                return Wrap(
-                                  spacing:
-                                      20.0, // Horizontal space between children
-                                  runSpacing:
-                                      20.0, // Vertical space between lines
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        RetainTextScaleWrapper(
-                                          child: Text('Original Price',
-                                              textAlign: TextAlign.start,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        SizedBox(
-                                          width: parentWidth,
-                                          child: TextFormField(
-                                              key: const ValueKey('price'),
-                                              maxLength: 13,
-                                              controller:
-                                                  _originalPriceController,
-                                              keyboardType: const TextInputType
-                                                  .numberWithOptions(
-                                                  decimal: true),
-                                              // inputFormatters: [
-                                              //   NumberInputFormatter()
-                                              // ],
-                                              // inputFormatters: <TextInputFormatter>[
-                                              //   FilteringTextInputFormatter.deny(
-                                              //       ',',
-                                              //       replacementString: '.'),
-                                              //   FilteringTextInputFormatter.allow(
-                                              //       RegExp(r'(^\d*\.?\d{0,2})')),
-                                              // ],
-                                              inputFormatters: [
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly
-                                              ],
-                                              textInputAction:
-                                                  TextInputAction.next,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Required';
-                                                }
-
-                                                // if (value.length < 6 && value != 'ad') {
-                                                //   return 'Password must be at least 6 characters';
-                                                // }
-                                                return null;
-                                              },
-                                              style: TextStyle(
-                                                color: isDarkMode
-                                                    ? const Color.fromARGB(
-                                                        215, 255, 255, 255)
-                                                    : Colors.black87,
-                                                fontSize: isExtraSmallScreen
-                                                    ? 12
-                                                    : isSmallScreen
-                                                        ? 14
-                                                        : isMediumScreen
-                                                            ? 14
-                                                            : isLargeScreen
-                                                                ? 14
-                                                                : isExtraLargeScreen
-                                                                    ? 14
-                                                                    : 16,
-                                                fontWeight: FontWeight.normal,
-                                                letterSpacing: 0.75,
-                                              ),
-                                              decoration: InputDecoration(
-                                                  prefixIcon: const Padding(
-                                                    padding:
-                                                        EdgeInsets.all(8.0),
-                                                    child: FaIcon(
-                                                        FontAwesomeIcons
-                                                            .pesoSign),
-                                                  ),
-                                                  border:
-                                                      const OutlineInputBorder(),
-                                                  hintText: 'ex: 12,000',
-                                                  hintStyle: TextStyle(
-                                                    color: isDarkMode
-                                                        ? const Color.fromARGB(
-                                                            215, 255, 255, 255)
-                                                        : Colors.black54,
-                                                    fontSize: isExtraSmallScreen
-                                                        ? 12
-                                                        : isSmallScreen
-                                                            ? 14
-                                                            : isMediumScreen
-                                                                ? 14
-                                                                : isLargeScreen
-                                                                    ? 14
-                                                                    : isExtraLargeScreen
-                                                                        ? 14
-                                                                        : 16,
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                    letterSpacing: 0.75,
-                                                  ),
-                                                  suffixIcon: IconButton(
-                                                    icon:
-                                                        const Icon(Icons.close),
-                                                    onPressed: () {
-                                                      _originalPriceController
-                                                          .clear();
-                                                    },
-                                                  ))),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Wrap(
-                                          spacing: 8.0,
-                                          crossAxisAlignment:
-                                              WrapCrossAlignment.center,
-                                          children: [
-                                            RetainTextScaleWrapper(
-                                              child: Text('Discounted Price',
-                                                  textAlign: TextAlign.start,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyMedium
-                                                      ?.copyWith(
-                                                          fontWeight:
-                                                              FontWeight.bold)),
-                                            ),
-                                            Tooltip(
-                                              message:
-                                                  'Total amount of original amount minus discount (e.g., 5000 - 1000 = 4000 [Discounted price])',
-                                              child: IconButton(
-                                                icon: Icon(CupertinoIcons
-                                                    .info_circle_fill), // Or use a custom icon from a library
-                                                onPressed: () {
-                                                  // Handle the onPressed action
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        SizedBox(
-                                          width: parentWidth,
-                                          child: TextFormField(
-                                              key: const ValueKey('dis_price'),
-                                              maxLength: 11,
-                                              controller:
-                                                  _discountedPriceController,
-                                              keyboardType: const TextInputType
-                                                  .numberWithOptions(
-                                                  decimal: true),
-                                              inputFormatters: [
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly
-                                              ],
-                                              textInputAction:
-                                                  TextInputAction.next,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Required';
-                                                }
-
-                                                // if (value.length < 6 && value != 'ad') {
-                                                //   return 'Password must be at least 6 characters';
-                                                // }
-                                                return null;
-                                              },
-                                              style: TextStyle(
-                                                color: isDarkMode
-                                                    ? const Color.fromARGB(
-                                                        215, 255, 255, 255)
-                                                    : Colors.black87,
-                                                fontSize: isExtraSmallScreen
-                                                    ? 12
-                                                    : isSmallScreen
-                                                        ? 14
-                                                        : isMediumScreen
-                                                            ? 14
-                                                            : isLargeScreen
-                                                                ? 14
-                                                                : isExtraLargeScreen
-                                                                    ? 14
-                                                                    : 16,
-                                                fontWeight: FontWeight.normal,
-                                                letterSpacing: 0.75,
-                                              ),
-                                              decoration: InputDecoration(
-                                                  prefixIcon: const Padding(
-                                                    padding:
-                                                        EdgeInsets.all(8.0),
-                                                    child: FaIcon(
-                                                        FontAwesomeIcons
-                                                            .pesoSign),
-                                                  ),
-                                                  border:
-                                                      const OutlineInputBorder(),
-                                                  hintText: 'ex: 10,599',
-                                                  hintStyle: TextStyle(
-                                                    color: isDarkMode
-                                                        ? const Color.fromARGB(
-                                                            215, 255, 255, 255)
-                                                        : Colors.black54,
-                                                    fontSize: isExtraSmallScreen
-                                                        ? 12
-                                                        : isSmallScreen
-                                                            ? 14
-                                                            : isMediumScreen
-                                                                ? 14
-                                                                : isLargeScreen
-                                                                    ? 14
-                                                                    : isExtraLargeScreen
-                                                                        ? 14
-                                                                        : 16,
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                    letterSpacing: 0.75,
-                                                  ),
-                                                  suffixIcon: IconButton(
-                                                    icon:
-                                                        const Icon(Icons.close),
-                                                    onPressed: () {
-                                                      _discountedPriceController
-                                                          .clear();
-                                                    },
-                                                  ))),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        RetainTextScaleWrapper(
-                                          child: Text('Difference Price',
-                                              textAlign: TextAlign.start,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        SizedBox(
-                                          width: parentWidth,
-                                          child: TextFormField(
-                                              key: const ValueKey('diff_price'),
-                                              readOnly: true,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              inputFormatters: [
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly
-                                              ],
-                                              textInputAction:
-                                                  TextInputAction.next,
-                                              controller:
-                                                  _differencePriceController,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Required';
-                                                }
-
-                                                // if (value.length < 6 && value != 'ad') {
-                                                //   return 'Password must be at least 6 characters';
-                                                // }
-                                                return null;
-                                              },
-                                              style: TextStyle(
-                                                color: isDarkMode
-                                                    ? const Color.fromARGB(
-                                                        215, 255, 255, 255)
-                                                    : Colors.black87,
-                                                fontSize: isExtraSmallScreen
-                                                    ? 12
-                                                    : isSmallScreen
-                                                        ? 14
-                                                        : isMediumScreen
-                                                            ? 14
-                                                            : isLargeScreen
-                                                                ? 14
-                                                                : isExtraLargeScreen
-                                                                    ? 14
-                                                                    : 16,
-                                                fontWeight: FontWeight.normal,
-                                                letterSpacing: 0.75,
-                                              ),
-                                              decoration: const InputDecoration(
-                                                prefixIcon: Padding(
-                                                  padding: EdgeInsets.all(8.0),
-                                                  child: FaIcon(FontAwesomeIcons
-                                                      .pesoSign),
+                                        child: Theme(
+                                          data: Theme.of(context).copyWith(
+                                              primaryColor: Colors.black,
+                                              colorScheme: isDarkMode
+                                                  ? ColorScheme.dark(
+                                                      surface:
+                                                          Colors.grey.shade900)
+                                                  : ColorScheme.light(
+                                                      surface: Colors
+                                                          .grey.shade300)),
+                                          child: QuillSimpleToolbar(
+                                            controller:
+                                                _wYSIWYGTextEditorController,
+                                            config: QuillSimpleToolbarConfig(
+                                              customButtons: [
+                                                QuillToolbarCustomButtonOptions(
+                                                  icon: null,
+                                                  tooltip: 'Change Font',
+                                                  onPressed: () {
+                                                    _wYSIWYGTextEditorController
+                                                        .formatSelection(Attribute
+                                                            .fromKeyValue(
+                                                                'font',
+                                                                _fontFamilies));
+                                                  },
                                                 ),
-                                                border: OutlineInputBorder(),
-                                                // hintText: 'ex: 1,401'
-                                              )),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        RetainTextScaleWrapper(
-                                          child: Text('Actual % Discount',
-                                              textAlign: TextAlign.start,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        SizedBox(
-                                          width: parentWidth,
-                                          child: TextFormField(
-                                              key: const ValueKey('act_dis'),
-                                              readOnly: true,
-                                              textInputAction:
-                                                  TextInputAction.next,
-                                              controller:
-                                                  _actualPercentController,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Required';
-                                                }
-
-                                                // if (value.length < 6 && value != 'ad') {
-                                                //   return 'Password must be at least 6 characters';
-                                                // }
-                                                return null;
-                                              },
-                                              style: TextStyle(
-                                                color: isDarkMode
-                                                    ? const Color.fromARGB(
-                                                        215, 255, 255, 255)
-                                                    : Colors.black87,
-                                                fontSize: isExtraSmallScreen
-                                                    ? 12
-                                                    : isSmallScreen
-                                                        ? 14
-                                                        : isMediumScreen
-                                                            ? 14
-                                                            : isLargeScreen
-                                                                ? 14
-                                                                : isExtraLargeScreen
-                                                                    ? 14
-                                                                    : 16,
-                                                fontWeight: FontWeight.normal,
-                                                letterSpacing: 0.75,
-                                              ),
-                                              decoration: const InputDecoration(
-                                                  prefixIcon:
-                                                      Icon(Icons.percent),
-                                                  // Padding(
-                                                  //   padding: EdgeInsets.all(8.0),
-                                                  //   child: FaIcon(FontAwesomeIcons
-                                                  //       .pesoSign),
-                                                  // ),
-                                                  border:
-                                                      OutlineInputBorder())),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        RetainTextScaleWrapper(
-                                          child: Text('Rounded % Discount',
-                                              textAlign: TextAlign.start,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        SizedBox(
-                                          width: parentWidth,
-                                          child: TextFormField(
-                                              key: const ValueKey('round_per'),
-                                              readOnly: true,
-                                              textInputAction:
-                                                  TextInputAction.next,
-                                              controller:
-                                                  _roundedPercentController,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Required';
-                                                }
-
-                                                // if (value.length < 6 && value != 'ad') {
-                                                //   return 'Password must be at least 6 characters';
-                                                // }
-                                                return null;
-                                              },
-                                              style: TextStyle(
-                                                color: isDarkMode
-                                                    ? const Color.fromARGB(
-                                                        215, 255, 255, 255)
-                                                    : Colors.black87,
-                                                fontSize: isExtraSmallScreen
-                                                    ? 12
-                                                    : isSmallScreen
-                                                        ? 14
-                                                        : isMediumScreen
-                                                            ? 14
-                                                            : isLargeScreen
-                                                                ? 14
-                                                                : isExtraLargeScreen
-                                                                    ? 14
-                                                                    : 16,
-                                                fontWeight: FontWeight.normal,
-                                                letterSpacing: 0.75,
-                                              ),
-                                              decoration: const InputDecoration(
-                                                  prefixIcon:
-                                                      Icon(Icons.percent),
-                                                  // Padding(
-                                                  //   padding: EdgeInsets.all(8.0),
-                                                  //   child: FaIcon(FontAwesomeIcons
-                                                  //       .pesoSign),
-                                                  // ),
-                                                  border:
-                                                      OutlineInputBorder())),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        RetainTextScaleWrapper(
-                                          child: Text('Stock',
-                                              textAlign: TextAlign.start,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        SizedBox(
-                                          width: parentWidth,
-                                          child: TextFormField(
-                                              key: const ValueKey('stock'),
-                                              maxLength: 5,
-                                              keyboardType: const TextInputType
-                                                  .numberWithOptions(
-                                                  decimal: true),
-                                              inputFormatters: [
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly
                                               ],
-                                              textInputAction:
-                                                  TextInputAction.next,
-                                              controller: _stockController,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Required';
-                                                }
-
-                                                // if (value.length < 6 && value != 'ad') {
-                                                //   return 'Password must be at least 6 characters';
-                                                // }
-                                                return null;
-                                              },
-                                              style: TextStyle(
-                                                color: isDarkMode
-                                                    ? const Color.fromARGB(
-                                                        215, 255, 255, 255)
-                                                    : Colors.black87,
-                                                fontSize: isExtraSmallScreen
-                                                    ? 12
-                                                    : isSmallScreen
-                                                        ? 14
-                                                        : isMediumScreen
-                                                            ? 14
-                                                            : isLargeScreen
-                                                                ? 14
-                                                                : isExtraLargeScreen
-                                                                    ? 14
-                                                                    : 16,
-                                                fontWeight: FontWeight.normal,
-                                                letterSpacing: 0.75,
+                                              dialogTheme: QuillDialogTheme(
+                                                dialogBackgroundColor:
+                                                    isDarkMode
+                                                        ? Colors.grey.shade900
+                                                        : Colors.grey.shade100,
                                               ),
-                                              decoration: InputDecoration(
-                                                  prefixIcon: const Padding(
-                                                    padding:
-                                                        EdgeInsets.all(8.0),
-                                                    child: FaIcon(
-                                                        FontAwesomeIcons
-                                                            .pesoSign),
-                                                  ),
-                                                  border:
-                                                      const OutlineInputBorder(),
-                                                  hintText: 'ex: 1',
-                                                  hintStyle: TextStyle(
-                                                    color: isDarkMode
-                                                        ? const Color.fromARGB(
-                                                            215, 255, 255, 255)
-                                                        : Colors.black54,
-                                                    fontSize: isExtraSmallScreen
-                                                        ? 12
-                                                        : isSmallScreen
-                                                            ? 14
-                                                            : isMediumScreen
-                                                                ? 14
-                                                                : isLargeScreen
-                                                                    ? 14
-                                                                    : isExtraLargeScreen
-                                                                        ? 14
-                                                                        : 16,
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                    letterSpacing: 0.75,
-                                                  ),
-                                                  suffixIcon: IconButton(
-                                                    icon:
-                                                        const Icon(Icons.close),
-                                                    onPressed: () {
-                                                      _stockController.clear();
-                                                    },
-                                                  ))),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        RetainTextScaleWrapper(
-                                          child: Text('Availability',
-                                              textAlign: TextAlign.start,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Switch(
-                                          value: _isAvailable,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _isAvailable = value;
-                                            });
-                                          },
-                                        )
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        RetainTextScaleWrapper(
-                                          child: Text('Variants',
-                                              textAlign: TextAlign.start,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              right: 16.0),
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              final screenHeight =
-                                                  MediaQuery.of(context)
-                                                      .size
-                                                      .height;
-                                              final screenWidth =
-                                                  MediaQuery.of(context)
-                                                      .size
-                                                      .width;
-
-                                              _dialogCommon
-                                                  .showDialogMessageExpanded(
-                                                context,
-                                                theme,
-                                                isExtraSmallScreen,
-                                                isSmallScreen,
-                                                isMediumScreen,
-                                                isLargeScreen,
-                                                isExtraLargeScreen,
-                                                screenWidth,
-                                                screenHeight,
-                                                'Add Product Variant',
-                                                ProductVariant(),
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 8.0),
-                                                  child: SizedBox(
-                                                    width: double.infinity,
-                                                    child: ElevatedButton(
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            4)),
-                                                      ),
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(10.0),
-                                                        child:
-                                                            RetainTextScaleWrapper(
-                                                          child: Text(
-                                                            'Back',
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .bodyLarge
-                                                                ?.copyWith(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(4)),
-                                            ),
-                                            child: RetainTextScaleWrapper(
-                                              child: Text(
-                                                'Add Variant',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge
-                                                    ?.copyWith(
-                                                        fontWeight:
-                                                            FontWeight.bold),
+                                              embedButtons: FlutterQuillEmbeds
+                                                  .toolbarButtons(
+                                                imageButtonOptions:
+                                                    QuillToolbarImageButtonOptions(),
+                                                cameraButtonOptions: null,
+                                                videoButtonOptions: null,
                                               ),
+                                              // fontFamilyValues: _fontFamilies,
+                                              // showClipboardPaste: true,
+                                              showFontFamily: false,
+                                              showDividers: true,
+                                              showAlignmentButtons: true,
+                                              showInlineCode: false,
+                                              showCodeBlock: false,
+                                              showColorButton: false,
+                                              showBackgroundColorButton: false,
+                                              showSearchButton: false,
+                                              showQuote: false,
+                                              showSubscript: false,
+                                              showStrikeThrough: false,
+                                              sectionDividerColor:
+                                                  const Color.fromARGB(
+                                                      170, 255, 193, 7),
+                                              sectionDividerSpace: 5.0,
+                                              toolbarSectionSpacing: 5.0,
                                             ),
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Padding(
-                      padding: _containerPaddingBottom(
-                          isExtraSmallScreen,
-                          isSmallScreen,
-                          isMediumScreen,
-                          isLargeScreen,
-                          isExtraLargeScreen),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: customTheme?.containerBackgroundColor,
-                          borderRadius:
-                              BorderRadius.circular(10.0), // Border radius
-                          border: Border.all(
-                              color: Colors.transparent), // Border color
-                        ),
-                        padding: const EdgeInsets.all(15.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            RetainTextScaleWrapper(
-                              child: Text('Product Description',
-                                  textAlign: TextAlign.start,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
-                                      ?.copyWith(fontWeight: FontWeight.bold)),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            RetainTextScaleWrapper(
-                              child: Text('Main Description',
-                                  textAlign: TextAlign.start,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(fontWeight: FontWeight.bold)),
-                            ),
-                            LayoutBuilder(
-                              builder: (context, constraint) {
-                                double parentWidth = constraint.maxWidth;
-
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      margin: const EdgeInsets.only(
-                                          top: 8.0, bottom: 4.0),
-                                      padding: const EdgeInsets.all(8.0),
-                                      width: parentWidth,
-                                      decoration: BoxDecoration(
-                                        color: customTheme
-                                            ?.containerBackgroundColor,
-                                        borderRadius: BorderRadius.circular(
-                                            10.0), // Border radius
-                                        border: Border.all(
-                                            color: isDarkMode
-                                                ? const Color.fromARGB(
-                                                    170, 255, 193, 7)
-                                                : Colors
-                                                    .lightBlue), // Border color
-                                      ),
-                                      child: Theme(
-                                        data: Theme.of(context).copyWith(
-                                            primaryColor: Colors.black,
-                                            colorScheme: isDarkMode
-                                                ? ColorScheme.dark(
-                                                    surface:
-                                                        Colors.grey.shade900)
-                                                : ColorScheme.light(
-                                                    surface:
-                                                        Colors.grey.shade300)),
-                                        child: QuillSimpleToolbar(
+                                      ), //for viewing of created flutter_quill text, don't show the QuillToolbar
+                                      Container(
+                                        width: parentWidth,
+                                        height: 400,
+                                        margin:
+                                            const EdgeInsets.only(bottom: 8.0),
+                                        padding: const EdgeInsets.all(8.0),
+                                        decoration: BoxDecoration(
+                                          color: customTheme
+                                              ?.containerBackgroundColor,
+                                          borderRadius: BorderRadius.circular(
+                                              10.0), // Border radius
+                                          border: Border.all(
+                                              color: isDarkMode
+                                                  ? const Color.fromARGB(
+                                                      170, 255, 193, 7)
+                                                  : Colors
+                                                      .lightBlue), // Border color
+                                        ),
+                                        child: QuillEditor(
+                                          focusNode: FocusNode(),
+                                          scrollController: ScrollController(),
                                           controller:
                                               _wYSIWYGTextEditorController,
-                                          config: QuillSimpleToolbarConfig(
-                                            customButtons: [
-                                              QuillToolbarCustomButtonOptions(
-                                                icon: null,
-                                                tooltip: 'Change Font',
-                                                onPressed: () {
-                                                  _wYSIWYGTextEditorController
-                                                      .formatSelection(Attribute
-                                                          .fromKeyValue('font',
-                                                              _fontFamilies));
-                                                },
-                                              ),
-                                            ],
-                                            dialogTheme: QuillDialogTheme(
-                                              dialogBackgroundColor: isDarkMode
-                                                  ? Colors.grey.shade900
-                                                  : Colors.grey.shade100,
-                                            ),
-                                            embedButtons: FlutterQuillEmbeds
-                                                .toolbarButtons(
-                                              imageButtonOptions:
-                                                  QuillToolbarImageButtonOptions(),
-                                              cameraButtonOptions: null,
-                                              videoButtonOptions: null,
-                                            ),
-                                            // fontFamilyValues: _fontFamilies,
-                                            // showClipboardPaste: true,
-                                            showFontFamily: false,
-                                            showDividers: true,
-                                            showAlignmentButtons: true,
-                                            showInlineCode: false,
-                                            showCodeBlock: false,
-                                            showColorButton: false,
-                                            showBackgroundColorButton: false,
-                                            showSearchButton: false,
-                                            showQuote: false,
-                                            showSubscript: false,
-                                            showStrikeThrough: false,
-                                            sectionDividerColor:
-                                                const Color.fromARGB(
-                                                    170, 255, 193, 7),
-                                            sectionDividerSpace: 5.0,
-                                            toolbarSectionSpacing: 5.0,
+                                          config: QuillEditorConfig(
+                                            // builder: (context, rawEditor) {
+                                            //   return DropTarget(
+                                            //     onDragDone: _onDragDone,
+                                            //     child: rawEditor,
+                                            //   );
+                                            // },
+                                            embedBuilders: kIsWeb
+                                                ? FlutterQuillEmbeds
+                                                    .editorWebBuilders(
+                                                    imageEmbedConfig:
+                                                        QuillEditorImageEmbedConfig(
+                                                      imageErrorWidgetBuilder:
+                                                          (context, error,
+                                                              stackTrace) {
+                                                        // Display an error icon in place of the image
+                                                        WidgetsBinding.instance
+                                                            .addPostFrameCallback(
+                                                                (_) {
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .showSnackBar(
+                                                            SnackBar(
+                                                              duration:
+                                                                  const Duration(
+                                                                      milliseconds:
+                                                                          3000),
+                                                              content:
+                                                                  RetainTextScaleWrapper(
+                                                                child: Text(
+                                                                  'Error loading image: ${error.toString()}',
+                                                                  style: Theme.of(
+                                                                          context)
+                                                                      .textTheme
+                                                                      .bodySmall
+                                                                      ?.copyWith(
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        });
+                                                        return const Icon(
+                                                          Icons.error,
+                                                          color: Colors.red,
+                                                          size: 50.0,
+                                                        );
+                                                      },
+                                                    ),
+                                                    videoEmbedConfig: null,
+                                                  )
+                                                : FlutterQuillEmbeds
+                                                    .editorBuilders(
+                                                    videoEmbedConfig: null,
+                                                  ),
+                                            padding: const EdgeInsets.all(8.0),
+                                            disableClipboard: false,
+                                            maxContentWidth: parentWidth,
+                                            minHeight: 200,
+                                            maxHeight: 400,
                                           ),
                                         ),
                                       ),
-                                    ), //for viewing of created flutter_quill text, don't show the QuillToolbar
-                                    Container(
-                                      width: parentWidth,
-                                      height: 400,
-                                      margin:
-                                          const EdgeInsets.only(bottom: 8.0),
-                                      padding: const EdgeInsets.all(8.0),
-                                      decoration: BoxDecoration(
-                                        color: customTheme
-                                            ?.containerBackgroundColor,
-                                        borderRadius: BorderRadius.circular(
-                                            10.0), // Border radius
-                                        border: Border.all(
-                                            color: isDarkMode
-                                                ? const Color.fromARGB(
-                                                    170, 255, 193, 7)
-                                                : Colors
-                                                    .lightBlue), // Border color
-                                      ),
-                                      child: QuillEditor(
-                                        focusNode: FocusNode(),
-                                        scrollController: ScrollController(),
-                                        controller:
-                                            _wYSIWYGTextEditorController,
-                                        config: QuillEditorConfig(
-                                          // builder: (context, rawEditor) {
-                                          //   return DropTarget(
-                                          //     onDragDone: _onDragDone,
-                                          //     child: rawEditor,
-                                          //   );
-                                          // },
-                                          embedBuilders: kIsWeb
-                                              ? FlutterQuillEmbeds
-                                                  .editorWebBuilders(
-                                                  imageEmbedConfig:
-                                                      QuillEditorImageEmbedConfig(
-                                                    imageErrorWidgetBuilder:
-                                                        (context, error,
-                                                            stackTrace) {
-                                                      // Display an error icon in place of the image
-                                                      WidgetsBinding.instance
-                                                          .addPostFrameCallback(
-                                                              (_) {
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                          SnackBar(
-                                                            duration:
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        3000),
-                                                            content:
-                                                                RetainTextScaleWrapper(
-                                                              child: Text(
-                                                                'Error loading image: ${error.toString()}',
-                                                                style: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodySmall
-                                                                    ?.copyWith(
-                                                                        fontWeight:
-                                                                            FontWeight.bold),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        );
-                                                      });
-                                                      return const Icon(
-                                                        Icons.error,
-                                                        color: Colors.red,
-                                                        size: 50.0,
-                                                      );
-                                                    },
-                                                  ),
-                                                  videoEmbedConfig: null,
-                                                )
-                                              : FlutterQuillEmbeds
-                                                  .editorBuilders(
-                                                  videoEmbedConfig: null,
+                                      Wrap(
+                                        spacing:
+                                            20.0, // Horizontal space between children
+                                        runSpacing:
+                                            20.0, // Vertical space between lines
+                                        runAlignment: WrapAlignment.start,
+                                        direction: Axis.horizontal,
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 8.0),
+                                            child: ElevatedButton(
+                                              onPressed: () {},
+                                              style: ElevatedButton.styleFrom(
+                                                  side: BorderSide(
+                                                      width: 2,
+                                                      color: isDarkMode
+                                                          ? const Color
+                                                              .fromARGB(
+                                                              170, 255, 193, 7)
+                                                          : Colors.lightBlue),
+                                                  backgroundColor: isDarkMode
+                                                      ? Colors.transparent
+                                                      : Colors.grey.shade100,
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              4))),
+                                              child: RetainTextScaleWrapper(
+                                                child: Text(
+                                                  'Clear Draft',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge
+                                                      ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: isDarkMode
+                                                              ? const Color
+                                                                  .fromARGB(170,
+                                                                  255, 193, 7)
+                                                              : Colors
+                                                                  .lightBlue),
                                                 ),
-                                          padding: const EdgeInsets.all(8.0),
-                                          disableClipboard: false,
-                                          maxContentWidth: parentWidth,
-                                          minHeight: 200,
-                                          maxHeight: 400,
-                                        ),
-                                      ),
-                                    ),
-                                    Wrap(
-                                      spacing:
-                                          20.0, // Horizontal space between children
-                                      runSpacing:
-                                          20.0, // Vertical space between lines
-                                      runAlignment: WrapAlignment.start,
-                                      direction: Axis.horizontal,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: ElevatedButton(
-                                            onPressed: () {},
-                                            style: ElevatedButton.styleFrom(
-                                                side: BorderSide(
-                                                    width: 2,
-                                                    color: isDarkMode
-                                                        ? const Color.fromARGB(
-                                                            170, 255, 193, 7)
-                                                        : Colors.lightBlue),
-                                                backgroundColor: isDarkMode
-                                                    ? Colors.transparent
-                                                    : Colors.grey.shade100,
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 8.0),
+                                            child: ElevatedButton(
+                                              onPressed: _pickImage,
+                                              style: ElevatedButton.styleFrom(
                                                 shape: RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            4))),
-                                            child: RetainTextScaleWrapper(
-                                              child: Text(
-                                                'Clear Draft',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge
-                                                    ?.copyWith(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: isDarkMode
-                                                            ? const Color
-                                                                .fromARGB(170,
-                                                                255, 193, 7)
-                                                            : Colors.lightBlue),
+                                                            4)),
+                                              ),
+                                              child: RetainTextScaleWrapper(
+                                                child: Text(
+                                                  'Submit',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge
+                                                      ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: ElevatedButton(
-                                            onPressed: _pickImage,
-                                            style: ElevatedButton.styleFrom(
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(4)),
-                                            ),
-                                            child: RetainTextScaleWrapper(
-                                              child: Text(
-                                                'Submit',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge
-                                                    ?.copyWith(
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                );
-                              },
-                            ),
-                          ],
+                                        ],
+                                      )
+                                    ],
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -385,12 +385,17 @@ class _ProductVariantState extends ConsumerState<ProductVariant> {
     ); // Replace with actual image display logic
   } //working but only file name preview
 
+  Future<void> _initProdKey() async {
+    ref.read(retrieveProductVarKeyProvider.notifier).initProdKey();
+  }
+
   @override
   void initState() {
     super.initState();
     _originalPriceController.addListener(_onOriginalPriceChanged);
     _discountedPriceController.addListener(_onDiscountedPriceChanged);
     _stockController.addListener(_formatStock);
+    Future.microtask(() => _initProdKey());
   }
 
   @override
@@ -508,9 +513,7 @@ class _ProductVariantState extends ConsumerState<ProductVariant> {
     final bool isDarkMode = brightness == Brightness.dark;
 
     final sharedPrefs = ref.watch(sharedPrefProvider);
-    final AsyncValue<ProductKeyNames> prodVarAdminData = ref.watch(
-        retrieveProductVarKeyProvider(
-            '/api/postget/add_product_data', 'RETRIEVE_PROD_VAR_KEY_NAME'));
+    final prodVarAdminData = ref.watch(retrieveProductVarKeyProvider);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),

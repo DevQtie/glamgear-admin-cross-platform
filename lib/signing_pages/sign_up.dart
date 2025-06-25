@@ -73,10 +73,10 @@ class _SignUpState extends ConsumerState<SignUp> {
         secondAction: TextButton(
           onPressed: () {
             // kIsWeb
-            //     ? context.go('/') //context.go('/product-view')
+            //     ? context.go('/glamgear') //context.go('/product-view')
             //     : GoRouter.of(context)
-            //         .pushReplacement(Uri(path: '/').toString()); // you can remove URI here, except the path argument
-            context.go('/');
+            //         .pushReplacement(Uri(path: '/glamgear').toString()); // you can remove URI here, except the path argument
+            context.go('/glamgear');
           },
           child: RetainTextScaleWrapper(child: const Text('Confirm')),
         ),
@@ -100,10 +100,10 @@ class _SignUpState extends ConsumerState<SignUp> {
                       child: ElevatedButton(
                         onPressed: () {
                           // kIsWeb
-                          //     ? context.go('/') //context.go('/product-view')
+                          //     ? context.go('/glamgear') //context.go('/product-view')
                           //     : GoRouter.of(context)
-                          //         .pushReplacement(Uri(path: '/').toString()); // you can remove URI here, except the path argument
-                          context.go('/');
+                          //         .pushReplacement(Uri(path: '/glamgear').toString()); // you can remove URI here, except the path argument
+                          context.go('/glamgear');
                         },
                         child: RetainTextScaleWrapper(
                             child: Text(
@@ -742,10 +742,10 @@ class _FormContentState extends ConsumerState<_FormContent> {
                     child: ElevatedButton(
                       onPressed: () {
                         // kIsWeb
-                        //     ? context.go('/') //context.go('/product-view')
+                        //     ? context.go('/glamgear') //context.go('/product-view')
                         //     : GoRouter.of(context)
-                        //         .pushReplacement(Uri(path: '/').toString()); // you can remove URI here, except the path argument
-                        context.go('/');
+                        //         .pushReplacement(Uri(path: '/glamgear').toString()); // you can remove URI here, except the path argument
+                        context.go('/glamgear');
                       },
                       child: RetainTextScaleWrapper(
                           child: Text(

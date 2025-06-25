@@ -5,6 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/device_id_helper.dart';
+import 'package:glamgear/internal/data_model/local_storage/shared_pref.dart';
 import 'package:glamgear/riverpod/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -40,11 +43,36 @@ class _SignInThruPasswordState extends State<SignInThruPassword> {
         if (didPop) {
           return;
         }
-        context.go('/');
+        context.go('/glamgear');
       },
       child: Scaffold(
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: colorScheme.surfaceContainerHighest,
+            title: Wrap(
+              spacing: 4.0,
+              runSpacing: 4.0,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(CupertinoIcons.chevron_left),
+                  onPressed: () {
+                    if (GoRouter.of(context).canPop()) {
+                      GoRouter.of(context).pop();
+                    }
+                  },
+                ),
+                RetainTextScaleWrapper(
+                  child: Text(
+                    'Sign In',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
           ),
           body: Container(
             color: colorScheme.surfaceContainerHighest,
@@ -172,7 +200,14 @@ class _FormContentState extends ConsumerState<_FormContent> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _dialogCommon = DialogCommon();
   final _dialogUncommon = DialogUncommon();
+  final _deviceIdHelper = DeviceIdHelper();
+  String? _deviceId;
+  String? _devicePlatform;
+  bool? _isPhysicalDevice;
+  String? _deviceModel;
+  String? _deviceVersion;
 
   Future<void> _checkConnection() async {
     await _networkManager.checkInternetAvailability();
@@ -193,110 +228,142 @@ class _FormContentState extends ConsumerState<_FormContent> {
 
   final _focusNodeInE = FocusNode();
 
-  // final LocalAuthentication _auth = LocalAuthentication();
-
-  void _parentLogin(BuildContext context) async {
-    String username = _usernameController.text;
-    String password = _passwordController.text;
-
-    // Input validation (optional)
-    if (username.isEmpty || password.isEmpty) {
-      // Show error message or perform other validation logic
-      return;
+  Future<void> _getDeviceProperties() async {
+    bool? isPhysicalDevice = await _deviceIdHelper.isPhysicalDevice();
+    String? deviceModel = await _deviceIdHelper.deviceModel();
+    String? deviceVersion = await _deviceIdHelper.deviceVersion();
+    if (mounted) {
+      setState(() {
+        _devicePlatform = _deviceIdHelper.devicePlatform();
+        _isPhysicalDevice = isPhysicalDevice;
+        _deviceModel = deviceModel;
+        _deviceVersion = deviceVersion;
+      });
+      developer.log(
+          'Platform: $_devicePlatform, isPhysicalDevice: $_isPhysicalDevice, Model: $_deviceModel, Version: $_deviceVersion');
     }
-
-    // Call your login method with username and password (see next step)
-    await _login(context, username, password); // Assuming login method exists
   }
 
-  Future<void> _login(
-      BuildContext context, String userName, String password) async {
-    String apiKeyHeader1 = dotenv.env['API_HEADER1']!;
-    String apiKeyHeader2 = dotenv.env['API_HEADER2']!;
-    String apiKeyHeader3 = dotenv.env['CONTENT_TYPE_KEY']!;
-    String apiKeyValue1 = dotenv.env['API_KEY_VALUE1']!;
-    String apiKeyValue2 = dotenv.env['API_KEY_VALUE2']!;
-    String apiKeyValue3 = dotenv.env['CONTENT_TYPE_VALUE_APP_JSON']!;
+  Future<void> _signIn(
+      DataModel sharedPrefs, String username, String password) async {
+    await ref
+        .read(signInUsingUNPasswordProvider.notifier)
+        .signInUsingUNPassword(
+            username: username,
+            password: password,
+            functionKey: 'ADMIN_TEST_SIGN_IN');
 
-    String bodyAuthKeyHeader = dotenv.env['IV_KEY']!;
-    String bodyAuthKeyValue = dotenv.env['IV_KEY_VALUE']!;
+    final result = ref.read(signInUsingUNPasswordProvider);
 
-    String urlString = dotenv.env['ALLOWED_ORIGIN_PUBLIC']!;
-    final url =
-        Uri.parse('$urlString/api/postget/sign_in/$userName/$password/sign_in');
-
-    if (!context.mounted) {
-      return;
-    }
-
-    final bool isExtraSmallScreen = MediaQuery.of(context).size.width <= 320;
-    final bool isSmallScreen = MediaQuery.of(context).size.width > 320 &&
-        MediaQuery.of(context).size.width <= 600;
-    final bool isMediumScreen = MediaQuery.of(context).size.width >= 600 &&
-        MediaQuery.of(context).size.width <= 800;
-    final response = await http.post(
-      url,
-      headers: {
-        apiKeyHeader1: apiKeyValue1,
-        apiKeyHeader2: apiKeyValue2,
-        apiKeyHeader3: apiKeyValue3,
-      },
-      body: json.encode({bodyAuthKeyHeader: bodyAuthKeyValue}),
-    );
-
-    // Handle response based on your API's response structure
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
-      // Login successful
-      String dataValue = responseData['mobile_no'];
-      developer.log('Data value: $dataValue');
-      final dialogCommon = DialogCommon();
-
-      if (context.mounted) {
-        final sharedPrefs = ref.watch(sharedPrefProvider);
-        if (dataValue == userName) {
-          developer.log('Login successful!');
-          GlobalData().data = dataValue;
-          // kIsWeb
-          //     ? context.go('/dashboard')
-          //     : GoRouter.of(context).pushReplacement('/dashboard');
-
-          sharedPrefs.saveUsername(dataValue);
-
-          (isExtraSmallScreen || isSmallScreen || isMediumScreen)
-              ? kIsWeb
-                  ? context.go(Uri(
-                          path: '/jewelry-pt',
-                          queryParameters: {'data': dataValue})
-                      .toString()) // subject for reevaluation
-                  : context.go(Uri(
-                          path: '/jewelry-pt',
-                          queryParameters: {'data': dataValue})
-                      .toString()) // subject for reevaluation
-              : kIsWeb
-                  ? context.go(Uri(
-                          path: '/jewelry-b',
-                          queryParameters: {'data': dataValue})
-                      .toString()) // subject for reevaluation
-                  : context.go(Uri(
-                          path: '/jewelry-b',
-                          queryParameters: {'data': dataValue})
-                      .toString()); //need encryption if necessary // subject for reevaluation
-        } else {
-          developer.log('Login unsuccessful!');
-          dialogCommon.showDialogMessage(
-            context,
-            'Info',
-            'Invalid log in credentials.',
-            'OK',
+    if (result is AsyncData && result.value?.adminID == null && mounted) {
+      ref
+          .read(checkButtonStateProvider.notifier)
+          .isButtonEnabled(); // The method was set to default to true
+      _dialogUncommon.showAutoDismissDialogLonger(
+        context,
+        'User credential cannot be found!',
+        null,
+        null,
+      );
+    } else if (result is AsyncData &&
+        result.value?.adminID != null &&
+        mounted) {
+      await ref.read(logAdminWebAccessProvider.notifier).manageAdminWebAccess(
+            adminID: result.value?.adminID,
+            username: result.value?.username,
+            fullName: result.value?.fullName,
+            compEmail: result.value?.compEmail,
+            adminRole: result.value?.adminRole,
+            loginStatus: 'SUCCESSFUL',
           );
-        }
+
+      final result2 = ref.read(logAdminWebAccessProvider);
+      developer.log(name: 'STATUS', result2.valueOrNull.toString());
+
+      if (result2 is AsyncData && result2.value != 'SUCCESSFUL' && mounted) {
+        ref
+            .read(checkButtonStateProvider.notifier)
+            .isButtonEnabled(); // The method was set to default to true
+        _dialogUncommon.showAutoDismissDialogLonger(
+          context,
+          'Something went wrong. Please try again later.',
+          null,
+          null,
+        );
+      } else {
+        await _processDevicePropertiesSignIn(
+            sharedPrefs: sharedPrefs,
+            username: result.value!.adminID.toString(),
+            fullName: result.value!.fullName.toString(),
+            adminRole: result.value!.adminRole.toString());
       }
-      // You might navigate to a different screen or perform other actions
     } else {
-      // Login failed
-      developer.log('Login failed: ${response.statusCode}');
-      // Show error message or handle the error appropriately
+      ref
+          .read(checkButtonStateProvider.notifier)
+          .isButtonEnabled(); // The method was set to default to true
+      if (mounted) {
+        _dialogUncommon.showAutoDismissDialogLonger(
+          context,
+          'User credential cannot be found!',
+          null,
+          null,
+        );
+      }
+    }
+  }
+
+  Future<void> _processDevicePropertiesSignIn(
+      {DataModel? sharedPrefs,
+      String? username,
+      String? fullName,
+      String? adminRole}) async {
+    await ref
+        .read(manageDevicePropertiesProvider.notifier)
+        .proccessDeviceProperties(
+          userID: username,
+          devicePlatform: _devicePlatform,
+          deviceState: _isPhysicalDevice,
+          deviceModel: _deviceModel,
+          deviceVersion: _deviceVersion,
+        );
+
+    final result = ref.read(manageDevicePropertiesProvider);
+
+    if (result is AsyncData && result.value != 'SUCCESSFUL' && mounted) {
+      ref
+          .read(checkButtonStateProvider.notifier)
+          .isButtonEnabled(); // The method was set to default to true
+      _dialogCommon.showDialogMessageCustomizableButton(
+        context,
+        'Error',
+        'Cannot process your request. Please try again later.',
+        TextButton(
+          onPressed: () {
+            GoRouter.of(context).pop();
+          },
+          child: RetainTextScaleWrapper(child: Text('OK')),
+        ),
+      );
+    } else {
+      if (mounted) {
+        sharedPrefs!.saveUsername(username!);
+        _dialogUncommon.showAutoDismissDialog(context, 'Login successfully!',
+            CupertinoIcons.check_mark_circled, Colors.greenAccent);
+      }
+      CookieManager.addToCookie('admin_id', username);
+      CookieManager.addToCookie('full_name', fullName);
+      CookieManager.addToCookie('admin_role', adminRole);
+      ref
+          .read(dashboardBottomAppBarIndexProvider.notifier)
+          .setIndex(); // to initialize the bottomNavigationBar index
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        ref
+            .read(checkButtonStateProvider.notifier)
+            .isButtonEnabled(); // The method was set to default to true
+        if (mounted) {
+          context.go('/home-b');
+        }
+      });
     }
   }
 
@@ -309,6 +376,7 @@ class _FormContentState extends ConsumerState<_FormContent> {
     _checkConnection();
     _networkManager.regStreamSubscription();
     _connectionCheckStatus();
+    _getDeviceProperties();
   }
 
   @override
@@ -392,6 +460,9 @@ class _FormContentState extends ConsumerState<_FormContent> {
     // final auth = kIsWeb ? null : Provider.of<AuthProvider>(context);
     //getDeviceInfo(); //To speed up development, I comment out this for now
 
+    final sharedPrefs = ref.watch(sharedPrefProvider);
+    final isButtonEnabled = ref.watch(checkButtonStateProvider);
+
     return Container(
       constraints: const BoxConstraints(maxWidth: 300),
       padding: const EdgeInsets.all(10),
@@ -417,6 +488,9 @@ class _FormContentState extends ConsumerState<_FormContent> {
                   validator: (value) {
                     // add email validation
                     if (value == null || value.isEmpty) {
+                      ref
+                          .read(checkButtonStateProvider.notifier)
+                          .isButtonEnabled(); // The method was set to default to true
                       return 'Required';
                     }
 
@@ -479,35 +553,26 @@ class _FormContentState extends ConsumerState<_FormContent> {
                                 .showInternetScaffoldMessenger(context)
                             : _networkManager.showNoInternetDialog(context);
                       } else {
-                        CenteredSnackbar(
-                          context: context,
-                          text: 'Signin successful!',
-                          onPressed: null,
-                        ); //not working yet
-
-                        // _login(context);
-
-                        // Navigator.of(context).pushReplacementNamed('/dashboard'); //manual
-                        // Navigator.pushReplacementNamed(context, '/dashboard');
-                        // kIsWeb
-                        //     ? context.go('/dashboard')
-                        //     : GoRouter.of(context).pushReplacement('/dashboard');
-
-                        // dataModel.saveData('username', _usernameController.text);
-
-                        if (kIsWeb) {
-                          _parentLogin(context);
-                        } else {
-                          try {} catch (e) {
-                            developer.log('HayExceptionNanaman: ', error: e);
-                          }
+                        if (!isButtonEnabled) {
+                          return;
                         }
+                        ref
+                            .read(checkButtonStateProvider.notifier)
+                            .isButtonEnabled(isEnabled: false);
+                        await _signIn(
+                          sharedPrefs,
+                          _usernameController.text,
+                          _passwordController.text,
+                        );
                       }
                     }
                   },
                   controller: _passwordController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
+                      ref
+                          .read(checkButtonStateProvider.notifier)
+                          .isButtonEnabled(); // The method was set to default to true
                       return 'Required';
                     }
 
@@ -588,42 +653,17 @@ class _FormContentState extends ConsumerState<_FormContent> {
                               .showInternetScaffoldMessenger(context)
                           : _networkManager.showNoInternetDialog(context);
                     } else {
-                      CenteredSnackbar(
-                        context: context,
-                        text: 'Signin successful!',
-                        onPressed: null,
-                      ); //not working yet
-
-                      // _login(context);
-
-                      // Navigator.of(context).pushReplacementNamed('/dashboard'); //manual
-                      // Navigator.pushReplacementNamed(context, '/dashboard');
-                      // kIsWeb
-                      //     ? context.go('/dashboard')
-                      //     : GoRouter.of(context).pushReplacement('/dashboard');
-
-                      // dataModel.saveData('username', _usernameController.text);
-
-                      if (kIsWeb) {
-                        _parentLogin(context);
-                      } else {
-                        try {
-                          _dialogUncommon.showAutoDismissDialog(
-                              context,
-                              'Coming soon...',
-                              CupertinoIcons.settings,
-                              Colors.blueAccent);
-
-                          // await context.read<AuthProvider>().signIn(
-                          //       context,
-                          //       _usernameController.text,
-                          //       _passwordController.text,
-                          //       'sign_in',
-                          //     ); //I am encontering issue with web Chrome, so I'll fix this later
-                        } catch (e) {
-                          developer.log('HayExceptionNanaman: ', error: e);
-                        }
+                      if (!isButtonEnabled) {
+                        return;
                       }
+                      ref
+                          .read(checkButtonStateProvider.notifier)
+                          .isButtonEnabled(isEnabled: false);
+                      await _signIn(
+                        sharedPrefs,
+                        _usernameController.text,
+                        _passwordController.text,
+                      );
                     }
                   }
                 },
@@ -662,68 +702,68 @@ class _FormContentState extends ConsumerState<_FormContent> {
               child:
                   RetainTextScaleWrapper(child: const Text('Recover Account?')),
             ),
-            Opacity(opacity: 0.1, child: const Divider()),
-            // _gap(),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                RetainTextScaleWrapper(
-                  child: Text(
-                    "Haven't signed up yet?",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontFamily: 'lato',
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.75,
-                        ),
-                  ),
-                ),
-                TextButton(
-                  onHover: (isHovered) =>
-                      setState(() => _isHoveredSU = isHovered),
-                  onPressed: () {
-                    //do something
-                    if (_networkManager.connectionStatus
-                        .contains(ConnectivityResult.none)) {
-                      isSmallScreen
-                          ? _networkManager
-                              .showInternetScaffoldMessenger(context)
-                          : _networkManager.showNoInternetDialog(context);
-                    } else {
-                      // Navigator.push(
-                      //   context,
-                      //   RouteTransitions.slideTransition(const SignUp()),
-                      // );
-                      // Navigator.pushNamed(context, '/sign-up');
-                      ref.read(regStateNotifierProvider.notifier).switchState();
-                      kIsWeb
-                          ? context.go('///terms-of-service')
+            // Opacity(opacity: 0.1, child: const Divider()), // To create an account
+            // // _gap(),
+            // Align(
+            //   alignment: Alignment.bottomCenter,
+            //   child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            //     RetainTextScaleWrapper(
+            //       child: Text(
+            //         "Haven't signed up yet?",
+            //         style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            //               fontFamily: 'lato',
+            //               fontWeight: FontWeight.bold,
+            //               letterSpacing: 0.75,
+            //             ),
+            //       ),
+            //     ),
+            //     TextButton(
+            //       onHover: (isHovered) =>
+            //           setState(() => _isHoveredSU = isHovered),
+            //       onPressed: () {
+            //         //do something
+            //         if (_networkManager.connectionStatus
+            //             .contains(ConnectivityResult.none)) {
+            //           isSmallScreen
+            //               ? _networkManager
+            //                   .showInternetScaffoldMessenger(context)
+            //               : _networkManager.showNoInternetDialog(context);
+            //         } else {
+            //           // Navigator.push(
+            //           //   context,
+            //           //   RouteTransitions.slideTransition(const SignUp()),
+            //           // );
+            //           // Navigator.pushNamed(context, '/sign-up');
+            //           ref.read(regStateNotifierProvider.notifier).switchState();
+            //           kIsWeb
+            //               ? context.go('///terms-of-service')
 
-                          // _dialogUncommon.showAutoDismissDialog(
-                          //     context,
-                          //     'Uh oh... not available at this time ;)',
-                          //     CupertinoIcons.exclamationmark_circle_fill,
-                          //     Colors.redAccent) // let web to register
-                          : GoRouter.of(context)
-                              .push('/terms-of-service'); //'/sign-up');
-                    }
-                  },
-                  style: TextButton.styleFrom(
-                    textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontFamily: 'lato',
-                          decoration: _isHoveredSU
-                              ? TextDecoration.underline
-                              : TextDecoration.none,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.75,
-                        ),
-                    foregroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4)),
-                  ),
-                  child: RetainTextScaleWrapper(child: const Text('Sign Up')),
-                ),
-              ]),
-            ),
+            //               // _dialogUncommon.showAutoDismissDialog(
+            //               //     context,
+            //               //     'Uh oh... not available at this time ;)',
+            //               //     CupertinoIcons.exclamationmark_circle_fill,
+            //               //     Colors.redAccent) // let web to register
+            //               : GoRouter.of(context)
+            //                   .push('/terms-of-service'); //'/sign-up');
+            //         }
+            //       },
+            //       style: TextButton.styleFrom(
+            //         textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+            //               fontFamily: 'lato',
+            //               decoration: _isHoveredSU
+            //                   ? TextDecoration.underline
+            //                   : TextDecoration.none,
+            //               fontWeight: FontWeight.bold,
+            //               letterSpacing: 0.75,
+            //             ),
+            //         foregroundColor: Colors.blueAccent,
+            //         shape: RoundedRectangleBorder(
+            //             borderRadius: BorderRadius.circular(4)),
+            //       ),
+            //       child: RetainTextScaleWrapper(child: const Text('Sign Up')),
+            //     ),
+            //   ]),
+            // ),
           ],
         ),
       ),

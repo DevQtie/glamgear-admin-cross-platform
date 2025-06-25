@@ -83,7 +83,7 @@ class _ChangePwordState extends State<ChangePword> {
         if (didPop) {
           return;
         }
-        context.go('/');
+        context.go('/glamgear');
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -119,7 +119,7 @@ class _ChangePwordState extends State<ChangePword> {
             children: [
               IconButton(
                 onPressed: () {
-                  context.go('/');
+                  context.go('/glamgear');
                 },
                 icon: Icon(CupertinoIcons.chevron_left),
               ),
@@ -918,7 +918,7 @@ class _ChangePwordState extends State<ChangePword> {
                               Future.delayed(const Duration(milliseconds: 2000),
                                   () {
                                 if (context.mounted) {
-                                  context.go('/');
+                                  context.go('/glamgear');
                                 }
                               });
                             }

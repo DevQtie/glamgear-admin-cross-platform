@@ -102,10 +102,6 @@ class _Account2State extends ConsumerState<Account> {
     }
   }
 
-  // Future<void> _loadFrontIDData() async {
-  //   ref.read(retrieveOptImgProvider('/api/postget/retrieve_lss2c_test_img'));
-  // }
-
   Widget _masonryGridView(
     List<dynamic> data,
     BuildContext context,
@@ -454,23 +450,6 @@ class _Account2State extends ConsumerState<Account> {
     );
   }
 
-  Future<void> _refreshAccountData() async {
-    final futurePrefs = await ref.read(sharedPrefFutureProvider.future);
-
-    final sharedPrefUserID = await futurePrefs.getUsername();
-    ref.invalidate(retrieveBadgeDataProvider);
-    ref.invalidate(dNameMyOrdersBadgeCountsProvider);
-    ref.read(retrieveBadgeDataProvider.notifier).initProdClientDPreview(
-        '/api/postget/process_client_side_data',
-        sharedPrefUserID ?? 'NULL',
-        'RETRIEVE_BADGE_COUNTS');
-    ref.read(dNameMyOrdersBadgeCountsProvider.notifier).initAccountInfoNBC(
-        // NOTE: ref.invalidate then ref.read this again [after] every time there's a user modification to their purchased orders
-        '/api/postget/process_client_side_data',
-        sharedPrefUserID ?? 'NULL',
-        'ACCOUNT_NAME_N_MY_ORDER_BADGES_CNT');
-  }
-
   @override
   void initState() {
     super.initState();
@@ -505,8 +484,6 @@ class _Account2State extends ConsumerState<Account> {
     // final double statusBarHeight = MediaQuery.of(context).padding.top;
     // developer.log('Data test: $_username');
 
-    final disNameNBC = ref.watch(dNameMyOrdersBadgeCountsProvider);
-
     final ThemeData theme = Theme.of(context);
 
     // Set the system UI overlay style (status bar)
@@ -522,11 +499,8 @@ class _Account2State extends ConsumerState<Account> {
     //   ),
     // );
 
-    // final AsyncValue<List<dynamic>> data = ref
-    //     .watch(retrieveOptImgProvider('/api/postget/retrieve_lss2c_test_img'));
-
     return RefreshIndicator(
-      onRefresh: _refreshAccountData,
+      onRefresh: () async {},
       child: Scaffold(
         backgroundColor: kIsWeb
             ? isDarkMode
@@ -557,6 +531,20 @@ class _Account2State extends ConsumerState<Account> {
             color: isDarkMode
                 ? Colors.grey[850]
                 : Colors.grey.shade300, //shade100,
+            border: Border(
+              left: BorderSide(
+                color: Colors.red.withValues(alpha: 0.5),
+                width: 1,
+              ),
+              top: BorderSide(
+                color: Colors.red.withValues(alpha: 0.5),
+                width: 1,
+              ),
+              bottom: BorderSide(
+                color: Colors.red.withValues(alpha: 0.5),
+                width: 1,
+              ),
+            ),
           ),
           child: SingleChildScrollView(
             physics: AlwaysScrollableScrollPhysics(),

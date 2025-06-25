@@ -1,14 +1,13 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/ovrly_lder_w_app_ic.dart';
 import 'package:glamgear/riverpod/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:glamgear/dart_logo/raquel_logo.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/wid_txt_scle_wrppr.dart';
-import 'package:tab_container/tab_container.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -21,7 +20,6 @@ class _HomeState extends ConsumerState<DashboardPage>
     with TickerProviderStateMixin {
   late List<Tab> _tabs;
   int _current = 0;
-  final CarouselSliderController _controller = CarouselSliderController();
 
   final List<String> _listBannerImages = [
     'assets/images/headline_banner2_1_2.png',
@@ -111,7 +109,7 @@ class _HomeState extends ConsumerState<DashboardPage>
     final bool isDarkMode = brightness == Brightness.dark;
     // final customTheme = Theme.of(context).extension<CustomTheme>();
 
-    final homeScrollingState = ref.watch(homeScrollingStateProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       body: Container(
@@ -131,6 +129,21 @@ class _HomeState extends ConsumerState<DashboardPage>
               color: Colors.red.withValues(alpha: 0.5),
               width: 1,
             ),
+          ),
+        ),
+        child: Container(
+          color: colorScheme.surfaceContainerHighest,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                child: Text(
+                    'Welcome back, ${CookieManager.getCookie('full_name')}',
+                    style: theme.textTheme.headlineSmall?.copyWith()),
+              ),
+            ],
           ),
         ),
       ),

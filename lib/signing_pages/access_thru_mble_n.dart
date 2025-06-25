@@ -83,23 +83,51 @@ class _AccessThruMobileNumberState extends State<AccessThruMobileNumber> {
           }
         },
         child: Scaffold(
+            // appBar: AppBar(
+            //   backgroundColor: colorScheme.surfaceContainerHighest,
+            //   leading: IconButton(
+            //     onPressed: () {
+            //       if (widget.isRegistration) {
+            //         kIsWeb
+            //             ? context.go('/sign-up-opt')
+            //             : GoRouter.of(context).push('/sign-up-opt');
+            //       } else {
+            //         if (GoRouter.of(context).canPop()) {
+            //           GoRouter.of(context).pop();
+            //         } else {
+            //           context.go('/');
+            //         }
+            //       }
+            //     },
+            //     icon: Icon(CupertinoIcons.chevron_left),
+            //   ),
+            // ),
             appBar: AppBar(
+              automaticallyImplyLeading: false,
               backgroundColor: colorScheme.surfaceContainerHighest,
-              leading: IconButton(
-                onPressed: () {
-                  if (widget.isRegistration) {
-                    kIsWeb
-                        ? context.go('/sign-up-opt')
-                        : GoRouter.of(context).push('/sign-up-opt');
-                  } else {
-                    if (GoRouter.of(context).canPop()) {
-                      GoRouter.of(context).pop();
-                    } else {
-                      context.go('/');
-                    }
-                  }
-                },
-                icon: Icon(CupertinoIcons.chevron_left),
+              title: Wrap(
+                spacing: 4.0,
+                runSpacing: 4.0,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(CupertinoIcons.chevron_left),
+                    onPressed: () {
+                      if (GoRouter.of(context).canPop()) {
+                        GoRouter.of(context).pop();
+                      }
+                    },
+                  ),
+                  RetainTextScaleWrapper(
+                    child: Text(
+                      'Sign In',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
             ),
             body: Container(
@@ -725,76 +753,76 @@ class _FormContentState extends ConsumerState<_FormContent> {
               child:
                   RetainTextScaleWrapper(child: const Text('Recover Account?')),
             ),
-            Visibility(
-                visible: !widget.isRegistration,
-                child: Opacity(opacity: 0.1, child: const Divider())),
-            // _gap(),
-            Visibility(
-              visible: !widget.isRegistration,
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                  RetainTextScaleWrapper(
-                    child: Text(
-                      "Haven't signed up yet?",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontFamily: 'lato',
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.75,
-                          ),
-                    ),
-                  ),
-                  TextButton(
-                    onHover: (isHovered) =>
-                        setState(() => _isHoveredSU = isHovered),
-                    onPressed: () {
-                      //do something
-                      if (_networkManager.connectionStatus
-                          .contains(ConnectivityResult.none)) {
-                        isSmallScreen
-                            ? _networkManager
-                                .showInternetScaffoldMessenger(context)
-                            : _networkManager.showNoInternetDialog(context);
-                      } else {
-                        // Navigator.push(
-                        //   context,
-                        //   RouteTransitions.slideTransition(const SignUp()),
-                        // );
-                        // Navigator.pushNamed(context, '/sign-up');
-                        ref
-                            .read(regStateNotifierProvider.notifier)
-                            .switchState();
-                        kIsWeb
-                            ? context.go('///terms-of-service')
+            // Visibility( // To create an account
+            //     visible: !widget.isRegistration,
+            //     child: Opacity(opacity: 0.1, child: const Divider())),
+            // // _gap(),
+            // Visibility(
+            //   visible: !widget.isRegistration,
+            //   child: Align(
+            //     alignment: Alignment.bottomCenter,
+            //     child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            //       RetainTextScaleWrapper(
+            //         child: Text(
+            //           "Haven't signed up yet?",
+            //           style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            //                 fontFamily: 'lato',
+            //                 fontWeight: FontWeight.bold,
+            //                 letterSpacing: 0.75,
+            //               ),
+            //         ),
+            //       ),
+            //       TextButton(
+            //         onHover: (isHovered) =>
+            //             setState(() => _isHoveredSU = isHovered),
+            //         onPressed: () {
+            //           //do something
+            //           if (_networkManager.connectionStatus
+            //               .contains(ConnectivityResult.none)) {
+            //             isSmallScreen
+            //                 ? _networkManager
+            //                     .showInternetScaffoldMessenger(context)
+            //                 : _networkManager.showNoInternetDialog(context);
+            //           } else {
+            //             // Navigator.push(
+            //             //   context,
+            //             //   RouteTransitions.slideTransition(const SignUp()),
+            //             // );
+            //             // Navigator.pushNamed(context, '/sign-up');
+            //             ref
+            //                 .read(regStateNotifierProvider.notifier)
+            //                 .switchState();
+            //             kIsWeb
+            //                 ? context.go('///terms-of-service')
 
-                            // _dialogUncommon.showAutoDismissDialog(
-                            //     context,
-                            //     'Uh oh... not available at this time ;)',
-                            //     CupertinoIcons.exclamationmark_circle_fill,
-                            //     Colors.redAccent)
-                            : GoRouter.of(context)
-                                .push('/terms-of-service'); //'/sign-up');
-                      }
-                    },
-                    style: TextButton.styleFrom(
-                      textStyle:
-                          Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontFamily: 'lato',
-                                decoration: _isHoveredSU
-                                    ? TextDecoration.underline
-                                    : TextDecoration.none,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.75,
-                              ),
-                      foregroundColor: Colors.blueAccent,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4)),
-                    ),
-                    child: RetainTextScaleWrapper(child: const Text('Sign Up')),
-                  ),
-                ]),
-              ),
-            ),
+            //                 // _dialogUncommon.showAutoDismissDialog(
+            //                 //     context,
+            //                 //     'Uh oh... not available at this time ;)',
+            //                 //     CupertinoIcons.exclamationmark_circle_fill,
+            //                 //     Colors.redAccent)
+            //                 : GoRouter.of(context)
+            //                     .push('/terms-of-service'); //'/sign-up');
+            //           }
+            //         },
+            //         style: TextButton.styleFrom(
+            //           textStyle:
+            //               Theme.of(context).textTheme.bodySmall?.copyWith(
+            //                     fontFamily: 'lato',
+            //                     decoration: _isHoveredSU
+            //                         ? TextDecoration.underline
+            //                         : TextDecoration.none,
+            //                     fontWeight: FontWeight.bold,
+            //                     letterSpacing: 0.75,
+            //                   ),
+            //           foregroundColor: Colors.blueAccent,
+            //           shape: RoundedRectangleBorder(
+            //               borderRadius: BorderRadius.circular(4)),
+            //         ),
+            //         child: RetainTextScaleWrapper(child: const Text('Sign Up')),
+            //       ),
+            //     ]),
+            //   ),
+            // ),
           ],
         ),
       ),

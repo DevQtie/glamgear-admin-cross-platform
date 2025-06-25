@@ -212,26 +212,6 @@ class _DashboardState extends ConsumerState<Dashboard2> {
           // cart is selected
           final futurePrefs = await ref.read(sharedPrefFutureProvider.future);
           final sharedPrefUserID = await futurePrefs.getUsername();
-
-          await ref
-              .read(cartPreviewManageDataProvider.notifier)
-              .preventInvalidIsSelectedState(
-                  '/api/postget/process_client_side_data',
-                  'GLOBAL_IS_SELECTED_TO_FALSE');
-
-          ref.read(cartPreviewProvider.notifier).initCartPreview(
-              '/api/postget/process_client_side_data',
-              sharedPrefUserID ?? 'NULL',
-              'CART_PREVIEW');
-
-          ref.read(cartBottomPreviewProvider.notifier).initBottomPropData(
-              '/api/postget/process_client_side_data',
-              sharedPrefUserID ?? 'NULL',
-              'CART_BOTTOM_PREVIEW');
-
-          ref
-              .read(prodVarIDPVBottomSheetProvider.notifier)
-              .setID(); // necessary to reset
         }
         WidgetsBinding.instance.addPostFrameCallback((_) {
           widget.navigationShell.goBranch(
@@ -333,21 +313,6 @@ class _DashboardState extends ConsumerState<Dashboard2> {
     );
   }
 
-  Future<void> _initBadgeCounts() async {
-    final futurePrefs = await ref.read(sharedPrefFutureProvider.future);
-
-    final sharedPrefUserID = await futurePrefs.getUsername();
-    ref.read(retrieveBadgeDataProvider.notifier).initProdClientDPreview(
-        '/api/postget/process_client_side_data',
-        sharedPrefUserID ?? 'NULL',
-        'RETRIEVE_BADGE_COUNTS');
-    ref.read(dNameMyOrdersBadgeCountsProvider.notifier).initAccountInfoNBC(
-        // NOTE: ref.invalidate then ref.read this again [after] every time there's a user modification to their purchased orders
-        '/api/postget/process_client_side_data',
-        sharedPrefUserID ?? 'NULL',
-        'ACCOUNT_NAME_N_MY_ORDER_BADGES_CNT');
-  }
-
   @override
   void initState() {
     super.initState();
@@ -377,7 +342,7 @@ class _DashboardState extends ConsumerState<Dashboard2> {
         _initLargeScreenMenu();
       });
     }
-    Future.microtask(() => _initBadgeCounts());
+    // Future.microtask(() => _initBadgeCounts());
   }
 
   @override
@@ -422,9 +387,6 @@ class _DashboardState extends ConsumerState<Dashboard2> {
 
     final bottomAppBarIndex = ref.watch(dashboardBottomAppBarIndexProvider);
 
-    final AsyncValue<BadgeData> badgeCountData =
-        ref.watch(retrieveBadgeDataProvider);
-
     _mainArea = ColoredBox(
       color: colorScheme.surfaceContainerHighest,
       child: AnimatedSwitcher(
@@ -462,115 +424,70 @@ class _DashboardState extends ConsumerState<Dashboard2> {
         }
       },
       child: Scaffold(
-        bottomNavigationBar: (isExtraSmallScreen ||
-                isSmallScreen ||
-                isMediumScreen)
-            ? BottomAppBar(
-                height: _navItemHeight > 0 ? (_navItemHeight + 1) : null,
-                padding: const EdgeInsets.all(0),
-                child: LayoutBuilder(builder: (context, constraint) {
-                  double parentWidth = constraint.maxWidth / 4;
-                  return Wrap(
-                    children: [
-                      Divider(
-                        height: 0.5,
-                        thickness: 1,
-                        color: isDarkMode
-                            ? Colors.grey.shade400.withValues(alpha: 0.5)
-                            : Colors.grey.shade400,
-                      ),
-                      Wrap(
-                        //choose between Wrap and Row based on your observation with Widget rendering: my default is Wrap
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: <Widget>[
-                          SizedBox(
-                            width: parentWidth,
-                            child: buildNavItem(
-                              EvaIcons.homeOutline,
-                              EvaIcons.home,
-                              'Home',
-                              0,
-                            ), // It's fine to not specify badgeCount because it defaults to a specific value.
+        bottomNavigationBar:
+            (isExtraSmallScreen || isSmallScreen || isMediumScreen)
+                ? BottomAppBar(
+                    height: _navItemHeight > 0 ? (_navItemHeight + 1) : null,
+                    padding: const EdgeInsets.all(0),
+                    child: LayoutBuilder(builder: (context, constraint) {
+                      double parentWidth = constraint.maxWidth / 4;
+                      return Wrap(
+                        children: [
+                          Divider(
+                            height: 0.5,
+                            thickness: 1,
+                            color: isDarkMode
+                                ? Colors.grey.shade400.withValues(alpha: 0.5)
+                                : Colors.grey.shade400,
                           ),
-                          SizedBox(
-                            width: parentWidth,
-                            child: badgeCountData.when(
-                              loading: () => buildNavItem(
-                                EvaIcons.shoppingCartOutline,
-                                EvaIcons.shoppingCart,
-                                'Cart',
-                                1,
+                          Wrap(
+                            //choose between Wrap and Row based on your observation with Widget rendering: my default is Wrap
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: <Widget>[
+                              SizedBox(
+                                width: parentWidth,
+                                child: buildNavItem(
+                                  EvaIcons.homeOutline,
+                                  EvaIcons.home,
+                                  'Home',
+                                  0,
+                                ), // It's fine to not specify badgeCount because it defaults to a specific value.
                               ),
-                              error: (error, stack) => buildNavItem(
-                                EvaIcons.shoppingCartOutline,
-                                EvaIcons.shoppingCart,
-                                'Cart',
-                                1,
-                              ), // It's fine to not specify badgeCount because it defaults to a specific value.
-                              data: (getBadgeCount) {
-                                final cartBadgeCnt = getBadgeCount
-                                        .badgeData?.first.cartBdgeCnt ??
-                                    '0';
-                                final int isShowBadge =
-                                    int.parse(cartBadgeCnt.replaceAll('+', ''));
-                                developer.log('Count: $isShowBadge');
-                                return buildNavItem(
+                              SizedBox(
+                                width: parentWidth,
+                                child: buildNavItem(
                                     EvaIcons.shoppingCartOutline,
                                     EvaIcons.shoppingCart,
                                     'Cart',
                                     1,
-                                    badgeCount: cartBadgeCnt);
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            width: parentWidth,
-                            child: badgeCountData.when(
-                              loading: () => buildNavItem(
-                                EvaIcons.messageSquareOutline,
-                                EvaIcons.messageSquare,
-                                'Messages',
-                                2,
+                                    badgeCount: '0'),
                               ),
-                              error: (error, stack) => buildNavItem(
-                                EvaIcons.messageSquareOutline,
-                                EvaIcons.messageSquare,
-                                'Messages',
-                                2,
-                              ), // It's fine to not specify badgeCount because it defaults to a specific value.
-                              data: (getBadgeCount) {
-                                final mssgBadgeCnt = getBadgeCount
-                                        .badgeData?.first.mssgBdgeCnt ??
-                                    '0';
-                                final int isShowBadge =
-                                    int.parse(mssgBadgeCnt.replaceAll('+', ''));
-                                developer.log('Count: $isShowBadge');
-                                return buildNavItem(
+                              SizedBox(
+                                width: parentWidth,
+                                child: buildNavItem(
                                   EvaIcons.messageSquareOutline,
                                   EvaIcons.messageSquare,
                                   'Messages',
                                   2,
-                                  badgeCount: mssgBadgeCnt,
-                                ); // It's fine to not specify badgeCount because it defaults to a specific value.
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            width: parentWidth,
-                            child: buildNavItem(
-                              EvaIcons.personOutline,
-                              EvaIcons.person,
-                              'Account',
-                              3,
-                            ), // It's fine to not specify badgeCount because it defaults to a specific value.
+                                  badgeCount: '0',
+                                ),
+                              ),
+                              SizedBox(
+                                width: parentWidth,
+                                child: buildNavItem(
+                                  EvaIcons.personOutline,
+                                  EvaIcons.person,
+                                  'Account',
+                                  3,
+                                ), // It's fine to not specify badgeCount because it defaults to a specific value.
+                              ),
+                            ],
                           ),
                         ],
-                      ),
-                    ],
-                  );
-                }),
-              )
-            : null,
+                      );
+                    }),
+                  )
+                : null,
         body: (isExtraSmallScreen || isSmallScreen || isMediumScreen)
             ?
             // Use a more mobile-friendly layout with BottomNavigationBar
