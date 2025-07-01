@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:glamgear/api_main/api_helper.dart';
 import 'package:glamgear/dialog/dlog_cmon.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/device_id_helper.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/random_digit_code.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/session_storage_mngr.dart';
 import 'package:glamgear/internal/animations/dlog_uncmon.dart';
 import 'package:glamgear/riverpod/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +26,6 @@ class _RecoverAccountState extends ConsumerState<RecoverAccount> {
   final _userCredController = TextEditingController();
   FocusNode? _recoverAccountFocusNode;
   final _fourRandomDigitCode = RandomDigitCode();
-  final _apiHelper = ApiHelper();
   String? _code;
   final _deviceIdHelper = DeviceIdHelper();
   String? _deviceId;
@@ -41,35 +40,36 @@ class _RecoverAccountState extends ConsumerState<RecoverAccount> {
   }
 
   Future<void> _processCodeRequest(String mobileNo) async {
-    final codeResponse = await _apiHelper.manageCode2(
-        '/api/postget/code/process_req',
-        null,
-        mobileNo,
-        _deviceId,
-        _code,
-        'PROCESS_REQUEST');
-    if (codeResponse != 'SUCCESSFUL') {
-      if (mounted) {
-        _dialogCommon.showDialogMessageCustomizableButton(
-          context,
-          'Error',
-          'Message: $codeResponse',
-          TextButton(
-            onPressed: () {
-              // context.go('/dashboard');
-              int count = 0;
-              Navigator.of(context)
-                  .popUntil((_) => count++ >= 2); // navigate back 2 times
-            },
-            child: RetainTextScaleWrapper(child: Text('OK')),
-          ),
-        );
-      }
+    await ref.read(manageCodeRequestProvider.notifier).manageCode(
+        email: null,
+        mobileNo: mobileNo,
+        deviceID: _deviceId,
+        code: _code,
+        functionKey: 'PROCESS_REQUEST');
+
+    final codeResponse = ref.read(manageCodeRequestProvider);
+    if (codeResponse is AsyncData &&
+        codeResponse.value != 'SUCCESSFUL' &&
+        mounted) {
+      _dialogCommon.showDialogMessageCustomizableButton(
+        context,
+        'Error',
+        'Message: $codeResponse',
+        TextButton(
+          onPressed: () {
+            // context.go('/dashboard');
+            int count = 0;
+            Navigator.of(context)
+                .popUntil((_) => count++ >= 2); // navigate back 2 times
+          },
+          child: RetainTextScaleWrapper(child: Text('OK')),
+        ),
+      );
     } else {
       if (mounted) {
         /// do something
-        CookieManager.addToCookie('functionKey', 'recover');
-        CookieManager.addToCookie('isRegistration', false);
+        SessionStorageManager.setSessionStorage('functionKey', 'recover');
+        SessionStorageManager.setSessionStorage('isRegistration', false);
 
         kIsWeb
             ? context.go('//recover-account/otp-verifier', extra: {

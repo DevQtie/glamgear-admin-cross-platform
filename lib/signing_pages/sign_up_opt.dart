@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glamgear/dart_logo/raquel_logo.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/session_storage_mngr.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/wid_txt_scle_wrppr.dart';
 import 'package:glamgear/internal/animations/dlog_uncmon.dart';
 import 'package:go_router/go_router.dart';
@@ -194,8 +195,10 @@ class _SignUpOptionsState extends State<SignUpOptions> {
                       child: OutlinedButton.icon(
                         onPressed: () {
                           if (kIsWeb) {
-                            CookieManager.addToCookie('functionKey', 'sign-up');
-                            CookieManager.addToCookie('isRegistration', true);
+                            SessionStorageManager.setSessionStorage(
+                                'functionKey', 'sign-up');
+                            SessionStorageManager.setSessionStorage(
+                                'isRegistration', true);
                             context.go('///access-thru-mobile-no', extra: {
                               'functionKey': 'sign-up',
                               'isRegistration': true

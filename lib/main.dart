@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,9 +12,11 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:glamgear/bloc_observer/app_bloc_obsrvr.dart';
+import 'package:glamgear/firebase_options.dart';
 import 'package:glamgear/generated/l10n.dart';
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart' show BindingBase, kIsWeb;
+import 'package:glamgear/global_hlpr_n_wdgt/firebase_auth_helper.dart';
 import 'package:glamgear/internal/animations/route_trnstions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,10 +35,11 @@ void main() {
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      // Initialize Firebase Messaging only for mobile platforms
-      // await Firebase.initializeApp(
-      //   options: DefaultFirebaseOptions.currentPlatform,
-      // );
+      //Initialize Firebase Messaging only for mobile platforms
+      await FirebaseAuthHelper.initFirebase();
+
+      // Enable persistence on web platforms. Must be called on initialization:
+      await FirebaseAuthHelper.setFirebaseAuthEnablePersistence();
 
       runApp(
         ProviderScope(
@@ -122,12 +127,11 @@ class CustomTheme extends ThemeExtension<CustomTheme> {
   CustomTheme lerp(ThemeExtension<CustomTheme>? other, double t) {
     if (other is! CustomTheme) return this;
     return CustomTheme(
-      containerBackgroundColor:
-          Color.lerp(
-            containerBackgroundColor,
-            other.containerBackgroundColor,
-            t,
-          )!,
+      containerBackgroundColor: Color.lerp(
+        containerBackgroundColor,
+        other.containerBackgroundColor,
+        t,
+      )!,
     );
   }
 

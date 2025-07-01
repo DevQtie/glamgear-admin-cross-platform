@@ -51,7 +51,7 @@ class _Account2State extends ConsumerState<Account> {
   Future<void> _loadUsernameData() async {
     final prefs = await ref.read(sharedPrefFutureProvider.future);
     String? updateState;
-    updateState = await prefs.getUsername();
+    updateState = await prefs.getAdminID();
     await Future.delayed(Duration(
         milliseconds:
             (updateState == null) ? 1000 : 0)); // Simulate a delay if needed

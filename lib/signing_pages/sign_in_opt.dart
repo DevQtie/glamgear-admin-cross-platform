@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glamgear/dialog/dlog_cmon.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/device_id_helper.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/firebase_auth_helper.dart';
 import 'package:glamgear/riverpod/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:glamgear/comm/net_access.dart';
@@ -25,20 +27,26 @@ class SignInOptions extends ConsumerStatefulWidget {
 
 class _SignInOptionsState extends ConsumerState<SignInOptions> {
   Future<void> _checkCurrentlyLoggedInUser() async {
-    // auto sign-in if already logged in
-    final bool isExtraSmallScreen = MediaQuery.of(context).size.width <= 320;
-    final bool isSmallScreen = MediaQuery.of(context).size.width > 320 &&
-        MediaQuery.of(context).size.width <= 600;
-    final bool isMediumScreen = MediaQuery.of(context).size.width >= 600 &&
-        MediaQuery.of(context).size.width <= 800;
+    //auto sign-in if already logged in
+    // final bool isExtraSmallScreen = MediaQuery.of(context).size.width <= 320;
+    // final bool isSmallScreen = MediaQuery.of(context).size.width > 320 &&
+    //     MediaQuery.of(context).size.width <= 600;
+    // final bool isMediumScreen = MediaQuery.of(context).size.width >= 600 &&
+    //     MediaQuery.of(context).size.width <= 800;
     final prefs = await ref.read(sharedPrefFutureProvider.future);
-    bool isNull = await prefs.getAccountCredentials() == null ||
-        await prefs.getAccountCredentials() == '';
-    String? loggedInAs = await prefs.getAccountCredentials();
+    bool isNull =
+        await prefs.getAdminID() == null || await prefs.getAdminID() == '';
+    String? loggedInAs = await prefs.getAdminID();
     developer.log('Logged in as: $loggedInAs');
-    if (!mounted) {
-      return;
+    if (mounted) {
+      isNull ? context.go('/glamgear') : context.go('/home-b');
     }
+
+    // if (CookieManager.isCookiePresent('admin_id') && // discontinued in the meantime
+    //     CookieManager.isCookiePresent('full_name') &&
+    //     CookieManager.isCookiePresent('admin_role')) {
+    //   return context.go('/home-b');
+    // }
   }
 
   @override
@@ -47,8 +55,8 @@ class _SignInOptionsState extends ConsumerState<SignInOptions> {
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   _checkCurrentlyLoggedInUser();
     // });
-    Future.microtask(
-        () => _checkCurrentlyLoggedInUser()); // it seems this works better
+    // Future.microtask(
+    //     () => _checkCurrentlyLoggedInUser()); // it seems this works better, but it's not
   }
 
   @override
@@ -121,7 +129,7 @@ class _Logo extends StatelessWidget {
         Column(
           crossAxisAlignment: isSmallScreen
               ? CrossAxisAlignment.center
-              : CrossAxisAlignment.start,
+              : CrossAxisAlignment.center,
           children: [
             //FlutterLogo(size: isSmallScreen ? 100 : 200),
             GetLogo(
@@ -154,7 +162,8 @@ class _Logo extends StatelessWidget {
               child: RetainTextScaleWrapper(
                 child: Text(
                   "Raquel Pawnshop Online Selling App",
-                  textAlign: isSmallScreen ? TextAlign.center : TextAlign.start,
+                  textAlign:
+                      isSmallScreen ? TextAlign.center : TextAlign.center,
                   style: isSmallScreen
                       ? Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.normal,
@@ -182,11 +191,17 @@ class _FormContent extends ConsumerStatefulWidget {
 
 class _FormContentState extends ConsumerState<_FormContent> {
   final NetworkManager _networkManager = NetworkManager();
+  final _dialogCommon = DialogCommon();
   final _dialogUncommon = DialogUncommon();
   bool _isHoveredMN = false;
   bool _isHoveredPW = false;
   bool _isHoveredFP = false;
   bool _isHoveredSU = false;
+  String? _devicePlatform;
+  bool? _isPhysicalDevice;
+  String? _deviceModel;
+  String? _deviceVersion;
+  final _deviceIdHelper = DeviceIdHelper();
 
   Future<void> _checkConnection() async {
     await _networkManager.checkInternetAvailability();
@@ -207,12 +222,30 @@ class _FormContentState extends ConsumerState<_FormContent> {
 
   // final LocalAuthentication _auth = LocalAuthentication();
 
+  Future<void> _getDeviceProperties() async {
+    bool? isPhysicalDevice = await _deviceIdHelper.isPhysicalDevice();
+    String? deviceModel = await _deviceIdHelper.deviceModel();
+    String? deviceVersion = await _deviceIdHelper.deviceVersion();
+    if (mounted) {
+      setState(() {
+        _devicePlatform = _deviceIdHelper.devicePlatform();
+        _isPhysicalDevice = isPhysicalDevice;
+        _deviceModel = deviceModel;
+        _deviceVersion = deviceVersion;
+      });
+      developer.log(
+          'Platform: $_devicePlatform, isPhysicalDevice: $_isPhysicalDevice, Model: $_deviceModel, Version: $_deviceVersion');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _checkConnection();
     _networkManager.regStreamSubscription();
     _connectionCheckStatus();
+    _getDeviceProperties();
+    FirebaseAuthHelper.isCurrentlyLoggedInUSer(context, ref);
   }
 
   @override
@@ -242,6 +275,8 @@ class _FormContentState extends ConsumerState<_FormContent> {
     // final auth = kIsWeb ? null : Provider.of<AuthProvider>(context);
     //getDeviceInfo(); //To speed up development, I comment out this for now
 
+    final isButtonEnabled = ref.watch(checkButtonStateProvider);
+
     return Container(
       constraints: BoxConstraints(
         maxWidth: double.infinity,
@@ -269,9 +304,20 @@ class _FormContentState extends ConsumerState<_FormContent> {
                 ),
               ),
               iconAlignment: IconAlignment.start,
-              onPressed: () {
-                _dialogUncommon.showAutoDismissDialog(context, 'Coming soon...',
-                    CupertinoIcons.settings, Colors.blueAccent);
+              onPressed: () async {
+                if (!isButtonEnabled) {
+                  return;
+                }
+                ref
+                    .read(checkButtonStateProvider.notifier)
+                    .isButtonEnabled(isEnabled: false);
+                await FirebaseAuthHelper.signInWithGoogleAndShowInfo(
+                    context,
+                    ref,
+                    _devicePlatform,
+                    _isPhysicalDevice,
+                    _deviceModel,
+                    _deviceVersion);
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 12.0),

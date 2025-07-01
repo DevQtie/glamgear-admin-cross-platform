@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/ovrly_lder_w_app_ic.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/session_storage_mngr.dart';
 import 'package:glamgear/riverpod/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:glamgear/dart_logo/raquel_logo.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/wid_txt_scle_wrppr.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -111,6 +113,9 @@ class _HomeState extends ConsumerState<DashboardPage>
 
     final theme = Theme.of(context);
 
+    //final fullname = ref.watch(fullnameProvider); // discountinued due to code refactoration
+    final adminData = ref.watch(signInUsingUNPasswordProvider);
+
     return Scaffold(
       body: Container(
         width: MediaQuery.of(context).size.width,
@@ -136,12 +141,36 @@ class _HomeState extends ConsumerState<DashboardPage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                child: Text(
-                    'Welcome back, ${CookieManager.getCookie('full_name')}',
-                    style: theme.textTheme.headlineSmall?.copyWith()),
+              Focus(
+                autofocus: true,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 4.0),
+                  child: adminData.when(
+                    loading: () => Center(
+                      child: LoadingAnimationWidget.stretchedDots(
+                        color: Colors.white,
+                        size: 25,
+                      ),
+                    ),
+                    error: (erro, stack) => Text(
+                      'Send code',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    data: (data) {
+                      final fullname = data.fullName;
+                      return Text(
+                        //'Welcome back, ${SessionStorageManager.getSessionStorage('full_name')}', // discontinued in the meantime
+                        'Welcome back, $fullname',
+                        style: theme.textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      );
+                    },
+                  ),
+                ),
               ),
             ],
           ),

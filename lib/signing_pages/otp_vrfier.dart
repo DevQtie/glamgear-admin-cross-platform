@@ -8,13 +8,13 @@ import 'package:flutter_countdown_timer/countdown_timer_controller.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:glamgear/api_main/api_helper.dart';
 import 'package:glamgear/dialog/dlog_cmon.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/device_id_helper.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/ovrly_lder_w_app_ic.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/page_state_mngr.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/random_digit_code.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/session_storage_mngr.dart';
 import 'package:glamgear/riverpod/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -64,7 +64,6 @@ class _OTPVerifierState extends ConsumerState<OTPVerifier> {
   String? _code;
   bool _isActiveWidgets = true;
 
-  final _apiHelper = ApiHelper();
   final _deviceIdHelper = DeviceIdHelper();
   String? _deviceId;
   String? _devicePlatform;
@@ -111,31 +110,62 @@ class _OTPVerifierState extends ConsumerState<OTPVerifier> {
   }
 
   Future<void> _terminatePreviousRequest(String mobileNo) async {
-    final isResent = CookieManager.getCookieBool('isResent') ?? false;
-    final codeResponse = isResent
-        ? await _apiHelper.manageCode2('/api/postget/code/process_req', null,
-            mobileNo, _deviceId, _code, 'TERMINATE_PREV_REQ')
-        : await _apiHelper.manageCode2('/api/postget/code/process_req', null,
-            mobileNo, widget.deviceID, _code, 'TERMINATE_PREV_REQ');
-    if (codeResponse != 'SUCCESSFUL') {
-      if (mounted) {
-        _dialogCommon.showDialogMessage(
-            context, 'Error', 'Message: $codeResponse', 'OK');
-      }
+    // I decided not to test this in the meantime, note that this is not the original version of the source code
+    final isResent =
+        SessionStorageManager.getSessionStorageBool('isResent') ?? false;
+
+    if (isResent) {
+      await ref.read(manageCodeRequestProvider.notifier).manageCode(
+          email: null,
+          mobileNo: mobileNo,
+          deviceID: _deviceId,
+          code: _code,
+          functionKey: 'TERMINATE_PREV_REQ');
+    } else {
+      await ref.read(manageCodeRequestProvider.notifier).manageCode(
+          email: null,
+          mobileNo: mobileNo,
+          deviceID: widget.deviceID,
+          code: _code,
+          functionKey: 'TERMINATE_PREV_REQ');
+    }
+
+    final codeResponse = ref.read(manageCodeRequestProvider);
+    if (codeResponse is AsyncData &&
+        codeResponse.value != 'SUCCESSFUL' &&
+        mounted) {
+      _dialogCommon.showDialogMessage(
+          context, 'Error', 'Message: $codeResponse', 'OK');
     } else {
       _textEditingController.clear();
-      CookieManager.addToCookie('isResent', true);
+      SessionStorageManager.setSessionStorage('isResent', true);
       await _processCodeRequest(mobileNo);
     }
   }
 
   Future<void> _processCodeRequest(String mobileNo) async {
-    final codeResponse = widget.isRegistration
-        ? await _apiHelper.manageCode2('/api/postget/code/process_req', null,
-            mobileNo, _deviceId, _code, 'PROCESS_SIGN_UP')
-        : await _apiHelper.manageCode2('/api/postget/code/process_req', null,
-            mobileNo, _deviceId, _code, 'PROCESS_REQUEST');
-    if (codeResponse != 'SUCCESSFUL') {
+    // I decided not to test this in the meantime, note that this is not the original version of the source code
+
+    if (widget.isRegistration) {
+      await ref.read(manageCodeRequestProvider.notifier).manageCode(
+          email: null,
+          mobileNo: mobileNo,
+          deviceID: _deviceId,
+          code: _code,
+          functionKey: 'PROCESS_SIGN_UP');
+    } else {
+      await ref.read(manageCodeRequestProvider.notifier).manageCode(
+          email: null,
+          mobileNo: mobileNo,
+          deviceID: _deviceId,
+          code: _code,
+          functionKey: 'PROCESS_REQUEST');
+    }
+
+    final codeResponse = ref.read(manageCodeRequestProvider);
+    if (codeResponse is AsyncData &&
+        codeResponse.value != 'SUCCESSFUL' &&
+        mounted) {
       if (mounted) {
         _dialogCommon.showDialogMessage(
             context, 'Error', 'Message: $codeResponse', 'OK');
@@ -164,14 +194,32 @@ class _OTPVerifierState extends ConsumerState<OTPVerifier> {
   }
 
   Future<void> _validateCodeRequest(
-      DataModel sharedPrefs, String mobileNo, String codeToVerify) async {
-    final isResent = CookieManager.getCookieBool('isResent') ?? false;
-    final codeResponse = isResent
-        ? await _apiHelper.manageCode2('/api/postget/code/process_req', null,
-            mobileNo, _deviceId, codeToVerify, 'VERIFY')
-        : await _apiHelper.manageCode2('/api/postget/code/process_req', null,
-            mobileNo, widget.deviceID, codeToVerify, 'VERIFY');
-    if (codeResponse != 'SUCCESSFUL') {
+      // I decided not to test this in the meantime, note that this is not the original version of the source code
+      DataModel sharedPrefs,
+      String mobileNo,
+      String codeToVerify) async {
+    final isResent =
+        SessionStorageManager.getSessionStorageBool('isResent') ?? false;
+
+    if (isResent) {
+      await ref.read(manageCodeRequestProvider.notifier).manageCode(
+          email: null,
+          mobileNo: mobileNo,
+          deviceID: _deviceId,
+          code: codeToVerify,
+          functionKey: 'VERIFY');
+    } else {
+      await ref.read(manageCodeRequestProvider.notifier).manageCode(
+          email: null,
+          mobileNo: mobileNo,
+          deviceID: widget.deviceID,
+          code: codeToVerify,
+          functionKey: 'VERIFY');
+    }
+    final codeResponse = ref.read(manageCodeRequestProvider);
+    if (codeResponse is AsyncData &&
+        codeResponse.value != 'SUCCESSFUL' &&
+        mounted) {
       if (mounted) {
         _errorController!
             .add(ErrorAnimationType.shake); // Triggering error shake animation
@@ -189,7 +237,7 @@ class _OTPVerifierState extends ConsumerState<OTPVerifier> {
         if (widget.isRegistration) {
           await _processPartialRegistration(sharedPrefs, mobileNo);
         } else {
-          CookieManager.addToCookie('isResent', false);
+          SessionStorageManager.setSessionStorage('isResent', false);
 
           String mobileNoStringInterpolation = '+63$mobileNo';
 
@@ -204,81 +252,42 @@ class _OTPVerifierState extends ConsumerState<OTPVerifier> {
   }
 
   Future<void> _processSignIn(DataModel sharedPrefs, String mobileNo) async {
-    final isResent = CookieManager.getCookieBool('isResent') ?? false;
-    final signInResponse = isResent
-        ? await _apiHelper.processUserRequest2(
-            '/api/postget/process_access_req',
-            null,
-            _deviceId,
-            '',
-            0.00,
-            '',
-            0.00,
-            '',
-            0.00,
-            null,
-            null,
-            null,
-            null,
-            null,
-            DateTime.now().toIso8601String(),
-            null,
-            'Philippines',
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            _userCredential,
-            null,
-            'SIGN_IN')
-        : await _apiHelper.processUserRequest2(
-            '/api/postget/process_access_req',
-            null,
-            widget.deviceID,
-            '',
-            0.00,
-            '',
-            0.00,
-            '',
-            0.00,
-            null,
-            null,
-            null,
-            null,
-            null,
-            DateTime.now().toIso8601String(),
-            null,
-            'Philippines',
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            _userCredential,
-            null,
-            'SIGN_IN');
+    // I decided not to test this in the meantime, note that this is not the original version of the source code
+    final isResent =
+        SessionStorageManager.getSessionStorageBool('isResent') ?? false;
+
+    if (isResent) {
+      await ref.read(processUserRequestProvider.notifier).processUserReq(
+            // put argument to other parameter if necessary
+            deviceID: _deviceId,
+            birthday: DateTime.now().toIso8601String(),
+            country: 'Philippines',
+            mobileNo: _userCredential,
+            functionKey: 'SIGN_IN',
+          );
+    } else {
+      await ref.read(processUserRequestProvider.notifier).processUserReq(
+            // put argument to other parameter if necessary
+            deviceID: widget.deviceID,
+            birthday: DateTime.now().toIso8601String(),
+            country: 'Philippines',
+            mobileNo: _userCredential,
+            functionKey: 'SIGN_IN',
+          );
+    }
+
+    final signInResponse = ref.read(processUserRequestProvider);
     // final apiResponse = signInResponse; // Map<String, dynamic>
-    final apiResponse = signInResponse; // List<dynamic>
-    developer.log('${apiResponse.runtimeType}'); // data type checker
+    // final apiResponse = signInResponse; // List<dynamic>
+    developer.log('${signInResponse.runtimeType}'); // data type checker
 
     // final decodedAPIJsonString = apiResponse['recordsets'][0];
 
-    if (apiResponse.isEmpty) {
+    if (signInResponse is AsyncData &&
+        signInResponse.value.isEmpty &&
+        mounted) {
       // THERE'S POSSIBLE EMPTY RESPONSE
-      CookieManager.addToCookie('isResent', false);
+      SessionStorageManager.setSessionStorage('isResent', false);
       if (mounted) {
         setState(() {
           _isActiveWidgets = true;
@@ -301,15 +310,15 @@ class _OTPVerifierState extends ConsumerState<OTPVerifier> {
       return;
     }
 
-    String? userName = apiResponse[0]['user_id'];
+    String? userName = signInResponse.value[0]['user_id'];
     // String? email = decodedAPIJsonString[0]['email_add']; // Unnecessary at the moment
-    String? mobileNo = apiResponse[0]['mobile_no'];
+    String? mobileNo = signInResponse.value[0]['mobile_no'];
 
     // developer.log(
     //     'See values: $apiResponse'); // it generates the whole SQL Server returned values
 
     if (mobileNo == null) {
-      CookieManager.addToCookie('isResent', false);
+      SessionStorageManager.setSessionStorage('isResent', false);
       if (mounted) {
         setState(() {
           _isActiveWidgets = true;
@@ -330,7 +339,7 @@ class _OTPVerifierState extends ConsumerState<OTPVerifier> {
         );
       }
     } else if (mobileNo != _userCredential) {
-      CookieManager.addToCookie('isResent', false);
+      SessionStorageManager.setSessionStorage('isResent', false);
       if (mounted) {
         setState(() {
           _isActiveWidgets = true;
@@ -357,53 +366,50 @@ class _OTPVerifierState extends ConsumerState<OTPVerifier> {
 
   Future<void> _processDevicePropertiesSignIn(
       DataModel sharedPrefs, String userID, String mobileNo) async {
-    final processDeviceProperties = await _apiHelper.manageDeviceProperties(
-        '/api/postget/process_device_properties_req',
-        userID,
-        _devicePlatform,
-        _isPhysicalDevice,
-        _deviceModel,
-        _deviceVersion,
-        'SIGN-IN');
+    await ref
+        .read(manageDevicePropertiesProvider.notifier)
+        .proccessDeviceProperties(
+          adminID: userID,
+          devicePlatform: _devicePlatform,
+          deviceState: _isPhysicalDevice,
+          deviceModel: _deviceModel,
+          deviceVersion: _deviceVersion,
+          functionKey: 'SIGN-IN',
+        );
+    final processDeviceProperties = ref.read(manageDevicePropertiesProvider);
 
     if (!mounted) {
       // reverse engineering, char
       return;
     }
 
-    final bool isExtraSmallScreen = MediaQuery.of(context).size.width <= 320;
-    final bool isSmallScreen = MediaQuery.of(context).size.width > 320 &&
-        MediaQuery.of(context).size.width <= 600;
-    final bool isMediumScreen = MediaQuery.of(context).size.width >= 600 &&
-        MediaQuery.of(context).size.width <= 800;
-
-    if (processDeviceProperties != 'SUCCESSFUL') {
-      CookieManager.addToCookie('isResent', false);
-      if (mounted) {
-        setState(() {
-          _isActiveWidgets = true;
-        });
-        _dialogCommon.showDialogMessageCustomizableButton(
-          context,
-          'Error',
-          'Message: $processDeviceProperties',
-          TextButton(
-            onPressed: () {
-              // context.go('/dashboard');
-              int count = 0;
-              Navigator.of(context)
-                  .popUntil((_) => count++ >= 2); // navigate back 2 times
-            },
-            child: RetainTextScaleWrapper(child: Text('OK')),
-          ),
-        );
-      }
+    if (processDeviceProperties is AsyncData &&
+        processDeviceProperties.value != 'SUCCESSFUL' &&
+        mounted) {
+      SessionStorageManager.setSessionStorage('isResent', false);
+      setState(() {
+        _isActiveWidgets = true;
+      });
+      _dialogCommon.showDialogMessageCustomizableButton(
+        context,
+        'Error',
+        'Message: $processDeviceProperties',
+        TextButton(
+          onPressed: () {
+            // context.go('/dashboard');
+            int count = 0;
+            Navigator.of(context)
+                .popUntil((_) => count++ >= 2); // navigate back 2 times
+          },
+          child: RetainTextScaleWrapper(child: Text('OK')),
+        ),
+      );
     } else {
-      CookieManager.addToCookie('isResent', false);
+      SessionStorageManager.setSessionStorage('isResent', false);
 
       sharedPrefs.saveAccountCredentialsForAccountRecovery(mobileNo);
       if (mounted) {
-        sharedPrefs.saveUsername(userID);
+        sharedPrefs.saveAdminID(userID);
         _dialogUncommon.showAutoDismissDialog(context, 'Login successfully!',
             CupertinoIcons.check_mark_circled, Colors.greenAccent);
       }
@@ -412,9 +418,7 @@ class _OTPVerifierState extends ConsumerState<OTPVerifier> {
           .setIndex(); // to initialize the bottomNavigationBar index
       Future.delayed(const Duration(milliseconds: 1000), () {
         if (mounted) {
-          (isExtraSmallScreen || isSmallScreen || isMediumScreen)
-              ? context.go('/jewelry-pt')
-              : context.go('/jewelry-b');
+          context.go('/home-b');
         }
       });
     }
@@ -422,144 +426,100 @@ class _OTPVerifierState extends ConsumerState<OTPVerifier> {
 
   Future<void> _processPartialRegistration(
       DataModel sharedPrefs, String mobileNo) async {
-    final isResent = CookieManager.getCookieBool('isResent') ?? false;
-    final partialRegistrationResponse = isResent
-        ? await _apiHelper.processUserRequest2(
-            '/api/postget/process_access_req',
-            null,
-            _deviceId,
-            '',
-            0.00,
-            '',
-            0.00,
-            '',
-            0.00,
-            null,
-            null,
-            null,
-            null,
-            null,
-            DateTime.now().toIso8601String(),
-            null,
-            'Philippines',
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null, //'★', // FOR TESTING PURPOSES ONLY
-            _userCredential,
-            null,
-            'SIGN_UP')
-        : await _apiHelper.processUserRequest2(
-            '/api/postget/process_access_req',
-            null,
-            widget.deviceID,
-            '',
-            0.00,
-            '',
-            0.00,
-            '',
-            0.00,
-            null,
-            null,
-            null,
-            null,
-            null,
-            DateTime.now().toIso8601String(),
-            null,
-            'Philippines',
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null, //'★', // FOR TESTING PURPOSES ONLY
-            _userCredential,
-            null,
-            'SIGN_UP');
+    final isResent =
+        SessionStorageManager.getSessionStorageBool('isResent') ?? false;
 
-    if (partialRegistrationResponse == 'No records found.') {
-      if (mounted) {
-        setState(() {
-          _isActiveWidgets = true;
-        });
-        _dialogCommon.showDialogMessageCustomizableButton(
-          context,
-          'Error',
-          'Message: $partialRegistrationResponse',
-          TextButton(
-            onPressed: () {
-              // context.go('/dashboard');
-              int count = 0;
-              Navigator.of(context)
-                  .popUntil((_) => count++ >= 2); // navigate back 2 times
-            },
-            child: RetainTextScaleWrapper(child: Text('OK')),
-          ),
-        );
-      }
+    if (isResent) {
+      await ref.read(processUserRequestProvider.notifier).processUserReq(
+            // put argument to other parameter if necessary
+            deviceID: _deviceId,
+            birthday: DateTime.now().toIso8601String(),
+            country: 'Philippines',
+            mobileNo: _userCredential,
+            functionKey: 'SIGN_IN',
+          );
+    } else {
+      await ref.read(processUserRequestProvider.notifier).processUserReq(
+            // put argument to other parameter if necessary
+            deviceID: widget.deviceID,
+            birthday: DateTime.now().toIso8601String(),
+            country: 'Philippines',
+            mobileNo: _userCredential,
+            functionKey: 'SIGN_IN',
+          );
+    }
+
+    final partialRegistrationResponse = ref.read(processUserRequestProvider);
+
+    if (partialRegistrationResponse is AsyncData &&
+        partialRegistrationResponse.value == 'No records found.' &&
+        mounted) {
+      setState(() {
+        _isActiveWidgets = true;
+      });
+      _dialogCommon.showDialogMessageCustomizableButton(
+        context,
+        'Error',
+        'Message: $partialRegistrationResponse',
+        TextButton(
+          onPressed: () {
+            // context.go('/dashboard');
+            int count = 0;
+            Navigator.of(context)
+                .popUntil((_) => count++ >= 2); // navigate back 2 times
+          },
+          child: RetainTextScaleWrapper(child: Text('OK')),
+        ),
+      );
     } else {
       await _processDevicePropertiesSignUp(
-          sharedPrefs, partialRegistrationResponse, mobileNo);
+          sharedPrefs, partialRegistrationResponse.value, mobileNo);
     }
   }
 
   Future<void> _processDevicePropertiesSignUp(
       DataModel sharedPrefs, String? userID, String mobileNo) async {
-    final processDeviceProperties = await _apiHelper.manageDeviceProperties(
-        '/api/postget/process_device_properties_req',
-        userID,
-        _devicePlatform,
-        _isPhysicalDevice,
-        _deviceModel,
-        _deviceVersion,
-        'SIGN-UP');
+    await ref
+        .read(manageDevicePropertiesProvider.notifier)
+        .proccessDeviceProperties(
+          adminID: userID,
+          devicePlatform: _devicePlatform,
+          deviceState: _isPhysicalDevice,
+          deviceModel: _deviceModel,
+          deviceVersion: _deviceVersion,
+          functionKey: 'SIGN-IN',
+        );
+
+    final processDeviceProperties = ref.read(manageDevicePropertiesProvider);
 
     if (!mounted) {
       // reverse engineering, char
       return;
     }
 
-    final bool isExtraSmallScreen = MediaQuery.of(context).size.width <= 320;
-    final bool isSmallScreen = MediaQuery.of(context).size.width > 320 &&
-        MediaQuery.of(context).size.width <= 600;
-    final bool isMediumScreen = MediaQuery.of(context).size.width >= 600 &&
-        MediaQuery.of(context).size.width <= 800;
-
-    if (processDeviceProperties != 'SUCCESSFUL') {
-      CookieManager.addToCookie('isResent', false);
-      if (mounted) {
-        setState(() {
-          _isActiveWidgets = true;
-        });
-        _dialogCommon.showDialogMessageCustomizableButton(
-          context,
-          'Error',
-          'Message: $processDeviceProperties',
-          TextButton(
-            onPressed: () {
-              // context.go('/dashboard');
-              int count = 0;
-              Navigator.of(context)
-                  .popUntil((_) => count++ >= 2); // navigate back 2 times
-            },
-            child: RetainTextScaleWrapper(child: Text('OK')),
-          ),
-        );
-      }
+    if (processDeviceProperties is AsyncData &&
+        processDeviceProperties.value != 'SUCCESSFUL' &&
+        mounted) {
+      SessionStorageManager.setSessionStorage('isResent', false);
+      setState(() {
+        _isActiveWidgets = true;
+      });
+      _dialogCommon.showDialogMessageCustomizableButton(
+        context,
+        'Error',
+        'Message: $processDeviceProperties',
+        TextButton(
+          onPressed: () {
+            // context.go('/dashboard');
+            int count = 0;
+            Navigator.of(context)
+                .popUntil((_) => count++ >= 2); // navigate back 2 times
+          },
+          child: RetainTextScaleWrapper(child: Text('OK')),
+        ),
+      );
     } else {
-      CookieManager.addToCookie('isResent', false);
+      SessionStorageManager.setSessionStorage('isResent', false);
 
       String mobileNoStringInterpolation = '+63$mobileNo';
 
@@ -571,14 +531,11 @@ class _OTPVerifierState extends ConsumerState<OTPVerifier> {
             'Registered successfully!',
             CupertinoIcons.check_mark_circled,
             Colors.greenAccent);
-        sharedPrefs.saveUsername(userID!);
+        sharedPrefs.saveAdminID(userID!);
       }
       Future.delayed(const Duration(milliseconds: 1000), () {
         if (mounted) {
-          (isExtraSmallScreen || isSmallScreen || isMediumScreen)
-              ? context.go('/jewelry-pt')
-              : context.go(
-                  '/jewelry-b'); // for testing purposes, I've decided to rely with device's screen sizes (for prod purposes, use kIsWeb instead [but subject for observation])
+          context.go('/home-b');
         }
       });
     }

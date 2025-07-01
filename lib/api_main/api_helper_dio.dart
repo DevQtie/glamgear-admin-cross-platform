@@ -79,7 +79,7 @@ class ApiHelperDio {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return response.data;
       } else {
-        throw Exception('Failed to add product: ${response.statusCode}');
+        throw Exception('Failed to manage code: ${response.statusCode}');
       }
     } on DioException catch (e) {
       // The request was made and the server responded with a status code
@@ -154,7 +154,8 @@ class ApiHelperDio {
         // return jsonResponse.map((data) => data).toList();
         return response.data;
       } else {
-        throw Exception('Failed to add product: ${response.statusCode}');
+        throw Exception(
+            'Failed to retrieveAdminProductsData: ${response.statusCode}');
       }
     } on DioException catch (e) {
       // The request was made and the server responded with a status code
@@ -212,7 +213,7 @@ class ApiHelperDio {
 
         return jsonResponse.map((data) => data).toList();
       } else {
-        throw Exception('Failed to load data');
+        throw Exception('Failed to retrieveLss2CFrontID');
       }
     } on DioException catch (e) {
       // The request was made and the server responded with a status code
@@ -243,6 +244,7 @@ class ApiHelperDio {
     String endPoint = '/api/postget/sign_in',
     String? username,
     String? password,
+    bool? isGoogleAccount,
   }) async {
     // does not handle null type response, it handle null string literals instead
     final Uri url = kDebugMode
@@ -259,6 +261,7 @@ class ApiHelperDio {
       _authKey: _authValue,
       'comp_email': username,
       'password': password,
+      'is_using_google': isGoogleAccount,
     };
 
     try {
@@ -276,7 +279,7 @@ class ApiHelperDio {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return response.data;
       } else {
-        throw Exception('Failed to add product: ${response.statusCode}');
+        throw Exception('Failed to usernamePassSignIn: ${response.statusCode}');
       }
     } on DioException catch (e) {
       // The request was made and the server responded with a status code
@@ -348,7 +351,7 @@ class ApiHelperDio {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return response.data;
       } else {
-        throw Exception('Failed to add product: ${response.statusCode}');
+        throw Exception('Failed logAdminWebAccess: ${response.statusCode}');
       }
     } on DioException catch (e) {
       // The request was made and the server responded with a status code
@@ -375,15 +378,14 @@ class ApiHelperDio {
     }
   }
 
-  Future<dynamic> manageDeviceProperties({
-      String endPoint = '/api/postget/log_device_prop',
-      String? userID,
+  Future<dynamic> manageDeviceProperties(
+      {String endPoint = '/api/postget/log_device_prop',
+      String? adminID,
       String? devicePlatform,
       bool? deviceState,
       String? deviceModel,
       String? deviceVersion,
-      String functionKey = 'SIGN-IN'
-      }) async {
+      String? functionKey}) async {
     final Uri url = kDebugMode
         ? kIsWeb
             ? Uri.parse('$_baseUrlWebLocal$endPoint')
@@ -395,7 +397,7 @@ class ApiHelperDio {
     // Data to send (replace these values with your actual data)
     final Map<String, dynamic> requestData = {
       _authKey: _authValue,
-      'user_id': userID,
+      'admin_id': adminID,
       'device_platform': devicePlatform,
       'device_state': deviceState,
       'device_model': deviceModel,
@@ -418,7 +420,195 @@ class ApiHelperDio {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return response.data;
       } else {
-        throw Exception('Failed to add product: ${response.statusCode}');
+        throw Exception(
+            'Failed to manageDeviceProperties: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.response != null) {
+        developer.log(e.response!.data);
+        developer.log(e.response!.headers.toString());
+        developer.log(e.response!.requestOptions.toString());
+      } else if (e.type == DioExceptionType.connectionTimeout) {
+        developer.log(e.requestOptions.toString());
+        developer.log(e.message.toString());
+        throw Exception();
+      } else if (e.type == DioExceptionType.unknown) {
+        developer.log(e.requestOptions.toString());
+        developer.log(e.message.toString());
+        throw Exception();
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        developer.log(e.requestOptions.toString());
+        developer.log(e.message.toString());
+        throw Exception();
+      }
+      return [];
+    }
+  }
+
+  Future<dynamic> manageCode2(
+      {String endPoint = '/api/postget/code/process_req',
+      String? email,
+      String? mobileNo,
+      String? deviceID,
+      String? code,
+      String? functionKey}) async {
+    final Uri url = kDebugMode
+        ? kIsWeb
+            ? Uri.parse('$_baseUrlWebLocal$endPoint')
+            : Uri.parse('$_baseUrlPhysicalDevice$endPoint')
+        : kIsWeb
+            ? Uri.parse('$_baseUrlWebLocal$endPoint')
+            : Uri.parse('$_baseUrlLiveGlobalDevices$endPoint');
+
+    // Data to send (replace these values with your actual data)
+    final Map<String, dynamic> requestData = {
+      _authKey: _authValue,
+      'email': email,
+      'mobile_no': mobileNo,
+      'device_id': deviceID,
+      'code': code,
+      'function_key': functionKey,
+    };
+
+    try {
+      final response = await _dio.post(
+        url.toString(),
+        data: requestData,
+        options: Options(
+          headers: _apiJSONHeaders,
+          contentType:
+              'application/json', // to handle dynamic type of value in key-value pair
+        ),
+      );
+
+      // Handle successful response (e.g., navigate, show success message)
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
+      } else {
+        throw Exception('Failed to manageCode2: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.response != null) {
+        developer.log(e.response!.data);
+        developer.log(e.response!.headers.toString());
+        developer.log(e.response!.requestOptions.toString());
+      } else if (e.type == DioExceptionType.connectionTimeout) {
+        developer.log(e.requestOptions.toString());
+        developer.log(e.message.toString());
+        throw Exception();
+      } else if (e.type == DioExceptionType.unknown) {
+        developer.log(e.requestOptions.toString());
+        developer.log(e.message.toString());
+        throw Exception();
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        developer.log(e.requestOptions.toString());
+        developer.log(e.message.toString());
+        throw Exception();
+      }
+      return [];
+    }
+  }
+
+  Future<dynamic> processUserRequest2({
+    // this is originally came from GlamGear mobile app source code, and should not be used in admin side
+    String endPoint = '/api/postget/process_access_req',
+    String? userId,
+    String? deviceID,
+    String? frontIdImg, // it should to be a File? in actual file transfer
+    double? frontIdImgKBSize,
+    String? backIdImg, // it should to be a File? in actual file transfer
+    double? backIdImgKBSize,
+    String? selfieImg, // it should to be a File? in actual file transfer
+    double? selfieImgKBSize,
+    String? givenName,
+    String? middleName,
+    String? familyName,
+    String? suffix,
+    String? gender,
+    String? birthday,
+    String? nationality,
+    String? country,
+    String? province,
+    String? cityMun,
+    String? brgy,
+    String? unitHBldgSt,
+    String? villSub,
+    String? zipCode,
+    String? sourceOfFund,
+    String? empStatus,
+    String? employer,
+    String? occupation,
+    String? emailAdd,
+    String? mobileNo,
+    String? password,
+    String? functionKey,
+  }) async {
+    final Uri url = kDebugMode
+        ? kIsWeb
+            ? Uri.parse('$_baseUrlWebLocal$endPoint')
+            : Uri.parse('$_baseUrlPhysicalDevice$endPoint')
+        : kIsWeb
+            ? Uri.parse('$_baseUrlWebLocal$endPoint')
+            : Uri.parse('$_baseUrlLiveGlobalDevices$endPoint');
+
+    // Data to send (replace these values with your actual data)
+    final Map<String, dynamic> requestData = {
+      _authKey: _authValue,
+      'user_id': userId,
+      'device_id': deviceID,
+      'front_id_img_data': frontIdImg,
+      'front_id_img_f_kbsize': frontIdImgKBSize,
+      'back_id_img_data': backIdImg,
+      'back_id_img_f_kbsize': backIdImgKBSize,
+      'selfie_img_data': selfieImg,
+      'selfie_img_f_kbsize': selfieImgKBSize,
+      'given_name': givenName,
+      'middle_name': middleName,
+      'family_name': familyName,
+      'suffix': suffix,
+      'gender': gender,
+      'birthday': birthday,
+      'nationality': nationality,
+      'country': country,
+      'province': province,
+      'city_mun': cityMun,
+      'brgy': brgy,
+      'unit_h_bldg_st': unitHBldgSt,
+      'vill_sub': villSub,
+      'zip_code': zipCode,
+      'source_of_fund': sourceOfFund,
+      'emp_status': empStatus,
+      'employer': employer,
+      'occupation': occupation,
+      'email_add': emailAdd,
+      'mobile_no': mobileNo,
+      'password': password,
+      'function_key': functionKey
+    };
+
+    try {
+      final response = await _dio.post(
+        url.toString(),
+        data: requestData,
+        options: Options(
+          headers: _apiJSONHeaders,
+          contentType:
+              'application/json', // to handle dynamic type of value in key-value pair, if no heavy file data is being sent
+        ),
+      );
+
+      // Handle successful response (e.g., navigate, show success message)
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data;
+      } else {
+        throw Exception(
+            'Failed to processUserRequest2: ${response.statusCode}');
       }
     } on DioException catch (e) {
       // The request was made and the server responded with a status code

@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/device_id_helper.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/ovrly_lder_w_app_ic.dart';
 import 'package:glamgear/internal/data_model/local_storage/shared_pref.dart';
 import 'package:glamgear/riverpod/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -21,14 +22,14 @@ import 'package:glamgear/global_hlpr_n_wdgt/wid_txt_scle_wrppr.dart';
 import 'package:glamgear/internal/animations/dlog_uncmon.dart';
 import 'package:glamgear/main.dart';
 
-class SignInThruPassword extends StatefulWidget {
+class SignInThruPassword extends ConsumerStatefulWidget {
   const SignInThruPassword({super.key});
 
   @override
-  State<SignInThruPassword> createState() => _SignInThruPasswordState();
+  ConsumerState<SignInThruPassword> createState() => _SignInThruPasswordState();
 }
 
-class _SignInThruPasswordState extends State<SignInThruPassword> {
+class _SignInThruPasswordState extends ConsumerState<SignInThruPassword> {
   @override
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
@@ -36,6 +37,8 @@ class _SignInThruPasswordState extends State<SignInThruPassword> {
     // final Brightness brightness = MediaQuery.of(context).platformBrightness;
     // final bool isDarkMode = brightness == Brightness.dark;
     // final customTheme = Theme.of(context).extension<CustomTheme>();
+
+    final isButtonEnabled = ref.watch(checkButtonStateProvider);
 
     return PopScope<Object?>(
       canPop: false,
@@ -74,45 +77,56 @@ class _SignInThruPasswordState extends State<SignInThruPassword> {
               ],
             ),
           ),
-          body: Container(
-            color: colorScheme.surfaceContainerHighest,
-            child: Center(
-              child: SafeArea(
-                child: SingleChildScrollView(
-                  padding: isSmallScreen
-                      ? const EdgeInsets.all(0)
-                      : const EdgeInsets.all(32.0),
-                  child: Center(
-                      child: isSmallScreen
-                          ? const Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _Logo(),
-                                SizedBox(height: 10),
-                                _FormContent(),
-                              ],
-                            )
-                          : Container(
-                              padding: const EdgeInsets.all(32.0), //32.0
-                              constraints: const BoxConstraints(maxWidth: 800),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Expanded(child: _Logo()),
-                                  Expanded(
-                                    child: isSmallScreen
-                                        ? const Center(child: _FormContent())
-                                        : const Align(
-                                            alignment: Alignment.centerRight,
-                                            child: _FormContent(),
-                                          ),
+          body: Stack(
+            children: [
+              Container(
+                color: colorScheme.surfaceContainerHighest,
+                child: Center(
+                  child: SafeArea(
+                    child: SingleChildScrollView(
+                      padding: isSmallScreen
+                          ? const EdgeInsets.all(0)
+                          : const EdgeInsets.all(32.0),
+                      child: Center(
+                          child: isSmallScreen
+                              ? const Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _Logo(),
+                                    SizedBox(height: 10),
+                                    _FormContent(),
+                                  ],
+                                )
+                              : Container(
+                                  padding: const EdgeInsets.all(32.0), //32.0
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 800),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Expanded(child: _Logo()),
+                                      Expanded(
+                                        child: isSmallScreen
+                                            ? const Center(
+                                                child: _FormContent())
+                                            : const Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: _FormContent(),
+                                              ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            )),
+                                )),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              Center(
+                child:
+                    OverlayLoaderWithAppIconHelper(isLoading: !isButtonEnabled),
+              )
+            ],
           )),
     );
   }
@@ -131,7 +145,7 @@ class _Logo extends StatelessWidget {
         Column(
           crossAxisAlignment: isSmallScreen
               ? CrossAxisAlignment.center
-              : CrossAxisAlignment.start,
+              : CrossAxisAlignment.center,
           children: [
             //FlutterLogo(size: isSmallScreen ? 100 : 200),
             GetLogo(
@@ -145,7 +159,8 @@ class _Logo extends StatelessWidget {
               child: RetainTextScaleWrapper(
                 child: Text(
                   "Welcome to\nGlamGear!",
-                  textAlign: isSmallScreen ? TextAlign.center : TextAlign.start,
+                  textAlign:
+                      isSmallScreen ? TextAlign.center : TextAlign.center,
                   style: isSmallScreen
                       ? Theme.of(context)
                           .textTheme
@@ -163,8 +178,9 @@ class _Logo extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10), //16.0
               child: RetainTextScaleWrapper(
                 child: Text(
-                  "Use GlamGear ID and your password to sign in",
-                  textAlign: isSmallScreen ? TextAlign.center : TextAlign.start,
+                  "Use GlamGear ID and your password\nto sign in",
+                  textAlign:
+                      isSmallScreen ? TextAlign.center : TextAlign.center,
                   style: isSmallScreen
                       ? Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.normal,
@@ -249,9 +265,9 @@ class _FormContentState extends ConsumerState<_FormContent> {
     await ref
         .read(signInUsingUNPasswordProvider.notifier)
         .signInUsingUNPassword(
-            username: username,
-            password: password,
-            functionKey: 'ADMIN_TEST_SIGN_IN');
+          username: username,
+          password: password,
+        );
 
     final result = ref.read(signInUsingUNPasswordProvider);
 
@@ -313,6 +329,7 @@ class _FormContentState extends ConsumerState<_FormContent> {
   }
 
   Future<void> _processDevicePropertiesSignIn(
+      // not applicable for admin side in the meantime
       {DataModel? sharedPrefs,
       String? username,
       String? fullName,
@@ -320,11 +337,12 @@ class _FormContentState extends ConsumerState<_FormContent> {
     await ref
         .read(manageDevicePropertiesProvider.notifier)
         .proccessDeviceProperties(
-          userID: username,
+          adminID: username,
           devicePlatform: _devicePlatform,
           deviceState: _isPhysicalDevice,
           deviceModel: _deviceModel,
           deviceVersion: _deviceVersion,
+          functionKey: 'SIGN-IN',
         );
 
     final result = ref.read(manageDevicePropertiesProvider);
@@ -346,13 +364,21 @@ class _FormContentState extends ConsumerState<_FormContent> {
       );
     } else {
       if (mounted) {
-        sharedPrefs!.saveUsername(username!);
         _dialogUncommon.showAutoDismissDialog(context, 'Login successfully!',
             CupertinoIcons.check_mark_circled, Colors.greenAccent);
       }
-      CookieManager.addToCookie('admin_id', username);
-      CookieManager.addToCookie('full_name', fullName);
-      CookieManager.addToCookie('admin_role', adminRole);
+
+      // CookieManager.addToCookie(
+      //     'admin_id', username); // discontinued in the meantime
+      // CookieManager.addToCookie(
+      //     'full_name', fullName); // discontinued in the meantime
+      // CookieManager.addToCookie(
+      //     'admin_role', adminRole); // discontinued in the meantime
+      sharedPrefs!.saveAdminID(username!);
+      sharedPrefs.saveFullname(fullName!);
+      sharedPrefs.saveAdminRole(adminRole!);
+      // _retrieveAdminData();
+
       ref
           .read(dashboardBottomAppBarIndexProvider.notifier)
           .setIndex(); // to initialize the bottomNavigationBar index
@@ -366,6 +392,24 @@ class _FormContentState extends ConsumerState<_FormContent> {
       });
     }
   }
+
+  // Future<void> _retrieveAdminData() async {
+  //   // for testing purposes, should not be used in prod
+  //   final futurePrefs = await ref.read(sharedPrefFutureProvider.future);
+  //   final sharedPrefAdminID = await futurePrefs.getAdminID();
+  //   final sharedPrefFullname = await futurePrefs.getFullname();
+  //   final sharedPrefAdminRole = await futurePrefs.getAdminRole();
+
+  //   if (sharedPrefAdminID == null && mounted) {
+  //     context.go('/glamgear');
+  //   }
+
+  //   ref.read(adminIDProvider.notifier).setAdminID(data: sharedPrefAdminID);
+  //   ref.read(fullnameProvider.notifier).setFullname(data: sharedPrefFullname);
+  //   ref
+  //       .read(adminRoleProvider.notifier)
+  //       .setAdminRole(data: sharedPrefAdminRole);
+  // }
 
   @override
   void initState() {
@@ -441,6 +485,7 @@ class _FormContentState extends ConsumerState<_FormContent> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final bool isExtraSmallScreen = MediaQuery.of(context).size.width <= 320;
     final bool isSmallScreen = MediaQuery.of(context).size.width > 320 &&
         MediaQuery.of(context).size.width <= 600;
@@ -462,6 +507,9 @@ class _FormContentState extends ConsumerState<_FormContent> {
 
     final sharedPrefs = ref.watch(sharedPrefProvider);
     final isButtonEnabled = ref.watch(checkButtonStateProvider);
+
+    final fullname = ref.watch(
+        fullnameProvider); // for testing purposes, and shoud not be used in prod
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 300),
@@ -683,7 +731,7 @@ class _FormContentState extends ConsumerState<_FormContent> {
                       ? _networkManager.showInternetScaffoldMessenger(context)
                       : _networkManager.showNoInternetDialog(context);
                 } else {
-                  context.go('///recover-account');
+                  GoRouter.of(context).push('/recover-account');
                 }
               },
               style: TextButton.styleFrom(

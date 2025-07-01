@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
@@ -6,6 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glamgear/dart_logo/raquel_logo.dart';
+import 'package:glamgear/dialog/dlog_cmon.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/firebase_auth_helper.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/ovrly_lder_w_app_ic.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/page_state_mngr.dart';
 import 'package:glamgear/internal/data_model/freezed/prdct_client_data.dart';
 import 'package:glamgear/riverpod/provider.dart';
@@ -36,6 +41,7 @@ class _DashboardState extends ConsumerState<Dashboard>
   double _navItemHeight = 0;
   // Create a GlobalKey to measure the height of the navigation items
   final _navItemKey = GlobalKey();
+  final _dialogCommon = DialogCommon();
   final _dialogUncommon = DialogUncommon();
   DateTime? _currentBackPressTime;
   bool _isCollapsed = false;
@@ -44,7 +50,7 @@ class _DashboardState extends ConsumerState<Dashboard>
   bool _isSubmenuOpen = false;
   // Track expansion state for each menu
   final Map<String, bool> _submenuExpanded = {};
-  final List<String> currentUserRoles = ['admin'];
+  final List<String> currentUserRoles = ['admin']; // multi-role
 
   // PageController _pageController = PageController();
 
@@ -97,7 +103,7 @@ class _DashboardState extends ConsumerState<Dashboard>
         if (index == 1) {
           // cart is selected
           final futurePrefs = await ref.read(sharedPrefFutureProvider.future);
-          final sharedPrefUserID = await futurePrefs.getUsername();
+          final sharedPrefUserID = await futurePrefs.getAdminID();
         }
         WidgetsBinding.instance.addPostFrameCallback((_) {
           widget.navigationShell.goBranch(
@@ -365,28 +371,28 @@ class _DashboardState extends ConsumerState<Dashboard>
       id: 'dashboard',
       label: 'Dashboard',
       icon: CupertinoIcons.house_fill,
-      requiredRoles: ['admin'],
+      requiredRoles: ['admin', 'developer', 'verifier'],
     ),
     MenuItemModel(
       index: -1,
       id: 'products',
       label: 'Products',
       icon: CupertinoIcons.bag_fill,
-      requiredRoles: ['admin'],
+      requiredRoles: ['admin', 'developer'],
       children: [
         MenuItemModel(
           index: 1,
           id: 'add_products',
           label: 'Add Products',
           icon: CupertinoIcons.bag_fill_badge_plus,
-          requiredRoles: ['admin'],
+          requiredRoles: ['admin', 'developer'],
         ),
         MenuItemModel(
           index: 2,
           id: 'manage_products',
           label: 'Manage Products',
           icon: CupertinoIcons.bag_fill_badge_minus,
-          requiredRoles: ['admin'],
+          requiredRoles: ['admin', 'developer'],
         ),
       ],
     ),
@@ -396,7 +402,9 @@ class _DashboardState extends ConsumerState<Dashboard>
         label: 'Orders',
         icon: CupertinoIcons.doc_chart_fill,
         requiredRoles: [
-          'admin'
+          'admin',
+          'developer',
+          'verifier'
         ],
         children: [
           MenuItemModel(
@@ -404,21 +412,21 @@ class _DashboardState extends ConsumerState<Dashboard>
             id: 'order_list',
             label: 'Order List',
             icon: CupertinoIcons.doc_text_fill,
-            requiredRoles: ['admin'],
+            requiredRoles: ['admin', 'developer', 'verifier'],
           ),
           MenuItemModel(
             index: 4,
             id: 'return_cancellations_orders',
             label: 'Return & Cancellations Orders',
             icon: CupertinoIcons.arrow_up_doc_fill,
-            requiredRoles: ['admin'],
+            requiredRoles: ['admin', 'developer', 'verifier'],
           ),
           MenuItemModel(
             index: 5,
             id: 'reviews',
             label: 'Reviews',
             icon: CupertinoIcons.doc_checkmark_fill,
-            requiredRoles: ['admin'],
+            requiredRoles: ['admin', 'developer'],
           ),
         ]),
     MenuItemModel(
@@ -427,7 +435,9 @@ class _DashboardState extends ConsumerState<Dashboard>
         label: 'Users',
         icon: CupertinoIcons.person_2_square_stack_fill,
         requiredRoles: [
-          'admin'
+          'admin',
+          'developer',
+          'verifier'
         ],
         children: [
           MenuItemModel(
@@ -435,21 +445,21 @@ class _DashboardState extends ConsumerState<Dashboard>
             id: 'new_users',
             label: 'New Users',
             icon: CupertinoIcons.person_crop_circle_fill_badge_exclam,
-            requiredRoles: ['admin'],
+            requiredRoles: ['admin', 'developer', 'verifier'],
           ),
           MenuItemModel(
             index: 7,
             id: 'regular_users',
             label: 'Regular Users',
             icon: CupertinoIcons.person_crop_circle_fill_badge_checkmark,
-            requiredRoles: ['admin'],
+            requiredRoles: ['admin', 'developer', 'verifier'],
           ),
           MenuItemModel(
             index: 8,
             id: 'disabled_users',
             label: 'Disabled Users',
             icon: CupertinoIcons.person_crop_circle_fill_badge_minus,
-            requiredRoles: ['admin'],
+            requiredRoles: ['admin', 'developer', 'verifier'],
           ),
         ]),
     MenuItemModel(
@@ -457,26 +467,37 @@ class _DashboardState extends ConsumerState<Dashboard>
       id: 'messages',
       label: 'Messages',
       icon: CupertinoIcons.chat_bubble_text_fill,
-      requiredRoles: ['admin'],
+      requiredRoles: ['admin', 'developer', 'verifier'],
     ),
     MenuItemModel(
       index: 10,
       id: 'account',
       label: 'Account',
       icon: CupertinoIcons.person_alt_circle_fill,
-      requiredRoles: ['admin'],
+      requiredRoles: ['admin', 'developer', 'verifier'],
     ),
   ];
 
-  List<Widget> buildSidebarItems(ThemeData theme, bool isCollapsed) {
+  List<Widget> buildSidebarItems(
+      String? adminRole, ThemeData theme, bool isCollapsed) {
     return menuItems.where((item) {
-      return item.requiredRoles.any(currentUserRoles.contains);
+      return item.requiredRoles.any(
+          //CookieManager.getCookie('admin_role')  // discontinued in the meantime
+          adminRole
+              .toString()
+              .toLowerCase()
+              .contains); //item.requiredRoles.any(currentUserRoles.contains);
     }).map((item) {
       final hasChildren = item.children?.isNotEmpty == true;
       if (hasChildren) {
         final filteredChildren = item.children!
-            .where(
-                (child) => child.requiredRoles.any(currentUserRoles.contains))
+            .where((child) => child.requiredRoles.any(
+                // CookieManager.getCookie(
+                //       'admin_role')
+                adminRole
+                    .toString()
+                    .toLowerCase()
+                    .contains)) // discontinued in the meantime // child.requiredRoles.any(currentUserRoles.contains))
             .toList();
 
         if (filteredChildren.isEmpty) return SizedBox.shrink();
@@ -504,9 +525,38 @@ class _DashboardState extends ConsumerState<Dashboard>
     }).toList();
   }
 
+  // void _handlePageAccessSecurity(BuildContext context) { // discontinued in the meantime
+  //   if (!CookieManager.isCookiePresent('admin_id') &&
+  //       !CookieManager.isCookiePresent('full_name') &&
+  //       !CookieManager.isCookiePresent('admin_role')) {
+  //     return context.go('/glamgear');
+  //   }
+  // }
+
+  Future<void> _retrieveAdminData() async {
+    final futurePrefs = await ref.read(sharedPrefFutureProvider.future);
+    final sharedPrefAdminID = await futurePrefs.getAdminID();
+    final sharedPrefFullname = await futurePrefs.getFullname();
+    final sharedPrefAdminRole = await futurePrefs.getAdminRole();
+
+    if (sharedPrefAdminID == null && mounted) {
+      context.go('/glamgear');
+    }
+
+    ref.read(adminIDProvider.notifier).setAdminID(data: sharedPrefAdminID);
+    ref.read(fullnameProvider.notifier).setFullname(data: sharedPrefFullname);
+    ref
+        .read(adminRoleProvider.notifier)
+        .setAdminRole(data: sharedPrefAdminRole);
+  }
+
   @override
   void initState() {
     super.initState();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   // to  ensure the context is available
+    //   _handlePageAccessSecurity(context);
+    // });
 
     // Measure the height after the first frame is rendered
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -521,7 +571,10 @@ class _DashboardState extends ConsumerState<Dashboard>
         _navItemHeight = height;
       });
     });
-    // Future.microtask(() => _initBadgeCounts());
+    FirebaseAuthHelper.isCurrentlyLoggedInUSer(context, ref);
+    // Future.microtask(() {
+    //   // _retrieveAdminData();
+    // });
   }
 
   @override
@@ -564,6 +617,8 @@ class _DashboardState extends ConsumerState<Dashboard>
     final theme = Theme.of(context);
 
     final bottomAppBarIndex = ref.watch(dashboardBottomAppBarIndexProvider);
+    // final adminRole = ref.watch(adminRoleProvider); // discountinued due to code refactoration
+    final adminData = ref.watch(signInUsingUNPasswordProvider);
 
     _mainArea = ColoredBox(
       color: colorScheme.surfaceContainerHighest,
@@ -601,43 +656,132 @@ class _DashboardState extends ConsumerState<Dashboard>
           }
         }
       },
-      child: Scaffold(
-        appBar: (isExtraSmallScreen || isSmallScreen || isMediumScreen)
-            ? null
-            : AppBar(
-                leading: Builder(
-                  builder: (context) {
-                    return AnimatedSwitcher(
-                      duration: _duration,
-                      transitionBuilder:
-                          (Widget child, Animation<double> animation) {
-                        return RotationTransition(
-                          turns:
-                              Tween(begin: 0.75, end: 1.0).animate(animation),
-                          child:
-                              FadeTransition(opacity: animation, child: child),
+      child: adminData.when(
+        loading: () => Center(
+          child: OverlayLoaderWithAppIconHelper(isLoading: true),
+        ),
+        error: (erro, stack) => Center(
+          child: Text(
+            'Something went wrong. Please try again later',
+            style: Theme.of(context)
+                .textTheme
+                .bodyLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+        ),
+        data: (data) {
+          final adminRole = data.adminRole;
+          return Scaffold(
+            appBar: (isExtraSmallScreen || isSmallScreen || isMediumScreen)
+                ? null
+                : AppBar(
+                    leading: Builder(
+                      builder: (context) {
+                        return AnimatedSwitcher(
+                          duration: _duration,
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return RotationTransition(
+                              turns: Tween(begin: 0.75, end: 1.0)
+                                  .animate(animation),
+                              child: FadeTransition(
+                                  opacity: animation, child: child),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 12.0),
+                            child: IconButton(
+                              key: ValueKey<bool>(_isCollapsed),
+                              icon: Icon(
+                                _isCollapsed ? Icons.menu : Icons.close,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isCollapsed = !_isCollapsed;
+                                });
+                              },
+                            ),
+                          ),
                         );
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 12.0),
+                    ),
+                    actions: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: IconButton(
-                          key: ValueKey<bool>(_isCollapsed),
-                          icon: Icon(
-                            _isCollapsed ? Icons.menu : Icons.close,
-                          ),
+                          tooltip: 'Logout',
+                          icon: Icon(Icons.logout_outlined),
                           onPressed: () {
-                            setState(() {
-                              _isCollapsed = !_isCollapsed;
-                            });
+                            _dialogCommon.showDialogMessageWithTwoActions(
+                              context,
+                              ref,
+                              null,
+                              'Are you sure you want to continue?',
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => GoRouter.of(context).pop(),
+                                  child: RetainTextScaleWrapper(
+                                      child: const Text('Cancel')),
+                                ),
+                              ),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    // CookieManager.addToCookie('admin_id', null);
+                                    // CookieManager.addToCookie('full_name', null);
+                                    // CookieManager.addToCookie('admin_role', null);
+                                    // CookieManager.removeCookie('admin_id'); // discontinued in the meantime
+                                    // CookieManager.removeCookie('full_name');
+                                    // CookieManager.removeCookie('admin_role');
+                                    final futurePrefs = await ref
+                                        .read(sharedPrefFutureProvider.future);
+                                    final sharedPrefAdminID =
+                                        await futurePrefs.removeAdminID() ??
+                                            true;
+                                    final sharedPrefFullname =
+                                        await futurePrefs.removeFullname() ??
+                                            true;
+                                    final sharedPrefAdminRole =
+                                        await futurePrefs.removeAdminRole() ??
+                                            true;
+                                    bool? isPersDataRemoved =
+                                        (sharedPrefAdminID &&
+                                            sharedPrefFullname &&
+                                            sharedPrefAdminRole);
+                                    FirebaseAuthHelper.signOutUser();
+
+                                    if (isPersDataRemoved && context.mounted) {
+                                      context.go('/glamgear');
+                                    } else {
+                                      if (context.mounted) {
+                                        context.go('/glamgear');
+                                      }
+                                    }
+                                  },
+                                  child: RetainTextScaleWrapper(
+                                    child: Text(
+                                      'Confirm',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white
+                                                .withValues(alpha: 0.9),
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
                           },
                         ),
                       ),
-                    );
-                  },
-                ),
-              ),
-        bottomNavigationBar:
-            (isExtraSmallScreen || isSmallScreen || isMediumScreen)
+                    ],
+                  ),
+            bottomNavigationBar: (isExtraSmallScreen ||
+                    isSmallScreen ||
+                    isMediumScreen)
                 ? BottomAppBar(
                     height: _navItemHeight > 0 ? (_navItemHeight + 1) : null,
                     padding: const EdgeInsets.all(0),
@@ -700,124 +844,127 @@ class _DashboardState extends ConsumerState<Dashboard>
                     }),
                   )
                 : null,
-        body: (isExtraSmallScreen || isSmallScreen || isMediumScreen)
-            ?
-            // Use a more mobile-friendly layout with BottomNavigationBar
-            // on narrow screens.
-            // return Expanded(child: mainArea);
-            kIsWeb
-                ? _mainArea
-                : _mainArea
-            : Row(
-                children: [
-                  AnimatedContainer(
-                    width: _isCollapsed
-                        ? null
-                        : _sidebarWidth, // null width fixes the issue of overflow exception of text
-                    duration: _duration,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                            color: Colors.red.withValues(alpha: 0.5),
-                            width: 1,
+            body: (isExtraSmallScreen || isSmallScreen || isMediumScreen)
+                ?
+                // Use a more mobile-friendly layout with BottomNavigationBar
+                // on narrow screens.
+                // return Expanded(child: mainArea);
+                kIsWeb
+                    ? _mainArea
+                    : _mainArea
+                : Row(
+                    children: [
+                      AnimatedContainer(
+                        width: _isCollapsed
+                            ? null
+                            : _sidebarWidth, // null width fixes the issue of overflow exception of text
+                        duration: _duration,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                color: Colors.red.withValues(alpha: 0.5),
+                                width: 1,
+                              ),
+                              bottom: BorderSide(
+                                color: Colors.red.withValues(alpha: 0.5),
+                                width: 1,
+                              ),
+                            ),
                           ),
-                          bottom: BorderSide(
-                            color: Colors.red.withValues(alpha: 0.5),
-                            width: 1,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: buildSidebarItems(
+                                adminRole, theme, _isCollapsed),
+                            // [
+                            //   _buildMenuItem(
+                            //       theme: theme,
+                            //       icon: CupertinoIcons.house_fill,
+                            //       label: 'Dashboard'),
+                            //   _buildExpandableMenuItem(
+                            //       theme: theme,
+                            //       key: 'products',
+                            //       icon: CupertinoIcons.bag_fill,
+                            //       label: 'Products',
+                            //       children: [
+                            //         _buildSubMenuItem(
+                            //             theme: theme,
+                            //             icon: CupertinoIcons.bag_fill_badge_plus,
+                            //             label: 'Add Products'),
+                            //         SizedBox(height: 8.0),
+                            //         _buildSubMenuItem(
+                            //             theme: theme,
+                            //             icon: CupertinoIcons.bag_fill_badge_minus,
+                            //             label: 'Manage Products'),
+                            //       ]),
+                            //   _buildExpandableMenuItem(
+                            //       theme: theme,
+                            //       key: 'orders',
+                            //       icon: CupertinoIcons.doc_chart_fill,
+                            //       label: 'Orders',
+                            //       children: [
+                            //         _buildSubMenuItem(
+                            //             theme: theme,
+                            //             icon: CupertinoIcons.doc_text_fill,
+                            //             label: 'Order List'),
+                            //         SizedBox(height: 8.0),
+                            //         _buildSubMenuItem(
+                            //             theme: theme,
+                            //             icon: CupertinoIcons.arrow_up_doc_fill,
+                            //             label: 'Return & Cancellations Orders'),
+                            //         SizedBox(height: 8.0),
+                            //         _buildSubMenuItem(
+                            //             theme: theme,
+                            //             icon: CupertinoIcons.doc_checkmark_fill,
+                            //             label: 'Reviews'),
+                            //       ]),
+                            //   _buildExpandableMenuItem(
+                            //       theme: theme,
+                            //       key: 'users',
+                            //       icon: CupertinoIcons.person_2_square_stack_fill,
+                            //       label: 'Users',
+                            //       children: [
+                            //         _buildSubMenuItem(
+                            //             theme: theme,
+                            //             icon: CupertinoIcons
+                            //                 .person_crop_circle_fill_badge_exclam,
+                            //             label: 'New Users'),
+                            //         SizedBox(height: 8.0),
+                            //         _buildSubMenuItem(
+                            //             theme: theme,
+                            //             icon: CupertinoIcons
+                            //                 .person_crop_circle_fill_badge_checkmark,
+                            //             label: 'Regular Users'),
+                            //         SizedBox(height: 8.0),
+                            //         _buildSubMenuItem(
+                            //             theme: theme,
+                            //             icon: CupertinoIcons
+                            //                 .person_crop_circle_fill_badge_minus,
+                            //             label: 'Disabled Users'),
+                            //       ]),
+                            //   _buildMenuItem(
+                            //       theme: theme,
+                            //       icon: CupertinoIcons.chat_bubble_text_fill,
+                            //       label: 'Messages'),
+                            //   _buildMenuItem(
+                            //       theme: theme,
+                            //       icon: CupertinoIcons.person_alt_circle_fill,
+                            //       label: 'Account'),
+                            // ],
                           ),
                         ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: buildSidebarItems(theme, _isCollapsed),
-                        // [
-                        //   _buildMenuItem(
-                        //       theme: theme,
-                        //       icon: CupertinoIcons.house_fill,
-                        //       label: 'Dashboard'),
-                        //   _buildExpandableMenuItem(
-                        //       theme: theme,
-                        //       key: 'products',
-                        //       icon: CupertinoIcons.bag_fill,
-                        //       label: 'Products',
-                        //       children: [
-                        //         _buildSubMenuItem(
-                        //             theme: theme,
-                        //             icon: CupertinoIcons.bag_fill_badge_plus,
-                        //             label: 'Add Products'),
-                        //         SizedBox(height: 8.0),
-                        //         _buildSubMenuItem(
-                        //             theme: theme,
-                        //             icon: CupertinoIcons.bag_fill_badge_minus,
-                        //             label: 'Manage Products'),
-                        //       ]),
-                        //   _buildExpandableMenuItem(
-                        //       theme: theme,
-                        //       key: 'orders',
-                        //       icon: CupertinoIcons.doc_chart_fill,
-                        //       label: 'Orders',
-                        //       children: [
-                        //         _buildSubMenuItem(
-                        //             theme: theme,
-                        //             icon: CupertinoIcons.doc_text_fill,
-                        //             label: 'Order List'),
-                        //         SizedBox(height: 8.0),
-                        //         _buildSubMenuItem(
-                        //             theme: theme,
-                        //             icon: CupertinoIcons.arrow_up_doc_fill,
-                        //             label: 'Return & Cancellations Orders'),
-                        //         SizedBox(height: 8.0),
-                        //         _buildSubMenuItem(
-                        //             theme: theme,
-                        //             icon: CupertinoIcons.doc_checkmark_fill,
-                        //             label: 'Reviews'),
-                        //       ]),
-                        //   _buildExpandableMenuItem(
-                        //       theme: theme,
-                        //       key: 'users',
-                        //       icon: CupertinoIcons.person_2_square_stack_fill,
-                        //       label: 'Users',
-                        //       children: [
-                        //         _buildSubMenuItem(
-                        //             theme: theme,
-                        //             icon: CupertinoIcons
-                        //                 .person_crop_circle_fill_badge_exclam,
-                        //             label: 'New Users'),
-                        //         SizedBox(height: 8.0),
-                        //         _buildSubMenuItem(
-                        //             theme: theme,
-                        //             icon: CupertinoIcons
-                        //                 .person_crop_circle_fill_badge_checkmark,
-                        //             label: 'Regular Users'),
-                        //         SizedBox(height: 8.0),
-                        //         _buildSubMenuItem(
-                        //             theme: theme,
-                        //             icon: CupertinoIcons
-                        //                 .person_crop_circle_fill_badge_minus,
-                        //             label: 'Disabled Users'),
-                        //       ]),
-                        //   _buildMenuItem(
-                        //       theme: theme,
-                        //       icon: CupertinoIcons.chat_bubble_text_fill,
-                        //       label: 'Messages'),
-                        //   _buildMenuItem(
-                        //       theme: theme,
-                        //       icon: CupertinoIcons.person_alt_circle_fill,
-                        //       label: 'Account'),
-                        // ],
+                      Opacity(
+                        opacity: 0.1,
+                        child: const VerticalDivider(
+                          width: 0,
+                        ),
                       ),
-                    ),
+                      kIsWeb ? Flexible(child: _mainArea!) : _mainArea!,
+                    ],
                   ),
-                  Opacity(
-                    opacity: 0.1,
-                    child: const VerticalDivider(
-                      width: 0,
-                    ),
-                  ),
-                  kIsWeb ? Flexible(child: _mainArea!) : _mainArea!,
-                ],
-              ),
+          );
+        },
       ),
     );
   }

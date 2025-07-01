@@ -211,7 +211,7 @@ class _DashboardState extends ConsumerState<Dashboard2> {
         if (index == 1) {
           // cart is selected
           final futurePrefs = await ref.read(sharedPrefFutureProvider.future);
-          final sharedPrefUserID = await futurePrefs.getUsername();
+          final sharedPrefUserID = await futurePrefs.getAdminID();
         }
         WidgetsBinding.instance.addPostFrameCallback((_) {
           widget.navigationShell.goBranch(

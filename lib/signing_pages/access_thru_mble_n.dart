@@ -9,6 +9,7 @@ import 'package:glamgear/dialog/dlog_cmon.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/device_id_helper.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/random_digit_code.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/session_storage_mngr.dart';
 import 'package:glamgear/internal/animations/dlog_uncmon.dart';
 import 'package:glamgear/internal/data_model/local_storage/shared_pref.dart';
 import 'package:glamgear/riverpod/provider.dart';
@@ -197,7 +198,7 @@ class _Logo extends StatelessWidget {
         Column(
           crossAxisAlignment: isSmallScreen
               ? CrossAxisAlignment.center
-              : CrossAxisAlignment.start,
+              : CrossAxisAlignment.center,
           children: [
             //FlutterLogo(size: isSmallScreen ? 100 : 200),
             GetLogo(
@@ -211,7 +212,8 @@ class _Logo extends StatelessWidget {
               child: RetainTextScaleWrapper(
                 child: Text(
                   "Welcome to\nGlamGear!",
-                  textAlign: isSmallScreen ? TextAlign.center : TextAlign.start,
+                  textAlign:
+                      isSmallScreen ? TextAlign.center : TextAlign.center,
                   style: isSmallScreen
                       ? Theme.of(context)
                           .textTheme
@@ -230,7 +232,8 @@ class _Logo extends StatelessWidget {
               child: RetainTextScaleWrapper(
                 child: Text(
                   "We'll send a code to your mobile number",
-                  textAlign: isSmallScreen ? TextAlign.center : TextAlign.start,
+                  textAlign:
+                      isSmallScreen ? TextAlign.center : TextAlign.center,
                   style: isSmallScreen
                       ? Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.normal,
@@ -328,10 +331,10 @@ class _FormContentState extends ConsumerState<_FormContent> {
             .read(checkButtonStateProvider.notifier)
             .isButtonEnabled(); // The method was set to default to true
 
-        CookieManager.addToCookie('functionKey', widget.functionKey);
-        CookieManager.addToCookie('deviceID', _deviceId);
-        CookieManager.addToCookie('mobileNo', mobileNo);
-        CookieManager.addToCookie('isRegistration', widget.isRegistration);
+        SessionStorageManager.setSessionStorage('functionKey', widget.functionKey);
+        SessionStorageManager.setSessionStorage('deviceID', _deviceId);
+        SessionStorageManager.setSessionStorage('mobileNo', mobileNo);
+        SessionStorageManager.setSessionStorage('isRegistration', widget.isRegistration);
 
         kIsWeb
             ? context.go('///access-thru-mobile-no/otp-verifier', extra: {
@@ -399,10 +402,10 @@ class _FormContentState extends ConsumerState<_FormContent> {
             .isButtonEnabled(); // The method was set to default to true
         // developer.log('Observe Async Process: ${result.value}');
 
-        CookieManager.addToCookie('functionKey', widget.functionKey);
-        CookieManager.addToCookie('deviceID', _deviceId);
-        CookieManager.addToCookie('mobileNo', mobileNo);
-        CookieManager.addToCookie('isRegistration', widget.isRegistration);
+        SessionStorageManager.setSessionStorage('functionKey', widget.functionKey);
+        SessionStorageManager.setSessionStorage('deviceID', _deviceId);
+        SessionStorageManager.setSessionStorage('mobileNo', mobileNo);
+        SessionStorageManager.setSessionStorage('isRegistration', widget.isRegistration);
 
         kIsWeb
             ? context.go('///access-thru-mobile-no/otp-verifier', extra: {
@@ -566,35 +569,40 @@ class _FormContentState extends ConsumerState<_FormContent> {
                     return null;
                   },
                   onFieldSubmitted: (value) async {
-                    if (!isButtonEnabled) {
-                      return;
-                    }
-                    ref
-                        .read(checkButtonStateProvider.notifier)
-                        .isButtonEnabled(isEnabled: false);
-                    if (_formKey.currentState?.validate() ?? false) {
-                      /// do something
-                      if (_networkManager.connectionStatus
-                          .contains(ConnectivityResult.none)) {
-                        isSmallScreen
-                            ? _networkManager
-                                .showInternetScaffoldMessenger(context)
-                            : _networkManager.showNoInternetDialog(context);
-                      } else {
-                        setState(() {
-                          _code =
-                              _fourRandomDigitCode.generateSixRandomDigitCode();
-                        });
+                    _dialogUncommon.showAutoDismissDialog(
+                        context,
+                        'Coming soon...',
+                        CupertinoIcons.settings,
+                        Colors.blueAccent);
+                    // if (!isButtonEnabled) { // uncomment if you told so to proceed to this module
+                    //   return;
+                    // }
+                    // ref
+                    //     .read(checkButtonStateProvider.notifier)
+                    //     .isButtonEnabled(isEnabled: false);
+                    // if (_formKey.currentState?.validate() ?? false) {
+                    //   /// do something
+                    //   if (_networkManager.connectionStatus
+                    //       .contains(ConnectivityResult.none)) {
+                    //     isSmallScreen
+                    //         ? _networkManager
+                    //             .showInternetScaffoldMessenger(context)
+                    //         : _networkManager.showNoInternetDialog(context);
+                    //   } else {
+                    //     setState(() {
+                    //       _code =
+                    //           _fourRandomDigitCode.generateSixRandomDigitCode();
+                    //     });
 
-                        String mobileNoStringInterpolation =
-                            '$_countryCode$value';
-                        widget.isRegistration
-                            ? await _processCodeRequestSignUp(
-                                mobileNoStringInterpolation)
-                            : await _processCodeRequestSignIn(
-                                mobileNoStringInterpolation);
-                      }
-                    }
+                    //     String mobileNoStringInterpolation =
+                    //         '$_countryCode$value';
+                    //     widget.isRegistration
+                    //         ? await _processCodeRequestSignUp(
+                    //             mobileNoStringInterpolation)
+                    //         : await _processCodeRequestSignIn(
+                    //             mobileNoStringInterpolation);
+                    //   }
+                    // }
                   },
                   style: TextStyle(
                     color: isDarkMode
@@ -658,36 +666,41 @@ class _FormContentState extends ConsumerState<_FormContent> {
                       borderRadius: BorderRadius.circular(4)),
                 ),
                 onPressed: () async {
-                  if (!isButtonEnabled) {
-                    return;
-                  }
-                  ref
-                      .read(checkButtonStateProvider.notifier)
-                      .isButtonEnabled(isEnabled: false);
-                  developer.log('Button is clicked!');
-                  if (_formKey.currentState?.validate() ?? false) {
-                    /// do something
-                    if (_networkManager.connectionStatus
-                        .contains(ConnectivityResult.none)) {
-                      isSmallScreen
-                          ? _networkManager
-                              .showInternetScaffoldMessenger(context)
-                          : _networkManager.showNoInternetDialog(context);
-                    } else {
-                      setState(() {
-                        _code =
-                            _fourRandomDigitCode.generateSixRandomDigitCode();
-                      });
+                  _dialogUncommon.showAutoDismissDialog(
+                      context,
+                      'Coming soon...',
+                      CupertinoIcons.settings,
+                      Colors.blueAccent);
+                  // if (!isButtonEnabled) { // uncomment if you told so to proceed to this module
+                  //   return;
+                  // }
+                  // ref
+                  //     .read(checkButtonStateProvider.notifier)
+                  //     .isButtonEnabled(isEnabled: false);
+                  // developer.log('Button is clicked!');
+                  // if (_formKey.currentState?.validate() ?? false) {
+                  //   /// do something
+                  //   if (_networkManager.connectionStatus
+                  //       .contains(ConnectivityResult.none)) {
+                  //     isSmallScreen
+                  //         ? _networkManager
+                  //             .showInternetScaffoldMessenger(context)
+                  //         : _networkManager.showNoInternetDialog(context);
+                  //   } else {
+                  //     setState(() {
+                  //       _code =
+                  //           _fourRandomDigitCode.generateSixRandomDigitCode();
+                  //     });
 
-                      String mobileNoStringInterpolation =
-                          '$_countryCode${_mobileNoController.text}';
-                      widget.isRegistration
-                          ? await _processCodeRequestSignUp(
-                              mobileNoStringInterpolation)
-                          : await _processCodeRequestSignIn(
-                              mobileNoStringInterpolation);
-                    }
-                  }
+                  //     String mobileNoStringInterpolation =
+                  //         '$_countryCode${_mobileNoController.text}';
+                  //     widget.isRegistration
+                  //         ? await _processCodeRequestSignUp(
+                  //             mobileNoStringInterpolation)
+                  //         : await _processCodeRequestSignIn(
+                  //             mobileNoStringInterpolation);
+                  //   }
+                  // }
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
@@ -734,7 +747,7 @@ class _FormContentState extends ConsumerState<_FormContent> {
                       ? _networkManager.showInternetScaffoldMessenger(context)
                       : _networkManager.showNoInternetDialog(context);
                 } else {
-                  context.go('///recover-account');
+                  GoRouter.of(context).push('/recover-account');
                 }
               },
               style: TextButton.styleFrom(

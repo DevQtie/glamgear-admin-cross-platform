@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/session_storage_mngr.dart';
 import 'package:glamgear/internal/animations/dlog_uncmon.dart';
 import 'package:glamgear/internal/animations/error_page.dart';
 import 'package:glamgear/internal/core/orders_pages/orders.dart';
@@ -191,6 +192,14 @@ class RouteTransitions {
     //   context.go('/glamgear');
     // },
     errorBuilder: ((context, state) => ErrorPage()),
+    // redirect: (context, state) { I need to optimize this one first...
+    //   if (SessionStorageManager.isSessionStoragePresent('admin_id') &&
+    //       SessionStorageManager.isSessionStoragePresent('full_name') &&
+    //       SessionStorageManager.isSessionStoragePresent('admin_role')) {
+    //     return '/home-b';
+    //   }
+    //   return null;
+    // },
     routes: [
       GoRoute(
         path: '/glamgear',
@@ -213,9 +222,9 @@ class RouteTransitions {
                 return _slideTransitionBtTVv(
                     state,
                     AccessThruMobileNumber(
-                        functionKey: CookieManager.getCookie('functionKey'),
+                        functionKey: SessionStorageManager.getSessionStorage('functionKey'),
                         isRegistration:
-                            CookieManager.getCookieBool('isRegistration')!));
+                            SessionStorageManager.getSessionStorageBool('isRegistration')!));
               }
             },
             routes: [
@@ -242,11 +251,11 @@ class RouteTransitions {
                       return _slideTransitionBtTVv(
                         state,
                         OTPVerifier(
-                          functionKey: CookieManager.getCookie('functionKey'),
-                          deviceID: CookieManager.getCookie('deviceID'),
+                          functionKey: SessionStorageManager.getSessionStorage('functionKey'),
+                          deviceID: SessionStorageManager.getSessionStorage('deviceID'),
                           isRegistration:
-                              CookieManager.getCookieBool('isRegistration')!,
-                          mobileNo: CookieManager.getCookie('mobileNo'),
+                              SessionStorageManager.getSessionStorageBool('isRegistration')!,
+                          mobileNo: SessionStorageManager.getSessionStorage('mobileNo'),
                         ),
                       );
                     }

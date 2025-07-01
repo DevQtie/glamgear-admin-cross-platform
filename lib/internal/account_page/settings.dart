@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
+import 'package:glamgear/global_hlpr_n_wdgt/session_storage_mngr.dart';
 import 'package:glamgear/riverpod/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:glamgear/dialog/dlog_cmon.dart';
@@ -96,7 +97,7 @@ class _SettingsState extends ConsumerState<Settings> {
                 if (GoRouter.of(context).canPop()) {
                   GoRouter.of(context).pop();
                 } else {
-                  if (CookieManager.getCookie('settingsRoutes')
+                  if (SessionStorageManager.getSessionStorage('settingsRoutes')
                       .toString()
                       .contains('/product-view/account')) {
                     context.go('/product-view/account'); // web only

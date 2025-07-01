@@ -7,18 +7,20 @@ import 'dart:developer' as developer;
 class DataModel with ChangeNotifier {
   late SharedPreferences _prefs;
 
-  final _usernameKey = 'username';
+  final _adminIDKey = 'adminID';
+  final _fullnameKey = 'fullname';
+  final _adminRoleKey = 'adminRole';
   final _productIDKey = 'productID';
-  final _previewMethod = 'previewMethod';
+  final _previewMethodKey = 'previewMethod';
   final _productVarIDKey = 'productVarID';
   final _idCardIDKey = 'identificationCard';
   final _accountIDKey = 'accountCredentials';
   final _recentlySearchedKey = 'recentlySearched';
   final _specsPairKey = 'specificationPair';
   final _varPropertiesKey = 'variantProperties';
-  final _promoTag = 'promoTag';
-  final _checkoutInitOnlyOnce = 'checkoutInitOnlyOnce';
-  final _checkoutInstructionOnlyOnce = 'checkoutInstructionOnlyOnce';
+  final _promoTagKey = 'promoTag';
+  final _checkoutInitOnlyOnceKey = 'checkoutInitOnlyOnce';
+  final _checkoutInstructionOnlyOnceKey = 'checkoutInstructionOnlyOnce';
 
   /* Should not be used for sensitive information: [STATUS] Subject for reevaluation */
 
@@ -42,8 +44,18 @@ class DataModel with ChangeNotifier {
 
   //--------------------------------------------DIVISION----------------------------------------//
 
-  Future<void> saveUsername(String username) async {
-    await _prefs.setString(_usernameKey, username);
+  Future<void> saveAdminID(String adminID) async {
+    await _prefs.setString(_adminIDKey, adminID);
+    notifyListeners();
+  }
+
+  Future<void> saveFullname(String fullname) async {
+    await _prefs.setString(_fullnameKey, fullname);
+    notifyListeners();
+  }
+
+  Future<void> saveAdminRole(String adminRole) async {
+    await _prefs.setString(_adminRoleKey, adminRole);
     notifyListeners();
   }
 
@@ -63,7 +75,7 @@ class DataModel with ChangeNotifier {
   }
 
   Future<void> savePreviewMethod(String method) async {
-    await _prefs.setString(_previewMethod, method);
+    await _prefs.setString(_previewMethodKey, method);
     notifyListeners();
   }
 
@@ -78,12 +90,12 @@ class DataModel with ChangeNotifier {
   }
 
   Future<void> toggleTutorialCoachMarkState({bool state = true}) async {
-    await _prefs.setBool(_checkoutInitOnlyOnce, state);
+    await _prefs.setBool(_checkoutInitOnlyOnceKey, state);
     notifyListeners();
   }
 
   Future<void> toggleCheckoutInstructionsState({bool state = true}) async {
-    await _prefs.setBool(_checkoutInstructionOnlyOnce, state);
+    await _prefs.setBool(_checkoutInstructionOnlyOnceKey, state);
     notifyListeners();
   }
 
@@ -287,7 +299,7 @@ class DataModel with ChangeNotifier {
   }
 
   Future<void> savePromoTag(String data) async {
-    List<String> storedHistory = _prefs.getStringList(_promoTag) ?? [];
+    List<String> storedHistory = _prefs.getStringList(_promoTagKey) ?? [];
 
     // Deserialize stored history from JSON strings to a list of maps
     List<Map<String, String>> history = storedHistory.map((entry) {
@@ -324,7 +336,7 @@ class DataModel with ChangeNotifier {
       }).toList();
 
       // Save updated history in SharedPreferences
-      await _prefs.setStringList(_promoTag, updatedHistory);
+      await _prefs.setStringList(_promoTagKey, updatedHistory);
     }
     if (!exists) {
       // Add new entry with current date and time
@@ -347,7 +359,7 @@ class DataModel with ChangeNotifier {
       }).toList();
 
       // Save updated history in SharedPreferences
-      await _prefs.setStringList(_promoTag, updatedHistory);
+      await _prefs.setStringList(_promoTagKey, updatedHistory);
     }
     notifyListeners();
   }
@@ -428,7 +440,7 @@ class DataModel with ChangeNotifier {
   }
 
   Future<void> removeEachPromoTag(String data) async {
-    List<String> storedHistory = _prefs.getStringList(_promoTag) ?? [];
+    List<String> storedHistory = _prefs.getStringList(_promoTagKey) ?? [];
 
     // Deserialize stored history from JSON strings to a list of maps
     List<Map<String, String>> history = storedHistory.map((entry) {
@@ -448,13 +460,21 @@ class DataModel with ChangeNotifier {
     }).toList();
 
     // Save updated history in SharedPreferences
-    await _prefs.setStringList(_promoTag, updatedHistory);
+    await _prefs.setStringList(_promoTagKey, updatedHistory);
   }
 
   //--------------------------------------------DIVISION----------------------------------------//
 
-  Future<String?> getUsername() async {
-    return _prefs.getString(_usernameKey);
+  Future<String?> getAdminID() async {
+    return _prefs.getString(_adminIDKey);
+  }
+
+  Future<String?> getFullname() async {
+    return _prefs.getString(_fullnameKey);
+  }
+  
+  Future<String?> getAdminRole() async {
+    return _prefs.getString(_adminRoleKey);
   }
 
   Future<int?> getProductID() async {
@@ -470,7 +490,7 @@ class DataModel with ChangeNotifier {
   }
 
   Future<String?> getPreviewMethod() async {
-    return _prefs.getString(_previewMethod);
+    return _prefs.getString(_previewMethodKey);
   }
 
   Future<String?> getAccountCredentials() async {
@@ -478,15 +498,27 @@ class DataModel with ChangeNotifier {
   }
 
   Future<bool?> getTutorialCoachMarkState() async {
-    return _prefs.getBool(_checkoutInitOnlyOnce);
+    return _prefs.getBool(_checkoutInitOnlyOnceKey);
   }
 
   bool? getCheckoutInstructionsState() {
-    return _prefs.getBool(_checkoutInstructionOnlyOnce);
+    return _prefs.getBool(_checkoutInstructionOnlyOnceKey);
   }
 
   Future<bool?> removeAccountCredentials() async {
     return await _prefs.remove(_accountIDKey);
+  }
+
+  Future<bool?> removeAdminID() async {
+    return await _prefs.remove(_adminIDKey);
+  }
+
+  Future<bool?> removeFullname() async {
+    return await _prefs.remove(_fullnameKey);
+  }
+
+  Future<bool?> removeAdminRole() async {
+    return await _prefs.remove(_adminRoleKey);
   }
 
   Future<List<Map<String, String>>> getSearchHistory(
@@ -574,7 +606,7 @@ class DataModel with ChangeNotifier {
   Future<List<Map<String, String>>> getPromotionalTags(
       {bool ascending = true}) async {
     final prefs = await SharedPreferences.getInstance();
-    List<String> storedHistory = prefs.getStringList(_promoTag) ?? [];
+    List<String> storedHistory = prefs.getStringList(_promoTagKey) ?? [];
 
     // Deserialize stored history from JSON strings to a list of maps
     // return storedHistory.map((entry) {

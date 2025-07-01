@@ -1,12 +1,14 @@
-import 'package:universal_html/html.dart' as html;
+import 'package:web/web.dart';
 
-class CookieManager {
+class CookieManager { // discontinued
   static void addToCookie(String key, dynamic value) {
     // 2592000 sec = 30 days.
     // 1296000 sec = 15 days.
     int sevenDays = 604800; // 7 days.
     //int oneDay = 86400; // 1 day.
-    html.window.document.cookie = "$key=$value; max-age=$sevenDays; path=/;";
+    final isSecure = window.location.protocol == 'https:';
+    final secureFlag = isSecure ? '; Secure' : '';
+    document.cookie = "$key=$value; max-age=$sevenDays; path=/$secureFlag; SameSite=Lax;";
   }
 
   static bool? getCookieBool(String key) {
@@ -27,7 +29,7 @@ class CookieManager {
   }
 
   static dynamic getCookie(String key) {
-    dynamic cookies = html.window.document.cookie;
+    dynamic cookies = document.cookie;
     if (cookies == null || cookies.isEmpty) {
       return null;
     }
@@ -41,31 +43,19 @@ class CookieManager {
     }
     return null;
   }
+
+  static void removeCookie(String key) {
+    final isSecure = window.location.protocol == 'https:';
+    final secureFlag = isSecure ? '; Secure; SameSite=None' : '';
+    document.cookie = '$key=; Max-Age=0; path=/$secureFlag';
+  }
+
+  static bool isCookiePresent(String key) {
+    String? cookieValue = getCookie(key); // Get the cookie value as a string
+    if (cookieValue == null) {
+      return false; // Cookie is not present
+    } else {
+      return true; // Cookie is present
+    }
+  }
 }
-
-// import 'package:universal_html/html.dart' as html; // not working with >= 3.27.2 Flutter
-
-// class CookieManager {
-
-//   static addToCookie(String key, String value) {
-//      // 2592000 sec = 30 days.
-//      html.document.cookie = "$key=$value; max-age=2592000; path=/;";
-//   }
-
-//   static String getCookie(String key) {
-
-//     String? cookies = html.document.cookie;
-//     List<dynamic> listValues = cookies!.isNotEmpty ? cookies.split(";") : List();
-//     String matchVal = "";
-//     for (int i = 0; i < listValues.length; i++) {
-//       List<String> map = listValues[i].split("=");
-//       String _key = map[0].trim();
-//       String _val = map[1].trim();
-//       if (key == _key) {
-//         matchVal = _val;
-//         break;
-//       }
-//     }
-//     return matchVal;
-//   }
-// }

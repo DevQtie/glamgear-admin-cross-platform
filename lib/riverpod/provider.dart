@@ -80,3 +80,33 @@ final manageDevicePropertiesProvider =
         (ref) {
   return ManageDevicePropertiesNotifier();
 });
+
+final manageCodeRequestProvider = 
+    StateNotifierProvider<ManageCodeRequestNotifier, AsyncValue<dynamic>>(
+        (ref) {
+  return ManageCodeRequestNotifier();
+});
+
+final processUserRequestProvider = 
+    StateNotifierProvider<ProcessUserRequestNotifier, AsyncValue<dynamic>>(
+        (ref) {
+  return ProcessUserRequestNotifier();
+});
+
+final adminIDProvider = 
+    StateNotifierProvider<AdminIDNotifier, dynamic>(
+        (ref) {
+  return AdminIDNotifier();
+});
+
+final fullnameProvider = 
+    StateNotifierProvider<FullnameNotifier, dynamic>(
+        (ref) {
+  return FullnameNotifier();
+});
+
+final adminRoleProvider = 
+    StateNotifierProvider<AdminRoleNotifier, dynamic>(
+        (ref) {
+  return AdminRoleNotifier();
+});
