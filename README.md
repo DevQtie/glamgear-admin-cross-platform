@@ -9,6 +9,10 @@ Raquel GlamGear (GlamGear) Admin Web App
 
 # Changelog
 
+## 1.2.1+1-alpha
+
+* Bad state: Cannot use "ref" after the widget was disposed fixed under FirebaseAuthHelper and SigningHelper classes.
+
 ## 1.2.0+1-alpha
 
 * Implementing semver specification in pubspec.yaml's version.

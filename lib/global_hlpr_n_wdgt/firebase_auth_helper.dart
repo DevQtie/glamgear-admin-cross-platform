@@ -75,9 +75,9 @@ class FirebaseAuthHelper {
           // );
           await SigningHelper.signIn(context, email, ref, devicePlatform,
               isPhysicalDevice, deviceModel, deviceVersion);
+          ref.read(checkButtonStateProvider.notifier).isButtonEnabled();
         }
       }
-      ref.read(checkButtonStateProvider.notifier).isButtonEnabled();
     } on FirebaseAuthException catch (e) {
       developer.log('Firebase Auth Error: ${e.message}');
       if (context.mounted) {
@@ -87,8 +87,8 @@ class FirebaseAuthHelper {
           null,
           null,
         );
+        ref.read(checkButtonStateProvider.notifier).isButtonEnabled();
       }
-      ref.read(checkButtonStateProvider.notifier).isButtonEnabled();
     }
   }
 

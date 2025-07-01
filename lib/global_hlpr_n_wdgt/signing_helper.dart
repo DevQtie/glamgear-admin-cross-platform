@@ -27,16 +27,6 @@ class SigningHelper {
     final result = ref.read(signInUsingUNPasswordProvider);
 
     if (result is AsyncData &&
-        result.value?.adminID == null &&
-        context.mounted) {
-      ref
-          .read(checkButtonStateProvider.notifier)
-          .isButtonEnabled(); // The method was set to default to true
-      FirebaseAuthHelper.signOutUser();
-      if (context.mounted) {
-          context.go('/glamgear');
-      }
-    } else if (result is AsyncData &&
         result.value?.adminID != null &&
         context.mounted) {
       ref
@@ -49,12 +39,12 @@ class SigningHelper {
         context.go('/home-b');
       }
     } else {
-      ref
-          .read(checkButtonStateProvider.notifier)
-          .isButtonEnabled(); // The method was set to default to true
-      FirebaseAuthHelper.signOutUser();
       if (context.mounted) {
-          context.go('/glamgear');
+        ref
+            .read(checkButtonStateProvider.notifier)
+            .isButtonEnabled(); // The method was set to default to true
+        FirebaseAuthHelper.signOutUser();
+        context.go('/glamgear');
       }
     }
   }
@@ -136,10 +126,10 @@ class SigningHelper {
         }
       }
     } else {
-      ref
-          .read(checkButtonStateProvider.notifier)
-          .isButtonEnabled(); // The method was set to default to true
       if (context.mounted) {
+        ref
+            .read(checkButtonStateProvider.notifier)
+            .isButtonEnabled(); // The method was set to default to true
         dialogUncommon.showAutoDismissDialogLonger(
           context,
           'User credential cannot be found!',
@@ -201,14 +191,14 @@ class SigningHelper {
             CupertinoIcons.check_mark_circled, Colors.greenAccent);
       }
 
-      ref
-          .read(dashboardBottomAppBarIndexProvider.notifier)
-          .setIndex(); // to initialize the bottomNavigationBar index
       Future.delayed(const Duration(milliseconds: 1000), () {
-        ref
-            .read(checkButtonStateProvider.notifier)
-            .isButtonEnabled(); // The method was set to default to true
         if (context.mounted) {
+          ref
+              .read(dashboardBottomAppBarIndexProvider.notifier)
+              .setIndex(); // to initialize the bottomNavigationBar index
+          ref
+              .read(checkButtonStateProvider.notifier)
+              .isButtonEnabled(); // The method was set to default to true
           context.go('/home-b');
         }
       });
