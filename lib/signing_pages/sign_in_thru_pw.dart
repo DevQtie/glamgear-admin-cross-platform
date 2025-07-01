@@ -271,19 +271,7 @@ class _FormContentState extends ConsumerState<_FormContent> {
 
     final result = ref.read(signInUsingUNPasswordProvider);
 
-    if (result is AsyncData && result.value?.adminID == null && mounted) {
-      ref
-          .read(checkButtonStateProvider.notifier)
-          .isButtonEnabled(); // The method was set to default to true
-      _dialogUncommon.showAutoDismissDialogLonger(
-        context,
-        'User credential cannot be found!',
-        null,
-        null,
-      );
-    } else if (result is AsyncData &&
-        result.value?.adminID != null &&
-        mounted) {
+    if (result is AsyncData && result.value?.adminID != null && mounted) {
       await ref.read(logAdminWebAccessProvider.notifier).manageAdminWebAccess(
             adminID: result.value?.adminID,
             username: result.value?.username,

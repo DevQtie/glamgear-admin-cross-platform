@@ -70,19 +70,6 @@ class SigningHelper {
     final result = ref.read(signInUsingUNPasswordProvider);
 
     if (result is AsyncData &&
-        result.value?.adminID == null &&
-        context.mounted) {
-      ref
-          .read(checkButtonStateProvider.notifier)
-          .isButtonEnabled(); // The method was set to default to true
-      dialogUncommon.showAutoDismissDialogLonger(
-        context,
-        'User credential cannot be found!',
-        null,
-        null,
-      );
-      FirebaseAuthHelper.signOutUser();
-    } else if (result is AsyncData &&
         result.value?.adminID != null &&
         context.mounted) {
       await ref.read(logAdminWebAccessProvider.notifier).manageAdminWebAccess(

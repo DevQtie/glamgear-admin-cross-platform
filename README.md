@@ -9,6 +9,10 @@ Raquel GlamGear (GlamGear) Admin Web App
 
 # Changelog
 
+## 1.2.2+1-alpha
+
+* Sign in validation bug fixes
+
 ## 1.2.1+1-alpha
 
 * Bad state: Cannot use "ref" after the widget was disposed fixed under FirebaseAuthHelper and SigningHelper classes.
