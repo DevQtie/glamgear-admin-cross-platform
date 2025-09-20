@@ -94,10 +94,15 @@ class SignInUsingUNPasswordNotifier
   SignInUsingUNPasswordNotifier() : super(const AsyncValue.loading());
 
   Future<void> signInUsingUNPassword(
-      {String? username, String? password, bool isGoogleAccount = false}) async {
+      {String? username,
+      String? password,
+      bool isGoogleAccount = false}) async {
     try {
+      state = AsyncValue.loading();
       final response = await _dioHelper.usernamePassSignIn(
-          username: username, password: password, isGoogleAccount: isGoogleAccount);
+          username: username,
+          password: password,
+          isGoogleAccount: isGoogleAccount);
 
       if (response != null && response.runtimeType == List<dynamic>) {
         final List responseListData = response

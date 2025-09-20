@@ -572,9 +572,9 @@ class _DashboardState extends ConsumerState<Dashboard>
       });
     });
     FirebaseAuthHelper.isCurrentlyLoggedInUSer(context, ref);
-    // Future.microtask(() {
-    //   // _retrieveAdminData();
-    // });
+    Future.microtask(() {
+      _retrieveAdminData();
+    });
   }
 
   @override

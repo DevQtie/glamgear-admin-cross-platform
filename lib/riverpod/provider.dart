@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glamgear/api_main/api_helper_dio.dart';
 import 'package:glamgear/internal/data_model/freezed/admin_data.dart';
@@ -10,8 +11,10 @@ import 'package:glamgear/internal/data_model/local_storage/shared_pref.dart';
 import 'package:glamgear/riverpod/state_notifier/state_ntfier_clsses.dart';
 import 'dart:developer' as developer;
 
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 // Necessary for code-generation to work
-// part 'provider.g.dart'; // If prefer to use code generation using: dart run build_runner build
+part 'provider.g.dart'; // If prefer to use code generation using: dart run build_runner build
 
 /// This will create a provider named `retrieveProducts`
 /// which will cache the result of this function.
@@ -75,38 +78,62 @@ final logAdminWebAccessProvider =
   return LogAdminWebAccessNotifier();
 });
 
-final manageDevicePropertiesProvider = 
+final manageDevicePropertiesProvider =
     StateNotifierProvider<ManageDevicePropertiesNotifier, AsyncValue<dynamic>>(
         (ref) {
   return ManageDevicePropertiesNotifier();
 });
 
-final manageCodeRequestProvider = 
+final manageCodeRequestProvider =
     StateNotifierProvider<ManageCodeRequestNotifier, AsyncValue<dynamic>>(
         (ref) {
   return ManageCodeRequestNotifier();
 });
 
-final processUserRequestProvider = 
+final processUserRequestProvider =
     StateNotifierProvider<ProcessUserRequestNotifier, AsyncValue<dynamic>>(
         (ref) {
   return ProcessUserRequestNotifier();
 });
 
-final adminIDProvider = 
-    StateNotifierProvider<AdminIDNotifier, dynamic>(
-        (ref) {
+final adminIDProvider = StateNotifierProvider<AdminIDNotifier, dynamic>((ref) {
   return AdminIDNotifier();
 });
 
-final fullnameProvider = 
-    StateNotifierProvider<FullnameNotifier, dynamic>(
-        (ref) {
+final fullnameProvider =
+    StateNotifierProvider<FullnameNotifier, dynamic>((ref) {
   return FullnameNotifier();
 });
 
-final adminRoleProvider = 
-    StateNotifierProvider<AdminRoleNotifier, dynamic>(
-        (ref) {
+final adminRoleProvider =
+    StateNotifierProvider<AdminRoleNotifier, dynamic>((ref) {
   return AdminRoleNotifier();
 });
+
+final _dioHelper = ApiHelperDio();
+
+@riverpod
+Future<AdminData> signInUsingUNPassword2(Ref ref, String? adminID, String? password, bool? isGoogleAccount) async {
+  try {
+    final response = await _dioHelper.usernamePassSignIn(
+        username: adminID,
+        password: password,
+        isGoogleAccount: isGoogleAccount);
+
+    if (response != null && response.runtimeType == List<dynamic>) {
+      final List responseListData = response
+          .map((json) => json as Map<String, dynamic>)
+          .toList() as List<dynamic>;
+
+      final AdminData jsonListData = responseListData
+          .map((data) => AdminData.fromJson(data as Map<String, dynamic>))
+          .first; // Saved into your data model as List<Map<String, dynamic>>
+
+      return jsonListData;
+    } else {
+      return AdminData();
+    }
+  } catch (e, stackTrace) {
+    return AdminData();
+  }
+}

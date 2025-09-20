@@ -24,7 +24,7 @@ class SigningHelper {
           isGoogleAccount: true,
         );
 
-    final result = ref.read(signInUsingUNPasswordProvider);
+    final result = ref.watch(signInUsingUNPasswordProvider);
 
     if (result is AsyncData &&
         result.value?.adminID != null &&
@@ -67,7 +67,7 @@ class SigningHelper {
           isGoogleAccount: true,
         );
 
-    final result = ref.read(signInUsingUNPasswordProvider);
+    final result = ref.watch(signInUsingUNPasswordProvider);
 
     if (result is AsyncData &&
         result.value?.adminID != null &&
@@ -113,6 +113,7 @@ class SigningHelper {
         }
       }
     } else {
+      FirebaseAuthHelper.signOutUser();
       if (context.mounted) {
         ref
             .read(checkButtonStateProvider.notifier)

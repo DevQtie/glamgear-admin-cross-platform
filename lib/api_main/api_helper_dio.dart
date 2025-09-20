@@ -38,8 +38,8 @@ class ApiHelperDio {
 
   ApiHelperDio() {
     _dio.options.connectTimeout = Duration(
-        seconds:
-            5); // I considered this as a recommended properties because it improves UX when the API or server is down.
+        minutes:
+            1); // I considered this as a recommended properties because it improves UX when the API or server is down.
     _dio.options.receiveTimeout = Duration(
         minutes:
             1); // I prefer to set this as 10 seconds, but I'm worried about the others that has poor network connectivity.

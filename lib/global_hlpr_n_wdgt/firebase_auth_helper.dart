@@ -92,6 +92,24 @@ class FirebaseAuthHelper {
     }
   }
 
+  static Future<void> _retrieveAdminData(
+      BuildContext context, WidgetRef ref) async {
+    final futurePrefs = await ref.read(sharedPrefFutureProvider.future);
+    final sharedPrefAdminID = await futurePrefs.getAdminID();
+    final sharedPrefFullname = await futurePrefs.getFullname();
+    final sharedPrefAdminRole = await futurePrefs.getAdminRole();
+
+    if (sharedPrefAdminID == null && context.mounted) {
+      context.go('/glamgear');
+    } else {
+      ref.read(adminIDProvider.notifier).setAdminID(data: sharedPrefAdminID);
+      ref.read(fullnameProvider.notifier).setFullname(data: sharedPrefFullname);
+      ref
+          .read(adminRoleProvider.notifier)
+          .setAdminRole(data: sharedPrefAdminRole);
+    }
+  }
+
   static Future<void> isCurrentlyLoggedInUSer(
       BuildContext context, WidgetRef ref) async {
     FirebaseAuth.instance.authStateChanges().listen((User? user) async {
@@ -99,7 +117,7 @@ class FirebaseAuthHelper {
         if (user != null) {
           await SigningHelper.verifyAdmin(context, user.email, ref);
         } else {
-          context.go('/glamgear');
+          _retrieveAdminData(context, ref);
         }
       }
     });

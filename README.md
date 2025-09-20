@@ -11,7 +11,7 @@ Raquel GlamGear (GlamGear) Admin Web App
 
 ## 1.2.2+1-alpha
 
-* Sign in validation bug fixes
+* Sign in validation bug fixes.
 
 ## 1.2.1+1-alpha
 

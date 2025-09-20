@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/cookie_manager.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/device_id_helper.dart';
 import 'package:glamgear/global_hlpr_n_wdgt/ovrly_lder_w_app_ic.dart';
+import 'package:glamgear/internal/data_model/freezed/admin_data.dart';
 import 'package:glamgear/internal/data_model/local_storage/shared_pref.dart';
 import 'package:glamgear/riverpod/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -260,24 +261,15 @@ class _FormContentState extends ConsumerState<_FormContent> {
     }
   }
 
-  Future<void> _signIn(
-      DataModel sharedPrefs, String username, String password) async {
-    await ref
-        .read(signInUsingUNPasswordProvider.notifier)
-        .signInUsingUNPassword(
-          username: username,
-          password: password,
-        );
-
-    final result = ref.read(signInUsingUNPasswordProvider);
-
-    if (result is AsyncData && result.value?.adminID != null && mounted) {
+  Future<void> _signIn(AdminData result, DataModel sharedPrefs, String username,
+      String password) async {
+    if (result.adminID != null && mounted) {
       await ref.read(logAdminWebAccessProvider.notifier).manageAdminWebAccess(
-            adminID: result.value?.adminID,
-            username: result.value?.username,
-            fullName: result.value?.fullName,
-            compEmail: result.value?.compEmail,
-            adminRole: result.value?.adminRole,
+            adminID: result.adminID,
+            username: result.username,
+            fullName: result.fullName,
+            compEmail: result.compEmail,
+            adminRole: result.adminRole,
             loginStatus: 'SUCCESSFUL',
           );
 
@@ -297,9 +289,9 @@ class _FormContentState extends ConsumerState<_FormContent> {
       } else {
         await _processDevicePropertiesSignIn(
             sharedPrefs: sharedPrefs,
-            username: result.value!.adminID.toString(),
-            fullName: result.value!.fullName.toString(),
-            adminRole: result.value!.adminRole.toString());
+            username: result.adminID.toString(),
+            fullName: result.fullName.toString(),
+            adminRole: result.adminRole.toString());
       }
     } else {
       ref
@@ -314,6 +306,7 @@ class _FormContentState extends ConsumerState<_FormContent> {
         );
       }
     }
+    print(result.toString());
   }
 
   Future<void> _processDevicePropertiesSignIn(
@@ -333,7 +326,7 @@ class _FormContentState extends ConsumerState<_FormContent> {
           functionKey: 'SIGN-IN',
         );
 
-    final result = ref.read(manageDevicePropertiesProvider);
+    final result = ref.watch(manageDevicePropertiesProvider);
 
     if (result is AsyncData && result.value != 'SUCCESSFUL' && mounted) {
       ref
@@ -356,12 +349,12 @@ class _FormContentState extends ConsumerState<_FormContent> {
             CupertinoIcons.check_mark_circled, Colors.greenAccent);
       }
 
-      // CookieManager.addToCookie(
-      //     'admin_id', username); // discontinued in the meantime
-      // CookieManager.addToCookie(
-      //     'full_name', fullName); // discontinued in the meantime
-      // CookieManager.addToCookie(
-      //     'admin_role', adminRole); // discontinued in the meantime
+      CookieManager.addToCookie(
+          'admin_id', username); // discontinued in the meantime
+      CookieManager.addToCookie(
+          'full_name', fullName); // discontinued in the meantime
+      CookieManager.addToCookie(
+          'admin_role', adminRole); // discontinued in the meantime
       sharedPrefs!.saveAdminID(username!);
       sharedPrefs.saveFullname(fullName!);
       sharedPrefs.saveAdminRole(adminRole!);
@@ -589,17 +582,29 @@ class _FormContentState extends ConsumerState<_FormContent> {
                                 .showInternetScaffoldMessenger(context)
                             : _networkManager.showNoInternetDialog(context);
                       } else {
-                        if (!isButtonEnabled) {
-                          return;
-                        }
-                        ref
-                            .read(checkButtonStateProvider.notifier)
-                            .isButtonEnabled(isEnabled: false);
-                        await _signIn(
-                          sharedPrefs,
-                          _usernameController.text,
-                          _passwordController.text,
-                        );
+                        _dialogUncommon.showAutoDismissDialog(
+                            context,
+                            'Coming soon...',
+                            CupertinoIcons.settings,
+                            Colors.blueAccent);
+                        // if (!isButtonEnabled) { // has bug
+                        //   return;
+                        // }
+                        // ref
+                        //     .read(checkButtonStateProvider.notifier)
+                        //     .isButtonEnabled(isEnabled: false);
+                        // final result = await ref.read(
+                        //     signInUsingUNPassword2Provider(
+                        //             _usernameController.text,
+                        //             _passwordController.text,
+                        //             false)
+                        //         .future);
+                        // await _signIn(
+                        //   result,
+                        //   sharedPrefs,
+                        //   _usernameController.text,
+                        //   _passwordController.text,
+                        // );
                       }
                     }
                   },
@@ -689,17 +694,29 @@ class _FormContentState extends ConsumerState<_FormContent> {
                               .showInternetScaffoldMessenger(context)
                           : _networkManager.showNoInternetDialog(context);
                     } else {
-                      if (!isButtonEnabled) {
-                        return;
-                      }
-                      ref
-                          .read(checkButtonStateProvider.notifier)
-                          .isButtonEnabled(isEnabled: false);
-                      await _signIn(
-                        sharedPrefs,
-                        _usernameController.text,
-                        _passwordController.text,
-                      );
+                      _dialogUncommon.showAutoDismissDialog(
+                          context,
+                          'Coming soon...',
+                          CupertinoIcons.settings,
+                          Colors.blueAccent);
+                      // if (!isButtonEnabled) { // has bug
+                      //   return;
+                      // }
+                      // ref
+                      //     .read(checkButtonStateProvider.notifier)
+                      //     .isButtonEnabled(isEnabled: false);
+                      // final result = await ref.read(
+                      //     signInUsingUNPassword2Provider(
+                      //             _usernameController.text,
+                      //             _passwordController.text,
+                      //             false)
+                      //         .future);
+                      // await _signIn(
+                      //   result,
+                      //   sharedPrefs,
+                      //   _usernameController.text,
+                      //   _passwordController.text,
+                      // );
                     }
                   }
                 },

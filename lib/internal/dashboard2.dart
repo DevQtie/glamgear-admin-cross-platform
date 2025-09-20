@@ -29,9 +29,9 @@ class Dashboard2 extends ConsumerStatefulWidget {
 }
 
 class _DashboardState extends ConsumerState<Dashboard2> {
-  ColoredBox? _mainArea;
-  int _selectedIndex = 0;
-  // final Map<String, bool> _expandedState = {};
+    ColoredBox? _mainArea;
+    int _selectedIndex = 0;
+    // final Map<String, bool> _expandedState = {};
 
   // String? _setProfileName;
 
